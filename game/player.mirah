@@ -4,6 +4,11 @@ require 'utils'
 
 class Player
 
+  PHASE_NOT_PLAYING = 1
+  PHASE_ACTION = 2
+  PHASE_BUY = 3
+  PHASE_CLEANUP = 4
+
   attr_accessor id, name, turn, discards, deck, inPlay, duration, hand, phase, actions, buys, coins, temp, vpTokens
 
   def initialize
@@ -17,7 +22,7 @@ class Player
     shuffleDiscards();
     @hand = [];
 
-    @phase = TurnPhases.NOT_PLAYING
+    @phase = PHASE_NOT_PLAYING
     @actions = 0;
     @buys = 0;
     @coins = 0;
@@ -30,7 +35,7 @@ class Player
 
 
   def turnStart
-    @phase = TurnPhases::ACTION
+    @phase = PHASE_ACTION
     @actions = 1
     @buys = 1
     @coins = 0
@@ -72,7 +77,7 @@ class Player
 
   /* Returns true to continue buying, false to move to the next phase. */
   def turnBuyPhase
-    @phase = TurnPhases::BUY
+    @phase = PHASE_BUY
 
     if @buys <= 0
       return false
@@ -139,7 +144,7 @@ class Player
   end
 
   def turnCleanupPhase
-    @phase = TurnPhases::CLEANUP
+    @phase = PHASE_CLEANUP
 
     @inPlay.each { |c| @discards.push(c) }
     @hand.each { |c| @discards.push(c) }
@@ -149,7 +154,7 @@ class Player
 
   def turnEnd
     logMe('ends turn.')
-    @phase = TurnPhases::NOT_PLAYING
+    @phase = PHASE_NOT_PLAYING
     @turn += 1
   end
 
@@ -221,13 +226,6 @@ class Player
 
   def logMe(str)
     Game.instance.logPlayer(str, self)
-  end
-
-  module TurnPhases
-    NOT_PLAYING = 1
-    ACTION = 2
-    BUY = 3
-    CLEANUP = 4
   end
 
 end
