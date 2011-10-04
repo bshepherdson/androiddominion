@@ -4,6 +4,9 @@ import dominion.Decision
 import dominion.Option
 import dominion.Game
 import dominion.Utils
+import dominion.Card
+
+import java.util.ArrayList
 
 class Player
 
@@ -15,24 +18,24 @@ class Player
 
   def initialize
     # TODO: Set id and name properly. Do we need a game pointer?
-    @turn = 1;
-    @discards = Cards.starterDeck
-    @deck = [];
-    @inPlay = [];
-    @duration = [];
+    @turn = 1
+    @discards = Card.starterDeck
+    @deck = ArrayList.new([])
+    @inPlay = ArrayList.new([])
+    @duration = ArrayList.new([])
 
-    shuffleDiscards();
-    @hand = [];
+    shuffleDiscards()
+    @hand = ArrayList.new([])
 
     @phase = @@PHASE_NOT_PLAYING
-    @actions = 0;
-    @buys = 0;
-    @coins = 0;
-    @vpTokens = 0;
+    @actions = 0
+    @buys = 0
+    @coins = 0
+    @vpTokens = 0
 
-    @temp = {};
-    @temp['gainedLastTurn'] = [];
-    @temp['Contraband cards'] = [];
+    @temp = {}
+    @temp['gainedLastTurn'] = ArrayList.new([])
+    @temp['Contraband cards'] = ArrayList.new([])
   end
 
 
@@ -41,7 +44,7 @@ class Player
     @actions = 1
     @buys = 1
     @coins = 0
-    @temp['gainedLastTurn'] = [];
+    @temp['gainedLastTurn'] = ArrayList.new([])
 
     # TODO: Outpost support
     logMe('starts turn ' + @turn + '.')
@@ -118,11 +121,11 @@ class Player
 
 
   /* Index into the kingdom, and true if we're buying for free */
-  def buyCard(index:Integer, free:Boolean)
+  def buyCard(index:int, free:Boolean)
     inKingdom = Game.instance.kingdom[index]
     if inKingdom.count <= 0
       logMe('fails to ' + (free ? 'gain' : 'buy') + ' ' + inKingdom.card.name + ' because the Supply pile is empty.')
-      return false;
+      return false
     end
 
     @discards.push(inKingdom.card)
@@ -149,8 +152,8 @@ class Player
 
     @inPlay.each { |c| @discards.push(c) }
     @hand.each { |c| @discards.push(c) }
-    @inPlay = []
-    @hand = []
+    @inPlay = ArrayList.new([])
+    @hand = ArrayList.new([])
   end
 
   def turnEnd
@@ -159,7 +162,7 @@ class Player
     @turn += 1
   end
 
-  def draw(n:Integer)
+  def draw(n:int)
     i = 0
     while i < n
       if @deck.length == 0
@@ -175,7 +178,7 @@ class Player
     return drawn
   end
 
-  def discard(index:Integer)
+  def discard(index:int)
     card = @hand[index]
     logMe('discards ' + card.name + '.')
     removeFromHand(index)
@@ -184,22 +187,23 @@ class Player
 
   def shuffleDiscards
     i = @discards.length
-    return if i == 0
+    if i === 0
+      return
+    end
+
     begin
       i -= 1
       j = rand(i+1)
       tempi = @discards[i]
       tempj = @discards[j]
-      @discards[i] = tempj;
-      @discards[j] = tempi;
+      @discards[i] = tempj
+      @discards[j] = tempi
     end while i > 0
 
     @deck = @discards
-    @discards = []
+    @discards = ArrayList.new([])
   end
-end
 
-  /*
   def calculateScore
     score = 0
     gardens = 0
@@ -231,10 +235,10 @@ end
     Game.instance.logPlayer(str, self)
   end
 
-  def id:Integer
+  def id:int
     @id
   end
-  def id=(v:Integer)
+  def id=(v:int)
     @id = v
   end
 
@@ -245,10 +249,10 @@ end
     @name = v
   end
 
-  def turn:Integer
+  def turn:int
     @turn
   end
-  def turn=(v:Integer)
+  def turn=(v:int)
     @turn = v
   end
 
@@ -280,33 +284,32 @@ end
     @hand = v
   end
 
-  def phase:Integer
+  def phase:int
     @phase
   end
-  def phase=(v:Integer)
+  def phase=(v:int)
     @phase = v
   end
 
-  def actions:Integer
+  def actions:int
     @actions
   end
-  def actions=(v:Integer)
+  def actions=(v:int)
     @actions = v
   end
 
-  def buys:Integer
+  def buys:int
     @buys
   end
-  def buys=(v:Integer)
+  def buys=(v:int)
     @buys = v
   end
 
-  def coins:Integer
+  def coins:int
     @coins
   end
-  def coins=(v:Integer)
+  def coins=(v:int)
     @coins = v
   end
 end
-  */
 
