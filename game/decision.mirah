@@ -1,20 +1,28 @@
 package dominion
 
-class Option
-  attr_reader key, text
+import dominion.Player
+import java.util.ArrayList
 
-  def initialize(key, text)
+class Option
+  def initialize(key:String, text:String)
     @key = key
     @text = text
+  end
+
+  def key:String
+    @key
+  end
+
+  def text:String
+    @text
   end
 end
 
 
 class Decision
-  attr_reader player, options, message, info
   @@nextId = 0
 
-  def initialize(player, options, message, info)
+  def initialize(player:Player, options:ArrayList, message:String, info:ArrayList)
     @player = player
     @options = options
     @message = message
