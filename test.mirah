@@ -153,15 +153,43 @@ class RubyList < ArrayList
     end
     sb.toString()
   end
+
+
+  /* NB: uses .equals */
+  def include?(x:Object):boolean
+    i = 0
+    while i < size
+      if get(i).equals(x)
+        return true
+      end
+      i += 1
+    end
+    return false
+  end
+
+  /* NB: uses == */
+  def include_exact?(x:Object):boolean
+    i = 0
+    while i < size
+      if get(i) == x
+        return true
+      end
+      i += 1
+    end
+    return false
+  end
 end
 
 # test whether and how collect works
+s1 = String.new("test")
+s2 = String.new("test")
 arr = RubyList.new
-arr.add "test"
+arr.add s1
 arr.add "strings"
 arr.add "here"
-arr2 = arr.select_index do |x,i|
-  (i % 2) == 0
+if arr.include? s2
+  puts "found"
+else
+  puts "not found"
 end
-puts arr2
 

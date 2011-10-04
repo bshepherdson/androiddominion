@@ -40,13 +40,13 @@ class Game
       @kingdom.add k
     end
 
-    @kingdom.add(Kingdom.new(Card.cards['Copper'], 1000))
-    @kingdom.add(Kingdom.new(Card.cards['Silver'], 1000))
-    @kingdom.add(Kingdom.new(Card.cards['Gold'], 1000))
-    @kingdom.add(Kingdom.new(Card.cards['Estate'], Card.cardCount(Card.cards['Estate'], @players.size)))
-    @kingdom.add(Kingdom.new(Card.cards['Duchy'], Card.cardCount(Card.cards['Duchy'], @players.size)))
-    @kingdom.add(Kingdom.new(Card.cards['Province'], Card.cardCount(Card.cards['Province'], @players.size)))
-    @kingdom.add(Kingdom.new(Card.cards['Curse'], Card.cardCount(Card.cards['Curse'], @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Copper'), 1000))
+    @kingdom.add(Kingdom.new(Card.cards('Silver'), 1000))
+    @kingdom.add(Kingdom.new(Card.cards('Gold'), 1000))
+    @kingdom.add(Kingdom.new(Card.cards('Estate'), Card.cardCount(Card.cards('Estate'), @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Duchy'), Card.cardCount(Card.cards('Duchy'), @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Province'), Card.cardCount(Card.cards('Province'), @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Curse'), Card.cardCount(Card.cards('Curse'), @players.size)))
   end
 
   /* Advances the current player and runs through one turn.
@@ -87,16 +87,16 @@ class Game
     Card(@kingdom.get(indexInKingdom(name)))
   end
 
-  def cardCost(card)
+  def cardCost(card:Card):int
     # TODO: Bridge, Quarry
     card.cost
   end
 
-  def log(str)
+  def log(str:String):void
     puts str
   end
 
-  def logPlayer(str, p)
+  def logPlayer(str:String, p:Player):void
     log(p.name + ' ' + str)
   end
 

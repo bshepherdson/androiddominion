@@ -103,9 +103,9 @@ class Card
 
 
   def initializeCards
-    Card.cards.put('Gold', Gold.new)
-    Card.cards.put('Silver', Silver.new)
-    Card.cards.put('Copper', Copper.new)
+    @@cards.put('Gold', Gold.new)
+    @@cards.put('Silver', Silver.new)
+    @@cards.put('Copper', Copper.new)
   end
 
 end

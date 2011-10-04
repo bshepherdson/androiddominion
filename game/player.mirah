@@ -227,7 +227,7 @@ class Player
   end
 
   def safeFromAttack:String
-    if @hand.include? Card.cards['Moat']
+    if @hand.include? Card.cards('Moat')
       return 'Moat'
     end
 
