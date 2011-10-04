@@ -1,7 +1,15 @@
 package dominion
 
+import dominion.Card
+import dominion.Game
+import dominion.Decision
+import dominion.Option
+import dominion.Player
+
+import java.util.ArrayList
+
 class Utils
-  def self.cardsToOptions(cards)
+  def self.cardsToOptions(cards:ArrayList):ArrayList
     cards.collect.with_index do |c,i|
       Option.new 'card[' + i + ']', c.name
     end
@@ -13,7 +21,7 @@ class Utils
     
 
   /* Takes a block for the card filtering predicate. */
-  def self.gainCardDecision(p, message, done, info, block)
+  def self.gainCardDecision(p:Player, message:String, done:String, info:ArrayList, block:GCDI):String
     kingdom = Game.instance.kingdom
     cards = kingdom.select do |k|
       k.count > 0 and block.run(k.card)
@@ -40,7 +48,7 @@ class Utils
    * Args: Player, message, optional done message, predicate as a block.
    * Returns: the decision key.
    */
-  def self.handDecision(p, message, done, block)
+  def self.handDecision(p:Player, message:String, done:String, block:HandDecI):String
     options = p.hand.select.with_index do |c,i|
       block.run(c) ? Option.new('card[#{i}]', c.name) : nil
     end.select { |o| o }
@@ -52,11 +60,11 @@ class Utils
     Game.instance.decision dec
   end
 
-  def self.showCards(cards)
+  def self.showCards(cards:ArrayList):String
     cards.collect { |c| c.name }.join(', ')
   end
 
-  def self.keyToIndex(key)
+  def self.keyToIndex(key:String):int
     match = key =~ /^card\[(\d+)\]$/
     match ? match.captures[0] : nil
   end
