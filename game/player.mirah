@@ -1,3 +1,4 @@
+package dominion
 
 require 'decision'
 require 'utils'
@@ -104,7 +105,6 @@ class Player
 
     # TODO: Contraband handling
 
-    # design for gainCardDecision:
     key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', info) { |card| Game.instance.cardCost(card) <= @coins }
     index = Utils.keyToIndex(key)
     if index

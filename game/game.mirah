@@ -1,3 +1,4 @@
+package dominion
 
 class Game
   @@instance = Game.new
@@ -29,7 +30,7 @@ class Game
   end
 
   def startGame
-    cards = drawKingdom
+    cards = Card.drawKingdom
     cards.each do |c|
       k = Kingdom.new c, Card.cardCount(c, @players.length)
       @kingdom.push k

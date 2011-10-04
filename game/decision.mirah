@@ -1,3 +1,4 @@
+package dominion
 
 class Option
   attr_reader key, text
