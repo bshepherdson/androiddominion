@@ -1,16 +1,17 @@
 package dominion
 
-require 'decision'
-require 'utils'
+import dominion.Decision
+import dominion.Option
+import dominion.Game
+import dominion.Utils
 
 class Player
 
-  PHASE_NOT_PLAYING = 1
-  PHASE_ACTION = 2
-  PHASE_BUY = 3
-  PHASE_CLEANUP = 4
+  @@PHASE_NOT_PLAYING = 1
+  @@PHASE_ACTION = 2
+  @@PHASE_BUY = 3
+  @@PHASE_CLEANUP = 4
 
-  attr_accessor id, name, turn, discards, deck, inPlay, duration, hand, phase, actions, buys, coins, temp, vpTokens
 
   def initialize
     # TODO: Set id and name properly. Do we need a game pointer?
@@ -23,7 +24,7 @@ class Player
     shuffleDiscards();
     @hand = [];
 
-    @phase = PHASE_NOT_PLAYING
+    @phase = @@PHASE_NOT_PLAYING
     @actions = 0;
     @buys = 0;
     @coins = 0;
@@ -36,7 +37,7 @@ class Player
 
 
   def turnStart
-    @phase = PHASE_ACTION
+    @phase = @@PHASE_ACTION
     @actions = 1
     @buys = 1
     @coins = 0
@@ -78,7 +79,7 @@ class Player
 
   /* Returns true to continue buying, false to move to the next phase. */
   def turnBuyPhase
-    @phase = PHASE_BUY
+    @phase = @@PHASE_BUY
 
     if @buys <= 0
       return false
@@ -117,7 +118,7 @@ class Player
 
 
   /* Index into the kingdom, and true if we're buying for free */
-  def buyCard(index, free)
+  def buyCard(index:Integer, free:Boolean)
     inKingdom = Game.instance.kingdom[index]
     if inKingdom.count <= 0
       logMe('fails to ' + (free ? 'gain' : 'buy') + ' ' + inKingdom.card.name + ' because the Supply pile is empty.')
@@ -144,7 +145,7 @@ class Player
   end
 
   def turnCleanupPhase
-    @phase = PHASE_CLEANUP
+    @phase = @@PHASE_CLEANUP
 
     @inPlay.each { |c| @discards.push(c) }
     @hand.each { |c| @discards.push(c) }
@@ -154,11 +155,11 @@ class Player
 
   def turnEnd
     logMe('ends turn.')
-    @phase = PHASE_NOT_PLAYING
+    @phase = @@PHASE_NOT_PLAYING
     @turn += 1
   end
 
-  def draw(n = 1)
+  def draw(n:Integer)
     i = 0
     while i < n
       if @deck.length == 0
@@ -174,7 +175,7 @@ class Player
     return drawn
   end
 
-  def discard(index)
+  def discard(index:Integer)
     card = @hand[index]
     logMe('discards ' + card.name + '.')
     removeFromHand(index)
@@ -183,7 +184,7 @@ class Player
 
   def shuffleDiscards
     i = @discards.length
-    return if i == 0 # deck is unchanged
+    return if i == 0
     begin
       i -= 1
       j = rand(i+1)
@@ -196,7 +197,9 @@ class Player
     @deck = @discards
     @discards = []
   end
+end
 
+  /*
   def calculateScore
     score = 0
     gardens = 0
@@ -228,5 +231,82 @@ class Player
     Game.instance.logPlayer(str, self)
   end
 
+  def id:Integer
+    @id
+  end
+  def id=(v:Integer)
+    @id = v
+  end
+
+  def name:String
+    @name
+  end
+  def name=(v:String)
+    @name = v
+  end
+
+  def turn:Integer
+    @turn
+  end
+  def turn=(v:Integer)
+    @turn = v
+  end
+
+  def discards:ArrayList
+    @discards
+  end
+  def discards=(v:ArrayList)
+    @discards = v
+  end
+
+  def deck:ArrayList
+    @deck
+  end
+  def deck=(v:ArrayList)
+    @deck = v
+  end
+
+  def inPlay:ArrayList
+    @inPlay
+  end
+  def inPlay=(v:ArrayList)
+    @inPlay = v
+  end
+
+  def hand:ArrayList
+    @hand
+  end
+  def hand=(v:ArrayList)
+    @hand = v
+  end
+
+  def phase:Integer
+    @phase
+  end
+  def phase=(v:Integer)
+    @phase = v
+  end
+
+  def actions:Integer
+    @actions
+  end
+  def actions=(v:Integer)
+    @actions = v
+  end
+
+  def buys:Integer
+    @buys
+  end
+  def buys=(v:Integer)
+    @buys = v
+  end
+
+  def coins:Integer
+    @coins
+  end
+  def coins=(v:Integer)
+    @coins = v
+  end
 end
+  */
 
