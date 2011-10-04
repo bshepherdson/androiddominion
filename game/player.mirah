@@ -89,7 +89,7 @@ class Player
     end
     
     /* First, ask to play a coin or buy a card. */
-    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card') { |c| c.types['Treasure'] }
+    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card') { |c| Card(c).types & Card.Types.TREASURE > 0 }
     index = Utils.keyToIndex key
     if index
       card = @hand[index]
@@ -234,7 +234,7 @@ class Player
     return nil
   end
 
-  def logMe(str:String)
+  def logMe(str:String):void
     Game.instance.logPlayer(str, self)
   end
 

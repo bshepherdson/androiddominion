@@ -34,7 +34,20 @@ class Card
     initializeCards
   end
 
-  def cards(name:String):Card
+  def name:String
+    @name
+  end
+  def types:int
+    @types
+  end
+  def cost:int
+    @cost
+  end
+  def text:String
+    @text
+  end
+
+  def self.cards(name:String):Card
     # looks up the card in the hash and returns it
     Card(@@cards.get(name))
   end

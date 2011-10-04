@@ -61,6 +61,26 @@ class RubyList < ArrayList
   end
 
 
+  interface SelectIndexI do
+    def run(x:Object, i:int):boolean
+      false
+    end
+  end
+
+  def select_index(block:SelectIndexI):RubyList
+    ret = RubyList.new
+    i = 0
+    while i < size
+      x = get(i)
+      if block.run(x,i)
+        ret.add(x)
+      end
+      i += 1
+    end
+    ret
+  end
+
+
   interface FindIndexI do
     def run(x:Object):boolean
       false
@@ -122,8 +142,8 @@ end
 
 class Utils
   def self.cardsToOptions(cards:RubyList):RubyList
-    cards.collect.with_index do |c,i|
-      Option.new 'card[' + i + ']', c.name
+    cards.collect_index do |c,i|
+      Option.new 'card[' + Integer.new(i).toString() + ']', Card(c).name
     end
   end
 
@@ -142,8 +162,10 @@ class Utils
       k.count > 0 and block.run(k.card)
     end
 
-    options = cards.map.with_index do |k,i|
-      Option.new 'card[#{i}]', '(#{ Game.instance.cardCost(k.card) }) #{ k.card.name }'
+    options = cards.collect_index do |k_,i|
+      k = Kingdom(k_)
+      Option.new("card["+Integer.new(i).toString()+"]",
+          "("+ Integer.new(Game.instance.cardCost(k.card)).toString() + ") " + k.card.name)
     end
 
     if done
@@ -164,9 +186,9 @@ class Utils
    * Returns: the decision key.
    */
   def self.handDecision(p:Player, message:String, done:String, block:HandDecI):String
-    options = p.hand.select.with_index do |c,i|
-      block.run(c) ? Option.new('card[#{i}]', c.name) : nil
-    end.select { |o| o }
+    options = p.hand.select_index do |c,i|
+      block.run(c) ? Option.new('card[#{i}]', Card(c).name) : nil
+    end.select { |o| o != nil }
 
     if done
       options.add(Option.new('done', done))

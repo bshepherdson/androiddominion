@@ -77,6 +77,26 @@ class RubyList < ArrayList
   end
 
 
+  interface SelectIndexI do
+    def run(x:Object, i:int):boolean
+      false
+    end
+  end
+
+  def select_index(block:SelectIndexI):RubyList
+    ret = RubyList.new
+    i = 0
+    while i < size
+      x = get(i)
+      if block.run(x,i)
+        ret.add(x)
+      end
+      i += 1
+    end
+    ret
+  end
+
+
   interface FindIndexI do
     def run(x:Object):boolean
       false
@@ -140,5 +160,8 @@ arr = RubyList.new
 arr.add "test"
 arr.add "strings"
 arr.add "here"
-puts arr.join(' !!! ')
+arr2 = arr.select_index do |x,i|
+  (i % 2) == 0
+end
+puts arr2
 
