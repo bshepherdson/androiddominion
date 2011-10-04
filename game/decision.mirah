@@ -1,7 +1,7 @@
 package dominion
 
 import dominion.Player
-import java.util.ArrayList
+import dominion.Utils
 
 class Option
   def initialize(key:String, text:String)
@@ -22,22 +22,34 @@ end
 class Decision
   @@nextId = 0
 
-  def initialize(player:Player, options:ArrayList, message:String, info:ArrayList)
+  def initialize(player:Player, options:RubyList, message:String, info:RubyList)
     @player = player
     @options = options
     @message = message
     @info = info
 
-    if player.temp['Native Village mat'] && player.temp['Native Village mat'].length > 0
-      @info.push('Native Village mat: ' + player.temp['Native Village mat'].collect { |c| c.name }.join(', '))
+    if player.temp['Native Village mat'] and not player.temp['Native Village mat'].isEmpty
+      @info.add('Native Village mat: ' + player.temp['Native Village mat'].collect { |c| c.name }.join(', '))
     end
 
-    @info.push("Hand: " + player.hand.collect { |c| c.name }.join(', '))
+    @info.add("Hand: " + player.hand.collect { |c| Card(c).name }.join(', '))
 
     @info = info
     @id = @@nextId
     @@nextId += 1
   end
 
+  def player:Player
+    @player
+  end
+  def options:RubyList
+    @options
+  end
+  def message:String
+    @message
+  end
+  def info:RubyList
+    @info
+  end
 end
 

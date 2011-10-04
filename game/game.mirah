@@ -3,58 +3,57 @@ package dominion
 import dominion.Player
 import dominion.Decision
 import dominion.Card
-import java.util.ArrayList
 
 class Game
   @@instance = Game.new
 
-  attr_accessor players, turn, kingdom
 
   def initialize
-    @players = []
+    @players = RubyList.new
     @turn = -1
-    @kingdom = []
+    @kingdom = RubyList.new
   end
 
-  def self.instance
+  def self.instance:Game
     @@instance
   end
 
-  def isStarted
+  def isStarted:boolean
     @turn >= 0
   end
 
-  def addPlayer(name)
+  def addPlayer(name:String):Player
     p = Player.new(name)
-    @players.push(p)
+    @players.add(p)
     p
   end
 
-  def decision(dec)
+  def decision(dec:Decision):String
     # TODO: Handle decisions! Needs to be part of the Android/web integration.
+    return ''
   end
 
   def startGame
     cards = Card.drawKingdom
     cards.each do |c|
-      k = Kingdom.new c, Card.cardCount(c, @players.length)
-      @kingdom.push k
+      k = Kingdom.new c, Card.cardCount(c, @players.size)
+      @kingdom.add k
     end
 
-    @kingdom.push(Kingdom.new(Card.cards['Copper'], 1000))
-    @kingdom.push(Kingdom.new(Card.cards['Silver'], 1000))
-    @kingdom.push(Kingdom.new(Card.cards['Gold'], 1000))
-    @kingdom.push(Kingdom.new(Card.cards['Estate'], Card.cardCount(Card.cards['Estate'], @players.length)))
-    @kingdom.push(Kingdom.new(Card.cards['Duchy'], Card.cardCount(Card.cards['Duchy'], @players.length)))
-    @kingdom.push(Kingdom.new(Card.cards['Province'], Card.cardCount(Card.cards['Province'], @players.length)))
-    @kingdom.push(Kingdom.new(Card.cards['Curse'], Card.cardCount(Card.cards['Curse'], @players.length)))
+    @kingdom.add(Kingdom.new(Card.cards['Copper'], 1000))
+    @kingdom.add(Kingdom.new(Card.cards['Silver'], 1000))
+    @kingdom.add(Kingdom.new(Card.cards['Gold'], 1000))
+    @kingdom.add(Kingdom.new(Card.cards['Estate'], Card.cardCount(Card.cards['Estate'], @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards['Duchy'], Card.cardCount(Card.cards['Duchy'], @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards['Province'], Card.cardCount(Card.cards['Province'], @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards['Curse'], Card.cardCount(Card.cards['Curse'], @players.size)))
   end
 
   /* Advances the current player and runs through one turn.
    * Returns true when the game is over.
    */
-  def playTurn
-    @turn = (@turn + 1) % @players.length
+  def playTurn:boolean
+    @turn = (@turn + 1) % @players.size
     p = @players[@turn]
 
     p.turnStart
@@ -72,20 +71,20 @@ class Game
     checkEndOfGame
   end
 
-  def checkEndOfGame
+  def checkEndOfGame:boolean
     province = cardInKingdom('Province')
-    empties = @kingdom.select { |k| k.count == 0 }.length
+    empties = @kingdom.select { |k| Kingdom(k).count == 0 }.size
 
     province.count == 0 or empties >= 3
   end
 
 
-  def indexInKingdom(name)
-    @kingdom.find_index { |k| k.card.name === name }
+  def indexInKingdom(name:String):int
+    @kingdom.find_index { |k| Kingdom(k).card.name.equals(name) }
   end
 
-  def cardInKingdom(name)
-    @kingdom[indexInKingdom(name)]
+  def cardInKingdom(name:String):Card
+    Card(@kingdom.get(indexInKingdom(name)))
   end
 
   def cardCost(card)
@@ -94,11 +93,32 @@ class Game
   end
 
   def log(str)
-    # Do nothing
+    puts str
   end
 
   def logPlayer(str, p)
     log(p.name + ' ' + str)
+  end
+
+  def players:RubyList
+    @players
+  end
+  def players=(v:RubyList)
+    @players = v
+  end
+
+  def turn:int
+    @turn
+  end
+  def turn=(v:int)
+    @turn = v
+  end
+
+  def kingdom:RubyList
+    @kingdom
+  end
+  def kingdom=(v:RubyList)
+    @kingdom = v
   end
 end
 

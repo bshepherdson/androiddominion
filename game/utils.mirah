@@ -7,23 +7,122 @@ import dominion.Option
 import dominion.Player
 
 import java.util.ArrayList
+import java.util.regex.*
+
+/* Utility class that includes various helper methods. */
+class RubyList < ArrayList
+  interface CollectI do
+    def run(x:Object):Object; end
+  end
+
+  def collect(block:CollectI):RubyList
+    ret = RubyList.new
+    i = 0
+    while i < size
+      ret.add(block.run(get(i)))
+      i += 1
+    end
+    ret
+  end
+
+
+  interface CollectIndexI do
+    def run(x:Object, i:int):Object; end
+  end
+
+  def collect_index(block:CollectIndexI):RubyList
+    ret = RubyList.new
+    i = 0
+    while i < size
+      ret.add(block.run(get(i), i))
+      i += 1
+    end
+    ret
+  end
+
+
+  interface SelectI do
+    def run(x:Object):boolean
+      false
+    end
+  end
+
+  def select(block:SelectI):RubyList
+    ret = RubyList.new
+    i = 0
+    while i < size
+      x = get(i)
+      if block.run(x)
+        ret.add(x)
+      end
+      i += 1
+    end
+    ret
+  end
+
+
+  interface FindIndexI do
+    def run(x:Object):boolean
+      false
+    end
+  end
+
+  def find_index(block:FindIndexI):int
+    i = 0
+    while i < size
+      if block.run(get(i))
+        return i
+      end
+      i += 1
+    end
+    return -1
+  end
+
+
+  interface EachWithIndexI do
+    def run(x:Object, i:int); end
+  end
+
+  def each_with_index(block:EachWithIndexI)
+    i = 0
+    while i < size
+      block.run(get(i), i)
+      i += 1
+    end
+  end
+
+
+  interface EachI do
+    def run(x:Object); end
+  end
+
+  def each(block:EachI)
+    i = 0
+    while i < size
+      block.run(get(i))
+      i += 1
+    end
+  end
+end
+
 
 class Utils
-  def self.cardsToOptions(cards:ArrayList):ArrayList
+  def self.cardsToOptions(cards:RubyList):RubyList
     cards.collect.with_index do |c,i|
       Option.new 'card[' + i + ']', c.name
     end
   end
 
   interface GCDI do
-    def run(c:Card):Boolean; end
+    def run(c:Card):boolean; end
   end
     
 
   /* Takes a block for the card filtering predicate. */
-  def self.gainCardDecision(p:Player, message:String, done:String, info:ArrayList, block:GCDI):String
+  def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, block:GCDI):String
     kingdom = Game.instance.kingdom
-    cards = kingdom.select do |k|
+    cards = kingdom.select do |k_|
+      k = Kingdom(k_)
       k.count > 0 and block.run(k.card)
     end
 
@@ -32,7 +131,7 @@ class Utils
     end
 
     if done
-      options.push(Option.new('done', done))
+      options.add(Option.new('done', done))
     end
 
     dec = Decision.new p, options, message, info
@@ -54,19 +153,24 @@ class Utils
     end.select { |o| o }
 
     if done
-      options.push(Option.new('done', done))
+      options.add(Option.new('done', done))
     end
-    dec = Decision.new p, options, message, []
+    dec = Decision.new p, options, message, RubyList.new()
     Game.instance.decision dec
   end
 
-  def self.showCards(cards:ArrayList):String
-    cards.collect { |c| c.name }.join(', ')
+  def self.showCards(cards:RubyList):String
+    cards.collect { |c| Card(c).name }.join(', ')
   end
 
   def self.keyToIndex(key:String):int
-    match = key =~ /^card\[(\d+)\]$/
-    match ? match.captures[0] : nil
+    regex = Pattern.compile("^card\\[(\\d+)\\]$")
+    matcher = regex.matcher("done")
+    if matcher.matches
+      return Integer.parseInt(matcher.group(1))
+    else
+      return -1
+    end
   end
 
 end

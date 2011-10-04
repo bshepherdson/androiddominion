@@ -20,12 +20,12 @@ class Player
     # TODO: Set id and name properly. Do we need a game pointer?
     @turn = 1
     @discards = Card.starterDeck
-    @deck = ArrayList.new([])
-    @inPlay = ArrayList.new([])
-    @duration = ArrayList.new([])
+    @deck = RubyList.new
+    @inPlay = RubyList.new
+    @duration = RubyList.new
 
     shuffleDiscards()
-    @hand = ArrayList.new([])
+    @hand = RubyList.new
 
     @phase = @@PHASE_NOT_PLAYING
     @actions = 0
@@ -34,8 +34,8 @@ class Player
     @vpTokens = 0
 
     @temp = {}
-    @temp['gainedLastTurn'] = ArrayList.new([])
-    @temp['Contraband cards'] = ArrayList.new([])
+    @temp['gainedLastTurn'] = RubyList.new
+    @temp['Contraband cards'] = RubyList.new
   end
 
 
@@ -44,7 +44,7 @@ class Player
     @actions = 1
     @buys = 1
     @coins = 0
-    @temp['gainedLastTurn'] = ArrayList.new([])
+    @temp['gainedLastTurn'] = RubyList.new
 
     # TODO: Outpost support
     logMe('starts turn ' + @turn + '.')
@@ -53,12 +53,12 @@ class Player
   end
 
   /* Returns true to continue playing actions, false to move to the next phase. */
-  def turnActionPhase
+  def turnActionPhase:boolean
     return false unless @actions > 0
 
     options = Utils.cardsToOptions(@hand)
-    options.push(Option.new('buy', 'Proceed to Buy phase'))
-    options.push(Option.new('coins', 'Play all basic coins and proceed to Buy phase.'))
+    options.add(Option.new('buy', 'Proceed to Buy phase'))
+    options.add(Option.new('coins', 'Play all basic coins and proceed to Buy phase.'))
     dec = Decision.new(self, options, 'Play an Action card or proceed to the Buy phase.', [
       'Actions: ' + @actions,
       'Buys: ' + @buys,
@@ -81,7 +81,7 @@ class Player
   end
 
   /* Returns true to continue buying, false to move to the next phase. */
-  def turnBuyPhase
+  def turnBuyPhase:boolean
     @phase = @@PHASE_BUY
 
     if @buys <= 0
@@ -94,7 +94,7 @@ class Player
     if index
       card = @hand[index]
       removeFromHand(index)
-      @inPlay.push(card)
+      @inPlay.add(card)
       @coin += Card.treasureValues[card.name]
 
       logMe('plays ' + card.name + '.')
@@ -121,14 +121,15 @@ class Player
 
 
   /* Index into the kingdom, and true if we're buying for free */
-  def buyCard(index:int, free:Boolean)
+  /* Returns whether the purchase was successful. */
+  def buyCard(index:int, free:boolean):boolean
     inKingdom = Game.instance.kingdom[index]
     if inKingdom.count <= 0
       logMe('fails to ' + (free ? 'gain' : 'buy') + ' ' + inKingdom.card.name + ' because the Supply pile is empty.')
       return false
     end
 
-    @discards.push(inKingdom.card)
+    @discards.add(inKingdom.card)
     inKingdom.count -= 1
 
     logMe((free ? 'gains' : 'buys') +' '+ inKingdom.card.name + '.')
@@ -150,10 +151,10 @@ class Player
   def turnCleanupPhase
     @phase = @@PHASE_CLEANUP
 
-    @inPlay.each { |c| @discards.push(c) }
-    @hand.each { |c| @discards.push(c) }
-    @inPlay = ArrayList.new([])
-    @hand = ArrayList.new([])
+    @discards.addAll(@inPlay)
+    @discards.addAll(@hand)
+    @inPlay = RubyList.new
+    @hand = RubyList.new
   end
 
   def turnEnd
@@ -162,32 +163,34 @@ class Player
     @turn += 1
   end
 
-  def draw(n:int)
+  def draw(n:int):int
     i = 0
     while i < n
-      if @deck.length == 0
+      if @deck.isEmpty
         logMe('reshuffles.')
         shuffleDiscards
-        return i if @deck.length == 0 # nothing to draw. rare but possible.
+        if @deck.isEmpty
+          return i
+        end
       end
 
       card = @deck.pop
-      @hand.push(card)
+      @hand.add(card)
       i += 1
     end
-    return drawn
+    return n
   end
 
   def discard(index:int)
     card = @hand[index]
     logMe('discards ' + card.name + '.')
     removeFromHand(index)
-    @discards.push(card)
+    @discards.add(card)
   end
 
   def shuffleDiscards
-    i = @discards.length
-    if i === 0
+    i = @discards.size
+    if i == 0
       return
     end
 
@@ -201,10 +204,10 @@ class Player
     end while i > 0
 
     @deck = @discards
-    @discards = ArrayList.new([])
+    @discards = RubyList.new
   end
 
-  def calculateScore
+  def calculateScore:int
     score = 0
     gardens = 0
 
@@ -219,11 +222,11 @@ class Player
       end
     end
 
-    score += gardens * deck.length.div(10)
+    score += gardens * (deck.size / 10)
     return score
   end
 
-  def safeFromAttack
+  def safeFromAttack:String
     if @hand.include? Card.cards['Moat']
       return 'Moat'
     end
@@ -231,7 +234,7 @@ class Player
     return nil
   end
 
-  def logMe(str)
+  def logMe(str:String)
     Game.instance.logPlayer(str, self)
   end
 
@@ -256,31 +259,31 @@ class Player
     @turn = v
   end
 
-  def discards:ArrayList
+  def discards:RubyList
     @discards
   end
-  def discards=(v:ArrayList)
+  def discards=(v:RubyList)
     @discards = v
   end
 
-  def deck:ArrayList
+  def deck:RubyList
     @deck
   end
-  def deck=(v:ArrayList)
+  def deck=(v:RubyList)
     @deck = v
   end
 
-  def inPlay:ArrayList
+  def inPlay:RubyList
     @inPlay
   end
-  def inPlay=(v:ArrayList)
+  def inPlay=(v:RubyList)
     @inPlay = v
   end
 
-  def hand:ArrayList
+  def hand:RubyList
     @hand
   end
-  def hand=(v:ArrayList)
+  def hand=(v:RubyList)
     @hand = v
   end
 
