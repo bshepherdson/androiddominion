@@ -101,6 +101,30 @@ class Card
     end
   end
 
+  def self.victoryValues(name:String):int
+    if name.equals('Estate')
+      return 1
+    elsif name.equals('Duchy')
+      return 3
+    elsif name.equals('Province')
+      return 6
+    end
+    return 0
+  end
+
+  def self.treasureValues(name:String):int
+    if name.equals('Copper')
+      return 1
+    elsif name.equals('Silver')
+      return 2
+    elsif name.equals('Gold')
+      return 3
+    end
+    return 0
+  end
+
+
+
 
   def initializeCards
     @@cards.put('Gold', Gold.new)

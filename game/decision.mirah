@@ -28,10 +28,6 @@ class Decision
     @message = message
     @info = info
 
-    if player.temp['Native Village mat'] and not player.temp['Native Village mat'].isEmpty
-      @info.add('Native Village mat: ' + player.temp['Native Village mat'].collect { |c| c.name }.join(', '))
-    end
-
     @info.add("Hand: " + player.hand.collect { |c| Card(c).name }.join(', '))
 
     @info = info

@@ -211,7 +211,7 @@ class Utils
    * Returns: the decision key.
    */
   def self.handDecision(p:Player, message:String, done:String, block:HandDecI):String
-    options = p.hand.select_index do |c_,i|
+    options = p.hand.collect_index do |c_,i|
       c = Card(c_)
       block.run(c) ? Option.new('card[#{i}]', c.name) : nil
     end.select { |o| o != nil }

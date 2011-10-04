@@ -7,6 +7,7 @@ import dominion.Utils
 import dominion.Card
 
 import java.util.ArrayList
+import java.util.HashMap
 
 class Player
 
@@ -32,10 +33,6 @@ class Player
     @buys = 0
     @coins = 0
     @vpTokens = 0
-
-    @temp = {}
-    @temp['gainedLastTurn'] = RubyList.new
-    @temp['Contraband cards'] = RubyList.new
   end
 
 
@@ -44,7 +41,6 @@ class Player
     @actions = 1
     @buys = 1
     @coins = 0
-    @temp['gainedLastTurn'] = RubyList.new
 
     # TODO: Outpost support
     logMe('starts turn ' + @turn + '.')
@@ -65,9 +61,9 @@ class Player
       'Coins: ' + @coins
     ])
     key = Game.instance.decision dec
-    if key === 'buy'
+    if key.equals('buy')
       logMe('ends Action phase.')
-    elsif key === 'coin'
+    elsif key.equals('coin')
       logMe('ends Action phase.')
       playCoins()
     else
@@ -196,11 +192,11 @@ class Player
 
     begin
       i -= 1
-      j = rand(i+1)
-      tempi = @discards[i]
-      tempj = @discards[j]
-      @discards[i] = tempj
-      @discards[j] = tempi
+      j = Math.floor(Math.random()*(i+1))
+      tempi = @discards.get(i)
+      tempj = @discards.get(j)
+      @discards.set(i, tempj)
+      @discards.set(j, tempi)
     end while i > 0
 
     @deck = @discards
@@ -211,13 +207,19 @@ class Player
     score = 0
     gardens = 0
 
-    deck = @hand + @deck + @discards
-    deck.each do |c|
-      if c.name === 'Gardens'
+    deck = RubyList.new
+    deck.addAll(@hand)
+    deck.addAll(@deck)
+    deck.addAll(@discards)
+
+    i = 0
+    while i < deck.size
+      c = Card(deck.get(i))
+      if c.name.equals('Gardens')
         gardens += 1
-      elsif c.types['Victory']
-        score += Card.victoryValues[c.name]
-      elsif c.types['Curse']
+      elsif c.types & Card.Types.VICTORY > 0
+        score += Card.victoryValues(c.name)
+      elsif c.name.equals('Curse')
         score -= 1
       end
     end
