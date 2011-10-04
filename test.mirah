@@ -142,9 +142,3 @@ arr.add "strings"
 arr.add "here"
 puts arr.join(' !!! ')
 
-
-/*
-# testing the game engine
-puts Card.cards
-*/
-
