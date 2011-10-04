@@ -119,6 +119,20 @@ class RubyList < ArrayList
       i += 1
     end
   end
+
+
+  def join(sep:String):String
+    sb = StringBuffer.new
+    i = 0
+    while i < size
+      sb.append(get(i))
+      if (i+1) < size
+        sb.append(sep)
+      end
+      i += 1
+    end
+    sb.toString()
+  end
 end
 
 # test whether and how collect works
@@ -126,9 +140,7 @@ arr = RubyList.new
 arr.add "test"
 arr.add "strings"
 arr.add "here"
-arr.each do |n:Object|
-  puts n.toString()
-end
+puts arr.join(' !!! ')
 
 
 /*

@@ -103,6 +103,20 @@ class RubyList < ArrayList
       i += 1
     end
   end
+
+
+  def join(sep:String):String
+    sb = StringBuffer.new
+    i = 0
+    while i < size
+      sb.append(get(i))
+      if (i+1) < size
+        sb.append(sep)
+      end
+      i += 1
+    end
+    sb.toString()
+  end
 end
 
 
@@ -114,7 +128,9 @@ class Utils
   end
 
   interface GCDI do
-    def run(c:Card):boolean; end
+    def run(c:Card):boolean
+      false
+    end
   end
     
 

@@ -72,7 +72,8 @@ class Card
   end
 
   def everyPlayer(p:Player, includeMe:Boolean, isAttack:Boolean, block:EveryOtherI)
-    Game.instance.players.each_with_index do |o,i|
+    Game.instance.players.each_with_index do |o_,i|
+      o = Player(o_)
       if not includeMe and Game.instance.players[i].id == p.id
         next
       end
