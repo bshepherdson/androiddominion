@@ -1,5 +1,10 @@
 package dominion
 
+import dominion.Player
+import dominion.Decision
+import dominion.Card
+import java.util.ArrayList
+
 class Game
   @@instance = Game.new
 
@@ -95,4 +100,26 @@ class Game
   def logPlayer(str, p)
     log(p.name + ' ' + str)
   end
+end
+
+class Kingdom
+  def card:Card
+    @card
+  end
+  def card=(v:Card)
+    @card = v
+  end
+
+  def count:int
+    @count
+  end
+  def count=(v:int)
+    @count = v
+  end
+
+  def initialize(card:Card, count:int)
+    @card = card
+    @count = count
+  end
+end
 
