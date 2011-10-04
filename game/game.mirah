@@ -35,18 +35,19 @@ class Game
 
   def startGame
     cards = Card.drawKingdom
-    cards.each do |c|
-      k = Kingdom.new c, Card.cardCount(c, @players.size)
-      @kingdom.add k
-    end
+    playerCount = @players.size
+    kingdom.addAll(cards.collect do |c_|
+      c = Card(c_)
+      Kingdom.new c, Card(c).cardCount(playerCount)
+    end)
 
     @kingdom.add(Kingdom.new(Card.cards('Copper'), 1000))
     @kingdom.add(Kingdom.new(Card.cards('Silver'), 1000))
     @kingdom.add(Kingdom.new(Card.cards('Gold'), 1000))
-    @kingdom.add(Kingdom.new(Card.cards('Estate'), Card.cardCount(Card.cards('Estate'), @players.size)))
-    @kingdom.add(Kingdom.new(Card.cards('Duchy'), Card.cardCount(Card.cards('Duchy'), @players.size)))
-    @kingdom.add(Kingdom.new(Card.cards('Province'), Card.cardCount(Card.cards('Province'), @players.size)))
-    @kingdom.add(Kingdom.new(Card.cards('Curse'), Card.cardCount(Card.cards('Curse'), @players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Estate'), Card.cards('Estate').cardCount(@players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Duchy'), Card.cards('Duchy').cardCount(@players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Province'), Card.cards('Province').cardCount(@players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Curse'), Card.cards('Curse').cardCount(@players.size)))
   end
 
   /* Advances the current player and runs through one turn.
@@ -54,7 +55,7 @@ class Game
    */
   def playTurn:boolean
     @turn = (@turn + 1) % @players.size
-    p = @players[@turn]
+    p = Player(@players.get(@turn))
 
     p.turnStart
     begin
@@ -66,13 +67,13 @@ class Game
     end while ret
     
     p.turnCleanupPhase
-    p.endTurn
+    p.turnEnd
 
     checkEndOfGame
   end
 
   def checkEndOfGame:boolean
-    province = cardInKingdom('Province')
+    province = inKingdom('Province')
     empties = @kingdom.select { |k| Kingdom(k).count == 0 }.size
 
     province.count == 0 or empties >= 3
@@ -83,8 +84,12 @@ class Game
     @kingdom.find_index { |k| Kingdom(k).card.name.equals(name) }
   end
 
+  def inKingdom(name:String):Kingdom
+    Kingdom(@kingdom.get(indexInKingdom(name)))
+  end
+
   def cardInKingdom(name:String):Card
-    Card(@kingdom.get(indexInKingdom(name)))
+    inKingdom(name).card
   end
 
   def cardCost(card:Card):int

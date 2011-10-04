@@ -2,5 +2,5 @@ package dominion
 
 import dominion.Card
 
-puts Card.cards
+puts Card.allCards
 

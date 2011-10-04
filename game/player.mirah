@@ -17,8 +17,9 @@ class Player
   @@PHASE_CLEANUP = 4
 
 
-  def initialize
+  def initialize(name:String)
     # TODO: Set id and name properly. Do we need a game pointer?
+    @name = name
     @turn = 1
     @discards = Card.starterDeck
     @deck = RubyList.new
@@ -55,11 +56,14 @@ class Player
     options = Utils.cardsToOptions(@hand)
     options.add(Option.new('buy', 'Proceed to Buy phase'))
     options.add(Option.new('coins', 'Play all basic coins and proceed to Buy phase.'))
-    dec = Decision.new(self, options, 'Play an Action card or proceed to the Buy phase.', [
-      'Actions: ' + @actions,
-      'Buys: ' + @buys,
-      'Coins: ' + @coins
-    ])
+
+    info = RubyList.new
+    info.add('Actions: ' + @actions)
+    info.add('Buys: ' + @buys)
+    info.add('Coins: ' + @coins)
+
+    dec = Decision.new(self, options, 'Play an Action card or proceed to the Buy phase.', info)
+
     key = Game.instance.decision dec
     if key.equals('buy')
       logMe('ends Action phase.')
@@ -68,13 +72,33 @@ class Player
       playCoins()
     else
       index = Utils.keyToIndex(key)
-      if index
+      if index >= 0
         playAction(index)
         return true
       end
     end
     return false
   end
+
+
+  def playAction(index:int):void
+    if index < 0 or index >= @hand.size
+      return
+    end
+
+    card = Card(@hand.get(index))
+    if card.types & CardTypes.ACTION == 0
+      return
+    end
+
+    removeFromHand(index)
+    @inPlay.add(card)
+    @actions -= 1
+
+    logMe('plays ' + card.name + '.')
+    card.runRules(self)
+  end
+
 
   /* Returns true to continue buying, false to move to the next phase. */
   def turnBuyPhase:boolean
@@ -85,29 +109,29 @@ class Player
     end
     
     /* First, ask to play a coin or buy a card. */
-    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card') { |c| Card(c).types & Card.Types.TREASURE > 0 }
+    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card') { |c| Card(c).types & CardTypes.TREASURE > 0 }
     index = Utils.keyToIndex key
-    if index
-      card = @hand[index]
+    if index >= 0
+      card = Card(@hand.get(index))
       removeFromHand(index)
       @inPlay.add(card)
-      @coin += Card.treasureValues[card.name]
+      @coins += Card.treasureValues(card.name)
 
       logMe('plays ' + card.name + '.')
       return true
     end
       
     /* player chose to buy a card */
-    info = [
-      'Buys: ' + @buys,
-      'Coins: ' + @coins
-    ]
+    info = RubyList.new
+    info.add('Buys: ' + @buys)
+    info.add('Coins: ' + @coins)
 
     # TODO: Contraband handling
 
-    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', info) { |card| Game.instance.cardCost(card) <= @coins }
+    coins = @coins
+    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', info) { |card| Game.instance.cardCost(Card(card)) <= coins }
     index = Utils.keyToIndex(key)
-    if index
+    if index >= 0
       buyCard(index, false)
       return true
     else
@@ -119,7 +143,7 @@ class Player
   /* Index into the kingdom, and true if we're buying for free */
   /* Returns whether the purchase was successful. */
   def buyCard(index:int, free:boolean):boolean
-    inKingdom = Game.instance.kingdom[index]
+    inKingdom = Kingdom(Game.instance.kingdom.get(index))
     if inKingdom.count <= 0
       logMe('fails to ' + (free ? 'gain' : 'buy') + ' ' + inKingdom.card.name + ' because the Supply pile is empty.')
       return false
@@ -137,7 +161,7 @@ class Player
     end
 
     if not free
-      @coin -= Game.instance.cardCost(inKingdom.card)
+      @coins -= Game.instance.cardCost(inKingdom.card)
       @buys -= 1
     end
 
@@ -177,8 +201,12 @@ class Player
     return n
   end
 
+  def removeFromHand(index:int):void
+    @hand = @hand.select_index do |c,i| i != index end
+  end
+
   def discard(index:int)
-    card = @hand[index]
+    card = Card(@hand.get(index))
     logMe('discards ' + card.name + '.')
     removeFromHand(index)
     @discards.add(card)
@@ -192,7 +220,7 @@ class Player
 
     begin
       i -= 1
-      j = Math.floor(Math.random()*(i+1))
+      j = int(Math.floor(Math.random()*(i+1)))
       tempi = @discards.get(i)
       tempj = @discards.get(j)
       @discards.set(i, tempj)
@@ -217,7 +245,7 @@ class Player
       c = Card(deck.get(i))
       if c.name.equals('Gardens')
         gardens += 1
-      elsif c.types & Card.Types.VICTORY > 0
+      elsif c.types & CardTypes.VICTORY > 0
         score += Card.victoryValues(c.name)
       elsif c.name.equals('Curse')
         score -= 1
@@ -234,6 +262,20 @@ class Player
     end
 
     return nil
+  end
+
+  def playCoins:void
+    i = 0
+    while i < @hand.size
+      card = Card(@hand.get(i))
+      if Card.basicCoin?(card.name)
+        removeFromHand(i)
+        @inPlay.add(card)
+        @coins += Card.treasureValues(card.name)
+      else
+        i += 1
+      end
+    end
   end
 
   def logMe(str:String):void

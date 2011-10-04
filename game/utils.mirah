@@ -162,6 +162,11 @@ class RubyList < ArrayList
     end
     return false
   end
+
+
+  def pop:Object
+    remove(size-1)
+  end
 end
 
 
@@ -202,7 +207,9 @@ class Utils
   end
 
   interface HandDecI do
-    def run(c:Card):Boolean; end
+    def run(c:Card):boolean
+      false
+    end
   end
 
   /* Choose a card from (a subset of) the hand.

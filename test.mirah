@@ -178,18 +178,21 @@ class RubyList < ArrayList
     end
     return false
   end
+
+
+  def pop:Object
+    remove(size-1)
+  end
 end
 
 # test whether and how collect works
-s1 = String.new("test")
-s2 = String.new("test")
 arr = RubyList.new
-arr.add s1
+arr.add "test"
 arr.add "strings"
 arr.add "here"
-if arr.include? s2
-  puts "found"
-else
-  puts "not found"
-end
+puts arr
+puts "==========="
+puts arr.pop
+puts "==========="
+puts arr
 

@@ -13,29 +13,45 @@ import java.util.HashMap
  * the Card superclass that take a block.
  */
 
+class CardTypes
+  @@TREASURE = 1
+  @@ACTION = 2
+  @@VICTORY = 4
+  @@REACTION = 8
+  @@ATTACK = 16
+  @@CURSE = 32
+
+  def self.TREASURE; @@TREASURE; end
+  def self.ACTION; @@ACTION; end
+  def self.VICTORY; @@VICTORY; end
+  def self.REACTION; @@REACTION; end
+  def self.ATTACK; @@ATTACK; end
+  def self.CURSE; @@CURSE; end
+end
+
 class Card
   @@cards = HashMap.new
 
-  class Types
-    @@TREASURE = 1
-    @@ACTION = 2
-    @@VICTORY = 4
-    @@REACTION = 8
-    @@ATTACK = 16
-    @@CURSE = 32
-  end
+  @@SET_COMMON = 1
+  @@SET_BASE = 2
+  def self.SET_COMMON; @@SET_COMMON; end
+  def self.SET_BASE; @@SET_BASE; end
 
-  def initialize(name:String, types:int, cost:int, text:String)
+  def initialize(name:String, set:int, types:int, cost:int, text:String)
     @name = name
+    @set = set
     @types = types
     @cost = cost
     @text = text
 
-    initializeCards
+    Card.initializeCards
   end
 
   def name:String
     @name
+  end
+  def set:int
+    @set
   end
   def types:int
     @types
@@ -50,6 +66,9 @@ class Card
   def self.cards(name:String):Card
     # looks up the card in the hash and returns it
     Card(@@cards.get(name))
+  end
+  def self.allCards:HashMap
+    @@cards
   end
 
   # abstract method to be implemented by each subclass.
@@ -80,21 +99,21 @@ class Card
     def run(p:Player, o:Player); end
   end
 
-  def everyOtherPlayer(p:Player, isAttack:Boolean, block:EveryOtherI)
+  def everyOtherPlayer(p:Player, isAttack:boolean, block:EveryOtherI)
     everyPlayer(p, false, isAttack, block)
   end
 
-  def everyPlayer(p:Player, includeMe:Boolean, isAttack:Boolean, block:EveryOtherI)
+  def everyPlayer(p:Player, includeMe:boolean, isAttack:boolean, block:EveryOtherI)
     Game.instance.players.each_with_index do |o_,i|
       o = Player(o_)
-      if not includeMe and Game.instance.players[i].id == p.id
-        next
+      if not includeMe and Player(Game.instance.players.get(i)).id == p.id
+        return
       end
 
       protectedBy = o.safeFromAttack
       if isAttack and protectedBy
         o.logMe 'is protected by ' + protectedBy + '.'
-        next
+        return
       end
 
       block.run p, o
@@ -123,10 +142,42 @@ class Card
     return 0
   end
 
+  def self.basicCoin?(name:String):boolean
+    name.equals('Copper') or name.equals('Silver') or name.equals('Gold')
+  end
 
 
+  # TODO: Implement me
+  def self.starterDeck:RubyList
+    RubyList.new
+  end
 
-  def initializeCards
+
+  def self.drawKingdom
+    all = RubyList.new
+    all.addAll(@@cards.values)
+    kingdomCards = all.select do |c|
+      Card(c).set != Card.SET_COMMON
+    end
+
+    drawn = RubyList.new
+
+    while drawn.size < 10
+      i = int(Math.floor(Math.random()*kingdomCards.size))
+      if not drawn.include?(kingdomCards.get(i))
+        drawn.add(kingdomCards.get(i))
+      end
+    end
+
+    drawn
+  end
+
+
+  def cardCount(players:int):int
+    10
+  end
+
+  def self.initializeCards
     @@cards.put('Gold', Gold.new)
     @@cards.put('Silver', Silver.new)
     @@cards.put('Copper', Copper.new)
@@ -137,19 +188,31 @@ end
 
 class Gold < Card
   def initialize
-    super('Gold', Card.Types.TREASURE, 6, '')
+    super('Gold', Card.SET_COMMON, CardTypes.TREASURE, 6, '')
+  end
+
+  def cardCount(players:int)
+    1000
   end
 end
 
 class Silver < Card
   def initialize
-    super('Silver', Card.Types.TREASURE, 3, '')
+    super('Silver', Card.SET_COMMON, CardTypes.TREASURE, 3, '')
+  end
+
+  def cardCount(players:int)
+    1000
   end
 end
 
 class Copper < Card
   def initialize
-    super('Copper', Card.Types.TREASURE, 0, '')
+    super('Copper', Card.SET_COMMON, CardTypes.TREASURE, 0, '')
+  end
+
+  def cardCount(players:int)
+    1000
   end
 end
 
