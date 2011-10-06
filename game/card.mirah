@@ -16,7 +16,7 @@ import java.util.HashMap
  */
 
 class Card
-  @@cards = HashMap.new
+  @@cards
 
   def initialize(name:String, set:int, types:int, cost:int, text:String)
     @name = name
@@ -24,8 +24,6 @@ class Card
     @types = types
     @cost = cost
     @text = text
-
-    Card.initializeCards
   end
 
   def name:String
@@ -80,14 +78,17 @@ class Card
     def run(p:Player, o:Player); end
   end
 
-  def everyOtherPlayer(p:Player, isAttack:boolean, block:EveryOtherI)
-    everyPlayer(p, false, isAttack, block)
+  interface EveryI do
+    def run(p:Player, o:Player); end
   end
 
-  def everyPlayer(p:Player, includeMe:boolean, isAttack:boolean, block:EveryOtherI)
+  # TODO: Refactor every(Other)Player to remove the duplication.
+  /*
+  def everyOtherPlayer(p:Player, isAttack:boolean, block:EveryOtherI)
+    #everyPlayer(p, false, isAttack, block)
     Game.instance.players.each_with_index do |o_,i|
       o = Player(o_)
-      if not includeMe and Player(Game.instance.players.get(i)).id == p.id
+      if Player(Game.instance.players.get(i)).id == p.id
         return
       end
 
@@ -100,6 +101,20 @@ class Card
       block.run p, o
     end
   end
+
+  def everyPlayer(p:Player, isAttack:boolean, block:EveryI)
+    Game.instance.players.each_with_index do |o_,i|
+      o = Player(o_)
+      protectedBy = o.safeFromAttack
+      if isAttack and protectedBy != nil and not protectedBy.isEmpty()
+        o.logMe 'is protected by ' + protectedBy + '.'
+        return
+      end
+
+      block.run p, o
+    end
+  end
+  */
 
   def self.victoryValues(name:String):int
     if name.equals('Estate')
@@ -159,6 +174,7 @@ class Card
   end
 
   def self.initializeCards
+    @@cards = HashMap.new
     @@cards.put('Gold', Gold.new)
     @@cards.put('Silver', Silver.new)
     @@cards.put('Copper', Copper.new)
