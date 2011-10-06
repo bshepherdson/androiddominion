@@ -157,6 +157,7 @@ class Card
     @@cards.put('Estate', Estate.new)
     @@cards.put('Duchy', Duchy.new)
     @@cards.put('Province', Province.new)
+    @@cards.put('Curse', Curse.new)
   end
 
 end
@@ -230,4 +231,20 @@ end
 class Estate   < BasicVictory; def initialize; super('Estate',   2); end; end
 class Duchy    < BasicVictory; def initialize; super('Duchy',    5); end; end
 class Province < BasicVictory; def initialize; super('Province', 8); end; end
+
+class Curse < Card
+  def initialize
+    super('Curse', CardSets.COMMON, CardTypes.CURSE, 0, '')
+  end
+  
+  def cardCount(players:int)
+    if players <= 2
+      10
+    elsif players == 3
+      20
+    else
+      30
+    end
+  end
+end
 
