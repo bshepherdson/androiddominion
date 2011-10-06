@@ -154,6 +154,9 @@ class Card
     @@cards.put('Gold', Gold.new)
     @@cards.put('Silver', Silver.new)
     @@cards.put('Copper', Copper.new)
+    @@cards.put('Estate', Estate.new)
+    @@cards.put('Duchy', Duchy.new)
+    @@cards.put('Province', Province.new)
   end
 
 end
@@ -199,10 +202,9 @@ class EveryPlayerInfo
 end
 
 
-
-class Gold < Card
-  def initialize
-    super('Gold', CardSets.COMMON, CardTypes.TREASURE, 6, '')
+class BasicCoin < Card
+  def initialize(name:String, cost:int)
+    super(name, CardSets.COMMON, CardTypes.TREASURE, cost, '')
   end
 
   def cardCount(players:int)
@@ -210,23 +212,22 @@ class Gold < Card
   end
 end
 
-class Silver < Card
-  def initialize
-    super('Silver', CardSets.COMMON, CardTypes.TREASURE, 3, '')
+class Gold   < BasicCoin; def initialize; super('Gold',   6); end; end
+class Silver < BasicCoin; def initialize; super('Silver', 3); end; end
+class Copper < BasicCoin; def initialize; super('Copper', 0); end; end
+
+
+class BasicVictory < Card
+  def initialize(name:String, cost:int)
+    super(name, CardSets.COMMON, CardTypes.VICTORY, cost, '')
   end
 
   def cardCount(players:int)
-    1000
+    players > 2 ? 12 : 8;
   end
 end
 
-class Copper < Card
-  def initialize
-    super('Copper', CardSets.COMMON, CardTypes.TREASURE, 0, '')
-  end
-
-  def cardCount(players:int)
-    1000
-  end
-end
+class Estate   < BasicVictory; def initialize; super('Estate',   2); end; end
+class Duchy    < BasicVictory; def initialize; super('Duchy',    5); end; end
+class Province < BasicVictory; def initialize; super('Province', 8); end; end
 
