@@ -74,47 +74,23 @@ class Card
     p.logMe 'gains +' + n + ' Card' + (n == 1 ? '' : 's') + '.'
   end
 
-  interface EveryOtherI do
-    def run(p:Player, o:Player); end
-  end
-
-  interface EveryI do
-    def run(p:Player, o:Player); end
-  end
-
-  # TODO: Refactor every(Other)Player to remove the duplication.
-  /*
-  def everyOtherPlayer(p:Player, isAttack:boolean, block:EveryOtherI)
+  def everyPlayer(epi:EveryPlayerInfo)
     #everyPlayer(p, false, isAttack, block)
     Game.instance.players.each_with_index do |o_,i|
       o = Player(o_)
-      if Player(Game.instance.players.get(i)).id == p.id
+      if not epi.includeMe and Player(Game.instance.players.get(i)).id == epi.p.id
         return
       end
 
       protectedBy = o.safeFromAttack
-      if isAttack and protectedBy
+      if epi.isAttack and protectedBy != nil and not protectedBy.isEmpty()
         o.logMe 'is protected by ' + protectedBy + '.'
         return
       end
 
-      block.run p, o
+      epi.block.run epi.p, o
     end
   end
-
-  def everyPlayer(p:Player, isAttack:boolean, block:EveryI)
-    Game.instance.players.each_with_index do |o_,i|
-      o = Player(o_)
-      protectedBy = o.safeFromAttack
-      if isAttack and protectedBy != nil and not protectedBy.isEmpty()
-        o.logMe 'is protected by ' + protectedBy + '.'
-        return
-      end
-
-      block.run p, o
-    end
-  end
-  */
 
   def self.victoryValues(name:String):int
     if name.equals('Estate')
@@ -181,6 +157,47 @@ class Card
   end
 
 end
+
+class EveryPlayerInfo
+
+  def initialize(p:Player, includeMe:boolean, isAttack:boolean)
+    @p = p
+    @includeMe = includeMe
+    @isAttack = isAttack
+  end
+
+  def p:Player
+    @p
+  end
+  def p=(v:Player)
+    @p = v
+  end
+
+  def includeMe:boolean
+    @includeMe
+  end
+  def includeMe=(v:boolean)
+    @includeMe = v
+  end
+
+  def isAttack:boolean
+    @isAttack
+  end
+  def isAttack=(v:boolean)
+    @isAttack = v
+  end
+
+  interface EveryPlayerI do
+    def run(p:Player, o:Player); end
+  end
+  def block:EveryPlayerI
+    @block
+  end
+  def block=(block:EveryPlayerI)
+    @block = block
+  end
+end
+
 
 
 class Gold < Card
