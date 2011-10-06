@@ -3,6 +3,8 @@ package dominion
 import dominion.Game
 import dominion.Player
 import dominion.Card
+import dominion.CardTypes
+import dominion.CardSets
 
 import java.util.HashMap
 
@@ -13,29 +15,8 @@ import java.util.HashMap
  * the Card superclass that take a block.
  */
 
-class CardTypes
-  @@TREASURE = 1
-  @@ACTION = 2
-  @@VICTORY = 4
-  @@REACTION = 8
-  @@ATTACK = 16
-  @@CURSE = 32
-
-  def self.TREASURE; @@TREASURE; end
-  def self.ACTION; @@ACTION; end
-  def self.VICTORY; @@VICTORY; end
-  def self.REACTION; @@REACTION; end
-  def self.ATTACK; @@ATTACK; end
-  def self.CURSE; @@CURSE; end
-end
-
 class Card
   @@cards = HashMap.new
-
-  @@SET_COMMON = 1
-  @@SET_BASE = 2
-  def self.SET_COMMON; @@SET_COMMON; end
-  def self.SET_BASE; @@SET_BASE; end
 
   def initialize(name:String, set:int, types:int, cost:int, text:String)
     @name = name
@@ -157,7 +138,7 @@ class Card
     all = RubyList.new
     all.addAll(@@cards.values)
     kingdomCards = all.select do |c|
-      Card(c).set != Card.SET_COMMON
+      Card(c).set != CardSets.COMMON
     end
 
     drawn = RubyList.new
@@ -188,7 +169,7 @@ end
 
 class Gold < Card
   def initialize
-    super('Gold', Card.SET_COMMON, CardTypes.TREASURE, 6, '')
+    super('Gold', CardSets.COMMON, CardTypes.TREASURE, 6, '')
   end
 
   def cardCount(players:int)
@@ -198,7 +179,7 @@ end
 
 class Silver < Card
   def initialize
-    super('Silver', Card.SET_COMMON, CardTypes.TREASURE, 3, '')
+    super('Silver', CardSets.COMMON, CardTypes.TREASURE, 3, '')
   end
 
   def cardCount(players:int)
@@ -208,7 +189,7 @@ end
 
 class Copper < Card
   def initialize
-    super('Copper', Card.SET_COMMON, CardTypes.TREASURE, 0, '')
+    super('Copper', CardSets.COMMON, CardTypes.TREASURE, 0, '')
   end
 
   def cardCount(players:int)
