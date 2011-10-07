@@ -163,6 +163,10 @@ class RubyList < ArrayList
     return false
   end
 
+  def indexOf(x:Object):int
+    find_index { |y| x == y }
+  end
+
 
   def pop:Object
     remove(size-1)

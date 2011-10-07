@@ -106,10 +106,11 @@ class Player
     end
     
     /* First, ask to play a coin or buy a card. */
-    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 })
+    treasures = @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
+    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', treasures)
     index = Utils.keyToIndex key
     if index >= 0
-      card = removeFromHand(index)
+      card = removeFromHand(hand.indexOf(treasures.get(index)))
       @inPlay.add(card)
       @coins += Card.treasureValues(card.name)
 
