@@ -158,6 +158,8 @@ class Card
     @@cards.put('Duchy', Duchy.new)
     @@cards.put('Province', Province.new)
     @@cards.put('Curse', Curse.new)
+
+    @@cards.put('Cellar', Cellar.new)
   end
 
 end
@@ -197,7 +199,7 @@ class EveryPlayerInfo
   def block:EveryPlayerI
     @block
   end
-  def block=(block:EveryPlayerI)
+  def setBlock(block:EveryPlayerI)
     @block = block
   end
 end
@@ -244,6 +246,39 @@ class Curse < Card
       20
     else
       30
+    end
+  end
+end
+
+
+##########################################################
+# KINGDOM CARDS
+##########################################################
+
+class Cellar < Card
+  def initialize
+    super('Cellar', CardSets.BASE, CardTypes.ACTION, 2, '+1 Action. Discard any number of cards. +1 Card per card discarded.')
+  end
+
+  def runRules(p:Player)
+    plusActions p, 1
+
+    discards = 0
+    while not p.hand.isEmpty
+      key = Utils.handDecision(p, 'Choose a card to discard, or stop discarding.', 'Done discarding.') do |c|
+        true
+      end
+
+      if key.equals('done')
+        break
+      end
+      index = Utils.keyToIndex(key)
+      p.discard(index)
+      discards += 1
+    end
+
+    if discards > 0
+      plusCards p, discards
     end
   end
 end
