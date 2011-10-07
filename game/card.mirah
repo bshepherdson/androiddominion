@@ -173,6 +173,7 @@ class Card
 
   def self.initializeCards
     @@cards = HashMap.new
+    # Common
     @@cards.put('Gold', Gold.new)
     @@cards.put('Silver', Silver.new)
     @@cards.put('Copper', Copper.new)
@@ -181,6 +182,7 @@ class Card
     @@cards.put('Province', Province.new)
     @@cards.put('Curse', Curse.new)
 
+    # Base
     @@cards.put('Cellar', Cellar.new)
     @@cards.put('Chapel', Chapel.new)
     @@cards.put('Chancellor', Chancellor.new)
@@ -191,6 +193,8 @@ class Card
     @@cards.put('Workshop', Workshop.new)
     @@cards.put('Bureaucrat', Bureaucrat.new)
     @@cards.put('Feast', Feast.new)
+    @@cards.put('Moat', Moat.new)
+    @@cards.put('Militia', Militia.new)
   end
 
 end
@@ -422,6 +426,40 @@ class Feast < Card
   end
 end
 
+
+class Moat < Card
+  def initialize
+    super('Moat', CardSets.BASE, CardTypes.ACTION | CardTypes.REACTION, 2, '+2 Cards. When another player plays an Attack card, you may reveal this from your hand. If you do, you are unaffected by that Attack.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 2
+  end
+end
+
+
+class Militia < Card
+  def initialize
+    super('Militia', CardSets.BASE, CardTypes.ACTION | CardTypes.ATTACK, 4, '+2 Coins. Each other player discards down to 3 cards in their hand.')
+  end
+
+  def runRules(p:Player)
+    plusCoins p, 2
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    if o.hand.size <= 3
+      o.logMe('has only ' + Integer.new(o.hand.size).toString() + ' cards in hand.')
+      return
+    end
+
+    while o.hand.size > 3
+      card = Utils.handDecision(o, p.name + ' has played Militia. You must discard down to 3 cards in your hand; choose a card to discard.', nil, o.hand)
+      o.discard card
+    end
+  end
+end
 
 
 
