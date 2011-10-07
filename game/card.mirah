@@ -51,7 +51,7 @@ class Card
   end
 
   # abstract method to be implemented by each subclass.
-  def runRules(p:Player); end
+  def runRules(p:Player):void; end
 
   # helper rules
   def plusCoins(p:Player, n:int)
@@ -184,6 +184,7 @@ class Card
     @@cards.put('Woodcutter', Woodcutter.new)
     @@cards.put('Gardens', Gardens.new)
     @@cards.put('Moneylender', Moneylender.new)
+    @@cards.put('Workshop', Workshop.new)
   end
 
 end
@@ -395,4 +396,22 @@ class Moneylender < Card
   end
 end
 
+
+class Workshop < Card
+  def initialize
+    super('Workshop', CardSets.BASE, CardTypes.ACTION, 3, 'Gain a card costing up to 4 Coins.')
+  end
+
+  def runRules(p:Player):void
+    kCards = Game.instance.kingdom.select { |k| Kingdom(k).card.cost <= 4 }
+    key = Utils.gainCardDecision(p, 'Gain a card costing up to 4 Coin.', 'Gain nothing.', RubyList.new, kCards)
+    if key.equals('done')
+      # TODO: Is choosing to gain nothing with Workshop legal?
+      p.logMe('chooses to gain nothing.')
+    else
+      index = Utils.keyToIndex(key)
+      p.buyCard(Game.instance.indexInKingdom(Kingdom(kCards.get(index)).card.name), true)
+    end
+  end
+end
 
