@@ -203,6 +203,7 @@ class Card
     @@cards.put('Council Room', CouncilRoom.new)
     @@cards.put('Festival', Festival.new)
     @@cards.put('Laboratory', Laboratory.new)
+    @@cards.put('Library', Library.new)
   end
 
 end
@@ -687,6 +688,48 @@ class Laboratory < Card
   def runRules(p:Player)
     plusCards p, 2
     plusActions p, 1
+  end
+end
+
+
+class Library < Card
+  def initialize
+    super('Library', CardSets.BASE, CardTypes.ACTION, 5, 'Draw until you have 7 cards in hand. You may set aside any Action cards drawn this way, as you draw them; discard the set aside cards after you finish drawing.')
+  end
+
+  def runRules(p:Player)
+    setAside = RubyList.new
+
+    while (p.deck.size > 0 or p.discards.size > 0) and p.hand.size < 7
+      if p.deck.size == 0
+        p.shuffleDiscards
+      end
+
+      card = Card(p.deck.pop)
+      if card.types & CardTypes.ACTION > 0
+        options = RubyList.new
+        options.add(Option.new('take', 'Take it into your hand.'))
+        options.add(Option.new('discard', 'Set it aside.'))
+        dec = Decision.new(p, options, 'You drew an Action, ' + card.name + '. You can either draw it into your hand or set it aside (and later discard it).', RubyList.new)
+        key = Game.instance.decision(dec)
+
+        if key.equals('take')
+          p.logMe('draws a card.')
+          p.hand.add(card)
+        else
+          p.logMe('sets aside ' + card.name + '.')
+          setAside.add(card)
+        end
+      else
+        p.logMe('draws a card.')
+        p.hand.add(card)
+      end
+    end
+
+    if setAside.size > 0
+      p.discards.addAll(setAside)
+      p.logMe('discards the set aside cards.')
+    end
   end
 end
 
