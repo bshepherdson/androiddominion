@@ -195,6 +195,7 @@ class Card
     @@cards.put('Feast', Feast.new)
     @@cards.put('Moat', Moat.new)
     @@cards.put('Militia', Militia.new)
+    @@cards.put('Remodel', Remodel.new)
   end
 
 end
@@ -372,7 +373,7 @@ class Workshop < Card
   end
 
   def runRules(p:Player):void
-    kCards = Game.instance.kingdom.select { |k| Kingdom(k).card.cost <= 4 }
+    kCards = Game.instance.kingdom.select { |k| Game.instance.cardCost(Kingdom(k).card) <= 4 }
     kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 4 Coin.', nil, RubyList.new, kCards)
     p.buyCard(kCard, true)
   end
@@ -421,7 +422,7 @@ class Feast < Card
       p.inPlay.pop
     end
 
-    kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 5 Coins.', nil, RubyList.new, Game.instance.kingdom.select { |k| Kingdom(k).card.cost <= 5 })
+    kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 5 Coins.', nil, RubyList.new, Game.instance.kingdom.select { |k| Game.instance.cardCost(Kingdom(k).card) <= 5 })
     p.buyCard(kCard, true)
   end
 end
@@ -458,6 +459,28 @@ class Militia < Card
       card = Utils.handDecision(o, p.name + ' has played Militia. You must discard down to 3 cards in your hand; choose a card to discard.', nil, o.hand)
       o.discard card
     end
+  end
+end
+
+
+class Remodel < Card
+  def initialize
+    super('Remodel', CardSets.BASE, CardTypes.ACTION, 4, 'Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashes card.')
+  end
+
+  def runRules(p:Player)
+    if p.hand.size == 0
+      p.logMe('has no cards to trash.')
+      return
+    end
+
+    toTrash = Utils.handDecision(p, 'Trash a card from your hand.', nil, p.hand)
+    p.removeFromHand(toTrash)
+    p.logMe('trashes ' + toTrash.name)
+
+    newCost = Game.instance.cardCost(toTrash) + 2
+    toGain = Utils.gainCardDecision(p, 'Gain a card costing up to ' + Integer.new(newCost).toString + '.', nil, RubyList.new, Game.instance.kingdom.select { |k| Game.instance.cardCost(Kingdom(k).card) <= newCost })
+    p.buyCard(toGain, true)
   end
 end
 
