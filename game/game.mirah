@@ -62,7 +62,7 @@ class Game
       rescue NumberFormatException => nfe
         next
       end
-    end while index < 0
+    end while index < 0 and index <= dec.options.size
 
     return Option(dec.options.get(index-1)).key
   end

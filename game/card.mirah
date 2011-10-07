@@ -134,31 +134,24 @@ class Card
     deck
   end
 
-  # TODO: Replace this testing version with the real thing.
-  def self.drawKingdom
+  def self.drawKingdom:RubyList
+    all = RubyList.new
+    all.addAll(@@cards.values)
+    kingdomCards = all.select do |c|
+      Card(c).set != CardSets.COMMON
+    end
+
     drawn = RubyList.new
-    drawn.add(Card.cards('Cellar'))
+
+    while drawn.size < 10 and drawn.size < kingdomCards.size
+      i = int(Math.floor(Math.random()*kingdomCards.size))
+      if not drawn.include?(kingdomCards.get(i))
+        drawn.add(kingdomCards.get(i))
+      end
+    end
+
     drawn
   end
-
-  #def self.drawKingdom
-  #  all = RubyList.new
-  #  all.addAll(@@cards.values)
-  #  kingdomCards = all.select do |c|
-  #    Card(c).set != CardSets.COMMON
-  #  end
-
-  #  drawn = RubyList.new
-
-  #  while drawn.size < 10
-  #    i = int(Math.floor(Math.random()*kingdomCards.size))
-  #    if not drawn.include?(kingdomCards.get(i))
-  #      drawn.add(kingdomCards.get(i))
-  #    end
-  #  end
-
-  #  drawn
-  #end
 
 
   def cardCount(players:int):int
@@ -176,6 +169,7 @@ class Card
     @@cards.put('Curse', Curse.new)
 
     @@cards.put('Cellar', Cellar.new)
+    @@cards.put('Chapel', Chapel.new)
   end
 
 end
@@ -296,4 +290,27 @@ class Cellar < Card
     end
   end
 end
+
+
+class Chapel < Card
+  def initialize
+    super('Chapel', CardSets.BASE, CardTypes.ACTION, 2, 'Trash up to 4 cards from your hand.')
+  end
+
+  def runRules(p:Player)
+    trashed = 0
+    while trashed < 4
+      key = Utils.handDecision(p, 'Choose a card to trash, or stop trashing.', 'Done trashing.', p.hand)
+      if key.equals('done')
+        break
+      end
+
+      card = p.removeFromHand(Utils.keyToIndex(key))
+      p.logMe('trashes ' + card.name + '.')
+      trashed += 1
+    end
+  end
+end
+
+
 

@@ -109,8 +109,7 @@ class Player
     key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 })
     index = Utils.keyToIndex key
     if index >= 0
-      card = Card(@hand.get(index))
-      removeFromHand(index)
+      card = removeFromHand(index)
       @inPlay.add(card)
       @coins += Card.treasureValues(card.name)
 
@@ -195,7 +194,8 @@ class Player
     return n
   end
 
-  def removeFromHand(index:int):void
+  def removeFromHand(index:int):Card
+    removed = Card(@hand.get(index))
     newhand = RubyList.new
     i = 0
     while i < @hand.size
@@ -205,13 +205,12 @@ class Player
       i += 1
     end
     @hand = newhand
-    return
+    return removed
   end
 
   def discard(index:int)
-    card = Card(@hand.get(index))
+    card = removeFromHand(index)
     logMe('discards ' + card.name + '.')
-    removeFromHand(index)
     @discards.add(card)
   end
 
