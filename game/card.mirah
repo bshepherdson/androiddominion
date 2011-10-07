@@ -196,6 +196,7 @@ class Card
     @@cards.put('Moat', Moat.new)
     @@cards.put('Militia', Militia.new)
     @@cards.put('Remodel', Remodel.new)
+    @@cards.put('Smithy', Smithy.new)
   end
 
 end
@@ -485,4 +486,14 @@ class Remodel < Card
 end
 
 
+class Smithy < Card
+  def initialize
+    super('Smithy', CardSets.BASE, CardTypes.ACTION, 4, '+3 Cards.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 3
+  end
+end
+    
 
