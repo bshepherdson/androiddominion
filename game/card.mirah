@@ -200,6 +200,7 @@ class Card
     @@cards.put('Spy', Spy.new)
     @@cards.put('Thief', Thief.new)
     @@cards.put('Throne Room', ThroneRoom.new)
+    @@cards.put('Council Room', CouncilRoom.new)
   end
 
 end
@@ -642,6 +643,23 @@ class ThroneRoom < Card
     card.runRules(p)
     p.logMe('plays ' + card.name + ' again.')
     card.runRules(p)
+  end
+end
+
+
+class CouncilRoom < Card
+  def initialize
+    super('Council Room', CardSets.BASE, CardTypes.ACTION, 5, '+4 Cards, +1 Buy. Each other player draws a card.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 4
+    plusBuys p, 1
+    everyPlayer(p, false, false)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    plusCards o, 1
   end
 end
 
