@@ -203,6 +203,7 @@ class Player
 
   def removeFromHand(index:int):void
     @hand = @hand.select_index do |c,i| i != index end
+    return
   end
 
   def discard(index:int)

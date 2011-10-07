@@ -4,14 +4,19 @@ import dominion.Player
 import dominion.Decision
 import dominion.Card
 
+import java.io.BufferedReader
+import java.io.InputStreamReader
+
+
 class Game
-  @@instance = Game.new
-
-
   def initialize
     @players = RubyList.new
     @turn = -1
     @kingdom = RubyList.new
+  end
+
+  def self.bootstrap
+    @@instance = Game.new
   end
 
   def self.instance:Game
@@ -29,8 +34,36 @@ class Game
   end
 
   def decision(dec:Decision):String
-    # TODO: Handle decisions! Needs to be part of the Android/web integration.
-    return ''
+    # temporary interface: uses the console
+    puts 'Decision for ' + dec.player.name
+    puts 'Info:'
+    dec.info.each { |x| puts '    ' + String(x) }
+    puts ''
+    puts dec.message
+    puts ''
+    puts 'Options:'
+    dec.options.each_with_index do |o_, i|
+      o = Option(o_)
+      puts '    ' + (i < 10 ? ' ' : '') + Integer.new(i+1).toString() + '. ' + o.text
+    end
+
+    reader = BufferedReader.new(InputStreamReader.new(System.in))
+    index = -1
+    begin
+      System.out.print("Choice: ");
+      line = reader.readLine
+      if line == nil
+        next
+      end
+
+      begin
+        index = Integer.parseInt(line)
+      rescue NumberFormatException => nfe
+        next
+      end
+    end while index < 0
+
+    return Option(dec.options.get(index-1)).key
   end
 
   def startGame

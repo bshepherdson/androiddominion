@@ -119,30 +119,46 @@ class Card
   end
 
 
-  # TODO: Implement me
   def self.starterDeck:RubyList
-    RubyList.new
+    deck = RubyList.new
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Copper'))
+    deck.add(Card.cards('Estate'))
+    deck.add(Card.cards('Estate'))
+    deck.add(Card.cards('Estate'))
+    deck
   end
 
-
+  # TODO: Replace this testing version with the real thing.
   def self.drawKingdom
-    all = RubyList.new
-    all.addAll(@@cards.values)
-    kingdomCards = all.select do |c|
-      Card(c).set != CardSets.COMMON
-    end
-
     drawn = RubyList.new
-
-    while drawn.size < 10
-      i = int(Math.floor(Math.random()*kingdomCards.size))
-      if not drawn.include?(kingdomCards.get(i))
-        drawn.add(kingdomCards.get(i))
-      end
-    end
-
+    drawn.add(Card.cards('Cellar'))
     drawn
   end
+
+  #def self.drawKingdom
+  #  all = RubyList.new
+  #  all.addAll(@@cards.values)
+  #  kingdomCards = all.select do |c|
+  #    Card(c).set != CardSets.COMMON
+  #  end
+
+  #  drawn = RubyList.new
+
+  #  while drawn.size < 10
+  #    i = int(Math.floor(Math.random()*kingdomCards.size))
+  #    if not drawn.include?(kingdomCards.get(i))
+  #      drawn.add(kingdomCards.get(i))
+  #    end
+  #  end
+
+  #  drawn
+  #end
 
 
   def cardCount(players:int):int
