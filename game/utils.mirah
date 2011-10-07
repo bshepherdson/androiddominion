@@ -183,7 +183,7 @@ class Utils
 
 
   /* Takes a list of cards, prefiltered. The only filter applied here is count > 0. Cost and etc. must be done elsewhere. */
-  def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, kingdomCards:RubyList):String
+  def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, kingdomCards:RubyList):Kingdom
     filteredCards = kingdomCards.select { |k_| Kingdom(k_).count > 0 }
     options = filteredCards.collect_index do |k_,i|
       k = Kingdom(k_)
@@ -196,7 +196,8 @@ class Utils
     end
 
     dec = Decision.new p, options, message, info
-    Game.instance.decision(dec)
+    key = Game.instance.decision(dec)
+    key.equals('done') ? nil : Kingdom(filteredCards.get(Utils.keyToIndex(key)))
   end
 
   /* Choose a card from (a subset of) the hand.
@@ -204,7 +205,7 @@ class Utils
    * Args: Player, message, optional done message, predicate as a block.
    * Returns: the decision key.
    */
-  def self.handDecision(p:Player, message:String, done:String, cards:RubyList):String
+  def self.handDecision(p:Player, message:String, done:String, cards:RubyList):Card
     options = cards.collect_index do |c_,i|
       c = Card(c_)
       Option.new('card[' + Integer.new(i).toString() + ']', c.name)
@@ -215,7 +216,8 @@ class Utils
     end
 
     dec = Decision.new p, options, message, RubyList.new
-    Game.instance.decision dec
+    key = Game.instance.decision dec
+    key.equals('done') ? nil : Card(cards.get(Utils.keyToIndex(key)))
   end
 
   def self.showCards(cards:RubyList):String

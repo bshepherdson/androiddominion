@@ -73,7 +73,7 @@ class Player
     else
       index = Utils.keyToIndex(key)
       if index >= 0
-        playAction(index)
+        playAction(Card(@hand.get(index)))
         return true
       end
     end
@@ -81,17 +81,12 @@ class Player
   end
 
 
-  def playAction(index:int):void
-    if index < 0 or index >= @hand.size
-      return
-    end
-
-    card = Card(@hand.get(index))
+  def playAction(card:Card):void
     if card.types & CardTypes.ACTION == 0
       return
     end
 
-    removeFromHand(index)
+    removeFromHand(card)
     @inPlay.add(card)
     @actions -= 1
 
@@ -110,10 +105,9 @@ class Player
     
     /* First, ask to play a coin or buy a card. */
     treasures = @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
-    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', treasures)
-    index = Utils.keyToIndex key
-    if index >= 0
-      card = removeFromHand(hand.indexOf(treasures.get(index)))
+    card = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', treasures)
+    if card != nil
+      removeFromHand(card)
       @inPlay.add(card)
       @coins += Card.treasureValues(card.name)
 
@@ -125,10 +119,9 @@ class Player
 
     coins = @coins
     affordableCards = Game.instance.kingdom.select { |k_| Kingdom(k_).card.cost <= coins }
-    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new, affordableCards)
-    index = Utils.keyToIndex(key)
-    if index >= 0
-      buyCard(Game.instance.indexInKingdom(Kingdom(affordableCards.get(index)).card.name), false)
+    kCard = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new, affordableCards)
+    if kCard != nil
+      buyCard(kCard, false)
       return true
     else
       return false
@@ -136,10 +129,9 @@ class Player
   end
 
 
-  /* Index into the kingdom, and true if we're buying for free */
+  /* Pointer to the kingdom, and true if we're buying for free */
   /* Returns true if the card was bought successfully. */
-  def buyCard(index:int, free:boolean):boolean
-    inKingdom = Kingdom(Game.instance.kingdom.get(index))
+  def buyCard(inKingdom:Kingdom, free:boolean):boolean
     if inKingdom.count <= 0
       logMe('fails to ' + (free ? 'gain' : 'buy') + ' ' + inKingdom.card.name + ' because the Supply pile is empty.')
       return false
@@ -198,22 +190,24 @@ class Player
     return n
   end
 
-  def removeFromHand(index:int):Card
-    removed = Card(@hand.get(index))
+  def removeFromHand(card:Card):Card
     newhand = RubyList.new
     i = 0
+    found = false
     while i < @hand.size
-      if i != index
+      if (not found) and Card(@hand.get(i)) == card
+        found = true
+      else
         newhand.add(@hand.get(i))
       end
       i += 1
     end
     @hand = newhand
-    return removed
+    return card
   end
 
-  def discard(index:int)
-    card = removeFromHand(index)
+  def discard(card:Card)
+    removeFromHand(card)
     logMe('discards ' + card.name + '.')
     @discards.add(card)
   end
@@ -275,7 +269,7 @@ class Player
     while i < @hand.size
       card = Card(@hand.get(i))
       if Card.basicCoin?(card.name)
-        removeFromHand(i)
+        removeFromHand(card)
         @inPlay.add(card)
         @coins += Card.treasureValues(card.name)
       else

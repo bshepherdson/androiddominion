@@ -86,7 +86,7 @@ class Card
       o = Player(Game.instance.players.get(i))
       if includeMe or o.id != p.id
         protectedBy = o.safeFromAttack
-        if isAttack and protectedBy != nil and not protectedBy.isEmpty()
+        if isAttack and protectedBy != nil and (not protectedBy.isEmpty())
           o.logMe 'is protected by ' + protectedBy + '.'
         else
           runEveryPlayer p, o
@@ -134,9 +134,6 @@ class Card
 
   def self.starterDeck:RubyList
     deck = RubyList.new
-    deck.add(Card.cards('Bureaucrat'))
-    deck.add(Card.cards('Bureaucrat'))
-    deck.add(Card.cards('Bureaucrat'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
@@ -193,6 +190,7 @@ class Card
     @@cards.put('Moneylender', Moneylender.new)
     @@cards.put('Workshop', Workshop.new)
     @@cards.put('Bureaucrat', Bureaucrat.new)
+    @@cards.put('Feast', Feast.new)
   end
 
 end
@@ -258,13 +256,12 @@ class Cellar < Card
 
     discards = 0
     while not p.hand.isEmpty
-      key = Utils.handDecision(p, 'Choose a card to discard, or stop discarding.', 'Done discarding.', p.hand)
+      card = Utils.handDecision(p, 'Choose a card to discard, or stop discarding.', 'Done discarding.', p.hand)
 
-      if key.equals('done')
+      if card == nil
         break
       end
-      index = Utils.keyToIndex(key)
-      p.discard(index)
+      p.discard(card)
       discards += 1
     end
 
@@ -283,12 +280,12 @@ class Chapel < Card
   def runRules(p:Player)
     trashed = 0
     while trashed < 4
-      key = Utils.handDecision(p, 'Choose a card to trash, or stop trashing.', 'Done trashing.', p.hand)
-      if key.equals('done')
+      card = Utils.handDecision(p, 'Choose a card to trash, or stop trashing.', 'Done trashing.', p.hand)
+      if card == nil
         break
       end
 
-      card = p.removeFromHand(Utils.keyToIndex(key))
+      p.removeFromHand(card)
       p.logMe('trashes ' + card.name + '.')
       trashed += 1
     end
@@ -356,7 +353,7 @@ class Moneylender < Card
     index = p.hand.indexOf(Card.cards('Copper'))
     if index >= 0
       p.logMe('trashes Copper.')
-      p.removeFromHand(index)
+      p.removeFromHand(Card.cards('Copper'))
       plusCoins p, 3
     else
       p.logMe('has no Copper to trash.')
@@ -372,14 +369,8 @@ class Workshop < Card
 
   def runRules(p:Player):void
     kCards = Game.instance.kingdom.select { |k| Kingdom(k).card.cost <= 4 }
-    key = Utils.gainCardDecision(p, 'Gain a card costing up to 4 Coin.', 'Gain nothing.', RubyList.new, kCards)
-    if key.equals('done')
-      # TODO: Is choosing to gain nothing with Workshop legal?
-      p.logMe('chooses to gain nothing.')
-    else
-      index = Utils.keyToIndex(key)
-      p.buyCard(Game.instance.indexInKingdom(Kingdom(kCards.get(index)).card.name), true)
-    end
+    kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 4 Coin.', nil, RubyList.new, kCards)
+    p.buyCard(kCard, true)
   end
 end
 
@@ -390,7 +381,7 @@ class Bureaucrat < Card
   end
 
   def runRules(p:Player)
-    p.buyCard(Game.instance.indexInKingdom('Silver'), true)
+    p.buyCard(Game.instance.inKingdom('Silver'), true)
     p.logMe('puts it on top of their deck.')
     p.deck.add(p.discards.pop)
 
@@ -402,16 +393,35 @@ class Bureaucrat < Card
     if victoryCards.size == 0
       o.logMe('reveals a hand with no Victory cards: ' + Utils.showCards(o.hand))
     elsif victoryCards.size == 1
-      o.discard(o.hand.indexOf(victoryCards.get(0)))
+      o.discard(Card(victoryCards.get(0)))
       o.logMe('puts it on top of their deck.')
       o.deck.add(o.discards.pop)
     else
-      key = Utils.handDecision(o, 'Choose a Victory card to put on top of your deck.', nil, victoryCards)
-      index = Utils.keyToIndex(key)
-      o.discard(o.hand.indexOf(victoryCards.get(index)))
+      card = Utils.handDecision(o, 'Choose a Victory card to put on top of your deck.', nil, victoryCards)
+      o.discard(card)
       o.logMe('puts it on top of their deck.')
       o.deck.add(o.discards.pop)
     end
   end
 end
+
+
+class Feast < Card
+  def initialize
+    super('Feast', CardSets.BASE, CardTypes.ACTION, 4, 'Trash this card. Gain a card costing up to 5 Coins.')
+  end
+
+  def runRules(p:Player)
+    if Card(p.inPlay.get(p.inPlay.size-1)).name.equals('Feast')
+      p.logMe('trashes Feast.')
+      p.inPlay.pop
+    end
+
+    kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 5 Coins.', nil, RubyList.new, Game.instance.kingdom.select { |k| Kingdom(k).card.cost <= 5 })
+    p.buyCard(kCard, true)
+  end
+end
+
+
+
 
