@@ -201,6 +201,7 @@ class Card
     @@cards.put('Thief', Thief.new)
     @@cards.put('Throne Room', ThroneRoom.new)
     @@cards.put('Council Room', CouncilRoom.new)
+    @@cards.put('Festival', Festival.new)
   end
 
 end
@@ -662,4 +663,19 @@ class CouncilRoom < Card
     plusCards o, 1
   end
 end
+
+
+class Festival < Card
+  def initialize
+    super('Festival', CardSets.BASE, CardTypes.ACTION, 5, '+2 Actions, +1 Buy, +2 Coins.')
+  end
+
+  def runRules(p:Player)
+    plusActions p, 2
+    plusBuys p, 1
+    plusCoins p, 2
+  end
+end
+
+
 
