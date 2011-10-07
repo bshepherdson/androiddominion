@@ -92,6 +92,15 @@ class Card
     end
   end
 
+  def yesNo(p:Player, question:String):String
+    options = RubyList.new
+    options.add(Option.new('yes', 'Yes.'))
+    options.add(Option.new('no', 'No.'))
+
+    dec = Decision.new p, options, question, RubyList.new
+    Game.instance.decision(dec)
+  end
+
   def self.victoryValues(name:String):int
     if name.equals('Estate')
       return 1
@@ -170,6 +179,7 @@ class Card
 
     @@cards.put('Cellar', Cellar.new)
     @@cards.put('Chapel', Chapel.new)
+    @@cards.put('Chancellor', Chancellor.new)
   end
 
 end
@@ -312,5 +322,21 @@ class Chapel < Card
   end
 end
 
+
+class Chancellor < Card
+  def initialize
+    super('Chancellor', CardSets.BASE, CardTypes.ACTION, 3, '+2 Coins. You may immediately put your deck into your discard pile.')
+  end
+
+  def runRules(p:Player)
+    plusCoins p, 2
+    key = yesNo p, 'Do you want to move your deck to your discard pile?'
+    if key.equals('yes')
+      p.discards.addAll(p.deck)
+      p.deck = RubyList.new
+      p.logMe('moves their deck to their discard pile.')
+    end
+  end
+end
 
 
