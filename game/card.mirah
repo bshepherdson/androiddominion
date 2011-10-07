@@ -205,6 +205,7 @@ class Card
     @@cards.put('Laboratory', Laboratory.new)
     @@cards.put('Library', Library.new)
     @@cards.put('Mine', Mine.new)
+    @@cards.put('Market', Market.new)
   end
 
 end
@@ -760,6 +761,20 @@ class Mine < Card
     if p.buyCard(gain, true)
       p.hand.add(p.discards.pop)
     end
+  end
+end
+
+
+class Market < Card
+  def initialize
+    super('Market', CardSets.BASE, CardTypes.ACTION, 5, '+1 Card, +1 Action, +1 Buy, +1 Coin.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 1
+    plusActions p, 1
+    plusBuys p, 1
+    plusCoins p, 1
   end
 end
 
