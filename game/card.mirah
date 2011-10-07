@@ -199,6 +199,7 @@ class Card
     @@cards.put('Smithy', Smithy.new)
     @@cards.put('Spy', Spy.new)
     @@cards.put('Thief', Thief.new)
+    @@cards.put('Throne Room', ThroneRoom.new)
   end
 
 end
@@ -619,4 +620,28 @@ class Thief < Card
 end
 
 
+class ThroneRoom < Card
+  def initialize
+    super('Throne Room', CardSets.BASE, CardTypes.ACTION, 4, 'Choose an Action card in your hand. Play it twice.')
+  end
+
+  def runRules(p:Player)
+    actions = p.hand.select { |c| Card(c).types & CardTypes.ACTION > 0 }
+    if actions.size == 0
+      p.logMe('has no Actions in hand.')
+      return
+    end
+
+    card = Utils.handDecision(p, 'Choose an Action card to play twice.', nil, actions)
+    p.removeFromHand(card)
+    p.inPlay.add(card)
+
+    p.logMe('uses Throne Room on ' + card.name + '.')
+
+    p.logMe('plays ' + card.name + ' once.')
+    card.runRules(p)
+    p.logMe('plays ' + card.name + ' again.')
+    card.runRules(p)
+  end
+end
 

@@ -90,6 +90,7 @@ class Player
     @inPlay.add(card)
     @actions -= 1
 
+    # If modifying this part of the code, update Throne Room/King's Court
     logMe('plays ' + card.name + '.')
     card.runRules(self)
   end
