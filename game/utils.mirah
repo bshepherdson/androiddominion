@@ -177,36 +177,11 @@ class Utils
     end
   end
 
-  interface GCDI do
-    def run(c:Card):boolean
-      false
-    end
-  end
-    
 
-  /* Takes a block for the card filtering predicate. */
-  def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, block:GCDI):String
-    kingdom = Game.instance.kingdom
-    cards = RubyList.new
-    i = 0
-    while i < kingdom.size
-      k = Kingdom(kingdom.get(i))
-      puts k.toString() + ', ' + Integer.new(k.count).toString() + ', ' + k.card.toString()
-      puts k.card
-      if k.count > 0 and block.run(k.card)
-        cards.add(k)
-      end
-      i += 1
-    end
-
-    #cards = kingdom.select do |k_|
-    #  k = Kingdom(k_)
-    #  puts k.toString() + ', ' + Integer.new(k.count).toString() + ', ' + k.card.toString()
-    #  puts k.card
-    #  k.count > 0 and block.run(k.card)
-    #end
-
-    options = cards.collect_index do |k_,i|
+  /* Takes a list of cards, prefiltered. The only filter applied here is count > 0. Cost and etc. must be done elsewhere. */
+  def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, kingdomCards:RubyList):String
+    filteredCards = kingdomCards.select { |k_| Kingdom(k_).count > 0 }
+    options = filteredCards.collect_index do |k_,i|
       k = Kingdom(k_)
       Option.new("card["+Integer.new(i).toString()+"]",
           "("+ Integer.new(Game.instance.cardCost(k.card)).toString() + ") " + k.card.name)
@@ -220,22 +195,16 @@ class Utils
     Game.instance.decision(dec)
   end
 
-  interface HandDecI do
-    def run(c:Card):boolean
-      false
-    end
-  end
-
   /* Choose a card from (a subset of) the hand.
    *
    * Args: Player, message, optional done message, predicate as a block.
    * Returns: the decision key.
    */
-  def self.handDecision(p:Player, message:String, done:String, block:HandDecI):String
-    options = p.hand.collect_index do |c_,i|
+  def self.handDecision(p:Player, message:String, done:String, cards:RubyList):String
+    options = cards.collect_index do |c_,i|
       c = Card(c_)
-      block.run(c) ? Option.new('card[#{i}]', c.name) : nil
-    end.select { |o| o != nil }
+      Option.new('card[#{i}]', c.name)
+    end
 
     if done
       options.add(Option.new('done', done))
@@ -251,7 +220,7 @@ class Utils
 
   def self.keyToIndex(key:String):int
     regex = Pattern.compile("^card\\[(\\d+)\\]$")
-    matcher = regex.matcher("done")
+    matcher = regex.matcher(key)
     if matcher.matches
       return Integer.parseInt(matcher.group(1))
     else

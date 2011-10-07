@@ -106,7 +106,7 @@ class Player
     end
     
     /* First, ask to play a coin or buy a card. */
-    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card') { |c| Card(c).types & CardTypes.TREASURE > 0 }
+    key = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 })
     index = Utils.keyToIndex key
     if index >= 0
       card = Card(@hand.get(index))
@@ -121,10 +121,11 @@ class Player
     # TODO: Contraband handling
 
     coins = @coins
-    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new) { |card| Game.instance.cardCost(Card(card)) <= coins }
+    affordableCards = Game.instance.kingdom.select { |k_| Kingdom(k_).card.cost <= coins }
+    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new, affordableCards)
     index = Utils.keyToIndex(key)
     if index >= 0
-      buyCard(index, false)
+      buyCard(Game.instance.indexInKingdom(Kingdom(affordableCards.get(index)).card.name), false)
       return true
     else
       return false
@@ -133,7 +134,7 @@ class Player
 
 
   /* Index into the kingdom, and true if we're buying for free */
-  /* Returns whether the purchase was successful. */
+  /* Returns true if the card was bought successfully. */
   def buyCard(index:int, free:boolean):boolean
     inKingdom = Kingdom(Game.instance.kingdom.get(index))
     if inKingdom.count <= 0

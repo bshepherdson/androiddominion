@@ -281,9 +281,7 @@ class Cellar < Card
 
     discards = 0
     while not p.hand.isEmpty
-      key = Utils.handDecision(p, 'Choose a card to discard, or stop discarding.', 'Done discarding.') do |c|
-        true
-      end
+      key = Utils.handDecision(p, 'Choose a card to discard, or stop discarding.', 'Done discarding.', p.hand)
 
       if key.equals('done')
         break
