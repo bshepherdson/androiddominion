@@ -16,10 +16,13 @@ class Player
     @@PHASE_ACTION = 2
     @@PHASE_BUY = 3
     @@PHASE_CLEANUP = 4
+    @@nextId = 0
   end
 
   def initialize(name:String)
-    # TODO: Set id and name properly. Do we need a game pointer?
+    @id = @@nextId
+    @@nextId += 1
+
     @name = name
     @turn = 1
     @discards = Card.starterDeck

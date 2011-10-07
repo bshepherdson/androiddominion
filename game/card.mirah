@@ -74,21 +74,25 @@ class Card
     p.logMe 'gains +' + n + ' Card' + (n == 1 ? '' : 's') + '.'
   end
 
-  def everyPlayer(epi:EveryPlayerInfo)
-    #everyPlayer(p, false, isAttack, block)
-    Game.instance.players.each_with_index do |o_,i|
-      o = Player(o_)
-      if not epi.includeMe and Player(Game.instance.players.get(i)).id == epi.p.id
-        return
-      end
+  # abstract function called by everyPlayer
+  def runEveryPlayer(p:Player, o:Player):void
+    puts "ERROR: runEveryPlayer called but not overridden."
+    System.exit(2)
+  end
 
-      protectedBy = o.safeFromAttack
-      if epi.isAttack and protectedBy != nil and not protectedBy.isEmpty()
-        o.logMe 'is protected by ' + protectedBy + '.'
-        return
+  def everyPlayer(p:Player, includeMe:boolean, isAttack:boolean):void
+    i = 0
+    while i < Game.instance.players.size
+      o = Player(Game.instance.players.get(i))
+      if includeMe or o.id != p.id
+        protectedBy = o.safeFromAttack
+        if isAttack and protectedBy != nil and not protectedBy.isEmpty()
+          o.logMe 'is protected by ' + protectedBy + '.'
+        else
+          runEveryPlayer p, o
+        end
       end
-
-      epi.block.run epi.p, o
+      i += 1
     end
   end
 
@@ -130,6 +134,9 @@ class Card
 
   def self.starterDeck:RubyList
     deck = RubyList.new
+    deck.add(Card.cards('Bureaucrat'))
+    deck.add(Card.cards('Bureaucrat'))
+    deck.add(Card.cards('Bureaucrat'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
@@ -185,48 +192,9 @@ class Card
     @@cards.put('Gardens', Gardens.new)
     @@cards.put('Moneylender', Moneylender.new)
     @@cards.put('Workshop', Workshop.new)
+    @@cards.put('Bureaucrat', Bureaucrat.new)
   end
 
-end
-
-class EveryPlayerInfo
-
-  def initialize(p:Player, includeMe:boolean, isAttack:boolean)
-    @p = p
-    @includeMe = includeMe
-    @isAttack = isAttack
-  end
-
-  def p:Player
-    @p
-  end
-  def p=(v:Player)
-    @p = v
-  end
-
-  def includeMe:boolean
-    @includeMe
-  end
-  def includeMe=(v:boolean)
-    @includeMe = v
-  end
-
-  def isAttack:boolean
-    @isAttack
-  end
-  def isAttack=(v:boolean)
-    @isAttack = v
-  end
-
-  interface EveryPlayerI do
-    def run(p:Player, o:Player); end
-  end
-  def block:EveryPlayerI
-    @block
-  end
-  def setBlock(block:EveryPlayerI)
-    @block = block
-  end
 end
 
 
@@ -411,6 +379,38 @@ class Workshop < Card
     else
       index = Utils.keyToIndex(key)
       p.buyCard(Game.instance.indexInKingdom(Kingdom(kCards.get(index)).card.name), true)
+    end
+  end
+end
+
+
+class Bureaucrat < Card
+  def initialize
+    super('Bureaucrat', CardSets.BASE, CardTypes.ACTION | CardTypes.ATTACK, 4, 'Gain a Silver card; put it on top of your deck. Each other player reveals a Victory card from his hand and puts it on his deck, or reveals a hand with no Victory cards.')
+  end
+
+  def runRules(p:Player)
+    p.buyCard(Game.instance.indexInKingdom('Silver'), true)
+    p.logMe('puts it on top of their deck.')
+    p.deck.add(p.discards.pop)
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player):void
+    victoryCards = o.hand.select { |c| Card(c).types & CardTypes.VICTORY > 0 }
+    if victoryCards.size == 0
+      o.logMe('reveals a hand with no Victory cards: ' + Utils.showCards(o.hand))
+    elsif victoryCards.size == 1
+      o.discard(o.hand.indexOf(victoryCards.get(0)))
+      o.logMe('puts it on top of their deck.')
+      o.deck.add(o.discards.pop)
+    else
+      key = Utils.handDecision(o, 'Choose a Victory card to put on top of your deck.', nil, victoryCards)
+      index = Utils.keyToIndex(key)
+      o.discard(o.hand.indexOf(victoryCards.get(index)))
+      o.logMe('puts it on top of their deck.')
+      o.deck.add(o.discards.pop)
     end
   end
 end
