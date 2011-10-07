@@ -203,7 +203,7 @@ class Utils
   def self.handDecision(p:Player, message:String, done:String, cards:RubyList):String
     options = cards.collect_index do |c_,i|
       c = Card(c_)
-      Option.new('card[#{i}]', c.name)
+      Option.new('card[' + Integer.new(i).toString() + ']', c.name)
     end
 
     if done

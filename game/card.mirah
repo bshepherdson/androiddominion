@@ -287,6 +287,7 @@ class Cellar < Card
         break
       end
       index = Utils.keyToIndex(key)
+      puts 'key = ' + key + ', index = ' + Integer.new(index).toString()
       p.discard(index)
       discards += 1
     end

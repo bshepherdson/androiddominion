@@ -128,7 +128,6 @@ class Game
 
   def cardCost(card:Card):int
     # TODO: Bridge, Quarry
-    puts card
     card.cost
   end
 
