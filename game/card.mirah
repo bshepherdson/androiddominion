@@ -198,6 +198,7 @@ class Card
     @@cards.put('Remodel', Remodel.new)
     @@cards.put('Smithy', Smithy.new)
     @@cards.put('Spy', Spy.new)
+    @@cards.put('Thief', Thief.new)
   end
 
 end
@@ -537,5 +538,85 @@ class Spy < Card
     end
   end
 end
+
+
+class Thief < Card
+  def initialize
+    super('Thief', CardSets.BASE, CardTypes.ACTION | CardTypes.ATTACK, 4, 'Each other player reveals the top 2 cards of his deck. If they revealed any Treasure cards, they trash one of them that you choose. You may gain any or all of these trashed cards. They discard the other revealed cards.')
+  end
+
+  def runRules(p:Player)
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    if o.deck.size == 0
+      o.shuffleDiscards
+      if o.deck.size == 0
+        o.logMe('has no cards to reveal.')
+        return
+      end
+    end
+
+    cards = RubyList.new
+    cards.add(o.deck.pop)
+    if o.deck.size == 0
+      o.shuffleDiscards
+    end
+    if o.deck.size > 0
+      cards.add(o.deck.pop)
+    end
+
+    o.logMe('revealed ' + Utils.showCards(cards))
+  
+    if cards.size == 0
+      return
+    end
+
+    options = RubyList.new
+    if Card(cards.get(0)).types & CardTypes.TREASURE > 0
+      options.add(Option.new('trash0', 'Trash ' + Card(cards.get(0)).name))
+      options.add(Option.new('keep0', 'Keep ' + Card(cards.get(0)).name))
+    end
+    if cards.size > 1 and Card(cards.get(1)).types & CardTypes.TREASURE > 0
+      options.add(Option.new('trash1', 'Trash ' + Card(cards.get(1)).name))
+      options.add(Option.new('keep1', 'Keep ' + Card(cards.get(1)).name))
+    end
+
+    if options.size == 0
+      return
+    end
+
+    info = RubyList.new
+    info.add('Revealed: ' + Utils.showCards(cards))
+    dec = Decision.new(p, options, 'Choose what to do with ' + o.name + '\'s revealed Treasures.', info)
+    key = Game.instance.decision(dec)
+
+    if key.equals('trash0')
+      card = Card(cards.get(0))
+      p.logMe('trashes ' + card.name)
+      if cards.size > 1
+        o.discards.add(cards.get(1))
+      end
+    elsif key.equals('keep0')
+      card = Card(cards.get(0))
+      p.logMe('keeps ' + card.name)
+      p.discards.add(card)
+      if cards.size > 1
+        o.discards.add(cards.get(1))
+      end
+    elsif key.equals('trash1')
+      card = Card(cards.get(1))
+      p.logMe('trashes ' + card.name)
+      o.discards.add(cards.get(0))
+    elsif key.equals('keep1')
+      card = Card(cards.get(1))
+      p.logMe('keeps ' + card.name)
+      p.discards.add(card)
+      o.discards.add(cards.get(0))
+    end
+  end
+end
+
 
 
