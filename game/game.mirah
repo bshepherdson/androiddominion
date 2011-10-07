@@ -45,7 +45,7 @@ class Game
     puts 'Options:'
     dec.options.each_with_index do |o_, i|
       o = Option(o_)
-      puts '    ' + (i < 10 ? ' ' : '') + Integer.new(i+1).toString() + '. ' + o.text
+      puts '    ' + (i < 9 ? ' ' : '') + Integer.new(i+1).toString() + '. ' + o.text
     end
 
     reader = BufferedReader.new(InputStreamReader.new(System.in))
