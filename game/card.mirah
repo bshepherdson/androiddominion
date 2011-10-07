@@ -202,6 +202,7 @@ class Card
     @@cards.put('Throne Room', ThroneRoom.new)
     @@cards.put('Council Room', CouncilRoom.new)
     @@cards.put('Festival', Festival.new)
+    @@cards.put('Laboratory', Laboratory.new)
   end
 
 end
@@ -677,5 +678,16 @@ class Festival < Card
   end
 end
 
+
+class Laboratory < Card
+  def initialize
+    super('Laboratory', CardSets.BASE, CardTypes.ACTION, 5, '+2 Cards, +1 Action.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 2
+    plusActions p, 1
+  end
+end
 
 
