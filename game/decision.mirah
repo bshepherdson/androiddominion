@@ -28,9 +28,11 @@ class Decision
     @message = message
     @info = info
 
+    @info.add('Actions: ' + Integer.new(player.actions).toString())
+    @info.add('Buys: ' + Integer.new(player.buys).toString())
+    @info.add('Coins: ' + Integer.new(player.coins).toString())
     @info.add("Hand: " + player.hand.collect { |c| Card(c).name }.join(', '))
 
-    @info = info
     @id = @@nextId
     @@nextId += 1
   end

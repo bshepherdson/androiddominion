@@ -187,10 +187,24 @@ class Utils
   /* Takes a block for the card filtering predicate. */
   def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, block:GCDI):String
     kingdom = Game.instance.kingdom
-    cards = kingdom.select do |k_|
-      k = Kingdom(k_)
-      k.count > 0 and block.run(k.card)
+    cards = RubyList.new
+    i = 0
+    while i < kingdom.size
+      k = Kingdom(kingdom.get(i))
+      puts k.toString() + ', ' + Integer.new(k.count).toString() + ', ' + k.card.toString()
+      puts k.card
+      if k.count > 0 and block.run(k.card)
+        cards.add(k)
+      end
+      i += 1
     end
+
+    #cards = kingdom.select do |k_|
+    #  k = Kingdom(k_)
+    #  puts k.toString() + ', ' + Integer.new(k.count).toString() + ', ' + k.card.toString()
+    #  puts k.card
+    #  k.count > 0 and block.run(k.card)
+    #end
 
     options = cards.collect_index do |k_,i|
       k = Kingdom(k_)
@@ -226,7 +240,8 @@ class Utils
     if done
       options.add(Option.new('done', done))
     end
-    dec = Decision.new p, options, message, RubyList.new()
+
+    dec = Decision.new p, options, message, RubyList.new
     Game.instance.decision dec
   end
 

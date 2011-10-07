@@ -11,11 +11,12 @@ import java.util.HashMap
 
 class Player
 
-  @@PHASE_NOT_PLAYING = 1
-  @@PHASE_ACTION = 2
-  @@PHASE_BUY = 3
-  @@PHASE_CLEANUP = 4
-
+  def self.bootstrap
+    @@PHASE_NOT_PLAYING = 1
+    @@PHASE_ACTION = 2
+    @@PHASE_BUY = 3
+    @@PHASE_CLEANUP = 4
+  end
 
   def initialize(name:String)
     # TODO: Set id and name properly. Do we need a game pointer?
@@ -28,6 +29,7 @@ class Player
 
     shuffleDiscards()
     @hand = RubyList.new
+    draw(5)
 
     @phase = @@PHASE_NOT_PLAYING
     @actions = 0
@@ -57,17 +59,12 @@ class Player
     options.add(Option.new('buy', 'Proceed to Buy phase'))
     options.add(Option.new('coins', 'Play all basic coins and proceed to Buy phase.'))
 
-    info = RubyList.new
-    info.add('Actions: ' + @actions)
-    info.add('Buys: ' + @buys)
-    info.add('Coins: ' + @coins)
-
-    dec = Decision.new(self, options, 'Play an Action card or proceed to the Buy phase.', info)
+    dec = Decision.new(self, options, 'Play an Action card or proceed to the Buy phase.', RubyList.new)
 
     key = Game.instance.decision dec
     if key.equals('buy')
       logMe('ends Action phase.')
-    elsif key.equals('coin')
+    elsif key.equals('coins')
       logMe('ends Action phase.')
       playCoins()
     else
@@ -121,15 +118,10 @@ class Player
       return true
     end
       
-    /* player chose to buy a card */
-    info = RubyList.new
-    info.add('Buys: ' + @buys)
-    info.add('Coins: ' + @coins)
-
     # TODO: Contraband handling
 
     coins = @coins
-    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', info) { |card| Game.instance.cardCost(Card(card)) <= coins }
+    key = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new) { |card| Game.instance.cardCost(Card(card)) <= coins }
     index = Utils.keyToIndex(key)
     if index >= 0
       buyCard(index, false)
@@ -175,6 +167,7 @@ class Player
     @discards.addAll(@hand)
     @inPlay = RubyList.new
     @hand = RubyList.new
+    draw(5)
   end
 
   def turnEnd
@@ -202,7 +195,15 @@ class Player
   end
 
   def removeFromHand(index:int):void
-    @hand = @hand.select_index do |c,i| i != index end
+    newhand = RubyList.new
+    i = 0
+    while i < @hand.size
+      if i != index
+        newhand.add(@hand.get(i))
+      end
+      i += 1
+    end
+    @hand = newhand
     return
   end
 
@@ -213,7 +214,7 @@ class Player
     @discards.add(card)
   end
 
-  def shuffleDiscards
+  def shuffleDiscards:void
     i = @discards.size
     if i == 0
       return

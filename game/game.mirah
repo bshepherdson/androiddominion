@@ -10,6 +10,7 @@ import java.io.InputStreamReader
 
 class Game
   def initialize
+    Player.bootstrap
     @players = RubyList.new
     @turn = -1
     @kingdom = RubyList.new
@@ -127,6 +128,7 @@ class Game
 
   def cardCost(card:Card):int
     # TODO: Bridge, Quarry
+    puts card
     card.cost
   end
 
