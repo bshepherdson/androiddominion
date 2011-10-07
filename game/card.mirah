@@ -182,6 +182,8 @@ class Card
     @@cards.put('Chancellor', Chancellor.new)
     @@cards.put('Village', Village.new)
     @@cards.put('Woodcutter', Woodcutter.new)
+    @@cards.put('Gardens', Gardens.new)
+    @@cards.put('Moneylender', Moneylender.new)
   end
 
 end
@@ -361,6 +363,35 @@ class Woodcutter < Card
   def runRules(p:Player)
     plusBuys p, 1
     plusCoins p, 2
+  end
+end
+
+
+class Gardens < Card
+  def initialize
+    super('Gardens', CardSets.BASE, CardTypes.VICTORY, 4, 'Worth 1 Victory Point for every 10 cards in your deck (rounded down).')
+  end
+
+  def cardCount(players:int)
+    players > 2 ? 12 : 8;
+  end
+end
+
+
+class Moneylender < Card
+  def initialize
+    super('Moneylender', CardSets.BASE, CardTypes.ACTION, 4, 'Trash a Copper from your hand. If you do, +3 Coins.')
+  end
+
+  def runRules(p:Player)
+    index = p.hand.indexOf(Card.cards('Copper'))
+    if index >= 0
+      p.logMe('trashes Copper.')
+      p.removeFromHand(index)
+      plusCoins p, 3
+    else
+      p.logMe('has no Copper to trash.')
+    end
   end
 end
 
