@@ -204,6 +204,7 @@ class Card
     @@cards.put('Festival', Festival.new)
     @@cards.put('Laboratory', Laboratory.new)
     @@cards.put('Library', Library.new)
+    @@cards.put('Mine', Mine.new)
   end
 
 end
@@ -729,6 +730,35 @@ class Library < Card
     if setAside.size > 0
       p.discards.addAll(setAside)
       p.logMe('discards the set aside cards.')
+    end
+  end
+end
+
+
+class Mine < Card
+  def initialize
+    super('Mine', CardSets.BASE, CardTypes.ACTION, 5, 'Trash a Treasure card from your hand. Gain a Treasure card costing up to 3 Coins more; put it into your hand.')
+  end
+
+  def runRules(p:Player)
+    treasures = p.hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
+    if treasures.size == 0
+      p.logMe('has no Treasures to trash.')
+      return
+    end
+
+    trash = Utils.handDecision(p, 'Choose a Treasure to trash.', nil, treasures)
+    p.removeFromHand(trash)
+    p.logMe('trashes ' + trash.name + '.')
+
+    newCost = Game.instance.cardCost(trash) + 3
+    gain = Utils.gainCardDecision(p, 'Now choose a Treasure costing up to ' + Integer.new(newCost).toString + '.', nil, RubyList.new, Game.instance.kingdom.select do |k_|
+      k = Kingdom(k_)
+      return (k.card.types & CardTypes.TREASURE > 0) && (Game.instance.cardCost(k.card) <= newCost)
+    end)
+
+    if p.buyCard(gain, true)
+      p.hand.add(p.discards.pop)
     end
   end
 end
