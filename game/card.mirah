@@ -181,6 +181,7 @@ class Card
     @@cards.put('Chapel', Chapel.new)
     @@cards.put('Chancellor', Chancellor.new)
     @@cards.put('Village', Village.new)
+    @@cards.put('Woodcutter', Woodcutter.new)
   end
 
 end
@@ -349,6 +350,17 @@ class Village < Card
   def runRules(p:Player)
     plusCards p, 1
     plusActions p, 2
+  end
+end
+
+class Woodcutter < Card
+  def initialize
+    super('Woodcutter', CardSets.BASE, CardTypes.ACTION, 3, '+1 Buy, +2 Coins.')
+  end
+
+  def runRules(p:Player)
+    plusBuys p, 1
+    plusCoins p, 2
   end
 end
 
