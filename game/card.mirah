@@ -197,6 +197,7 @@ class Card
     @@cards.put('Militia', Militia.new)
     @@cards.put('Remodel', Remodel.new)
     @@cards.put('Smithy', Smithy.new)
+    @@cards.put('Spy', Spy.new)
   end
 
 end
@@ -496,4 +497,45 @@ class Smithy < Card
   end
 end
     
+
+class Spy < Card
+  def initialize
+    super('Spy', CardSets.BASE, CardTypes.ACTION | CardTypes.ATTACK, 4, '+1 Card, +1 Action. Each player (including you) reveals the top card of his deck and either discards it or puts it back, your choice.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 1
+    plusActions p, 1
+    everyPlayer(p, true, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    options = RubyList.new
+    options.add(Option.new('back', 'Put it back on the deck.'))
+    options.add(Option.new('discard', 'Discard it.'))
+    
+    if o.deck.size == 0
+      o.shuffleDiscards
+      if o.deck.size == 0
+        o.logMe('has no cards to draw.')
+        return
+      end
+    end
+
+    card = Card(o.deck.pop)
+    o.logMe('reveals ' + card.name + '.')
+    description = p.id == o.id ? 'You revealed a ' + card.name + '.' : o.name + ' revealed a ' + card.name + '.'
+
+    dec = Decision.new(p, options, (p.id == o.id ? 'You' : o.name) + ' revealed a ' + card.name + '.', RubyList.new)
+    key = Game.instance.decision(dec)
+    if key.equals('discard')
+      p.logMe('discards ' + (p.id == o.id ? 'their' : o.name + '\'s') + ' ' + card.name + '.')
+      o.discards.add(card)
+    else
+      p.logMe('puts back ' + (p.id == o.id ? 'their' : o.name + '\'s') + ' ' + card.name + '.')
+      o.deck.add(card)
+    end
+  end
+end
+
 
