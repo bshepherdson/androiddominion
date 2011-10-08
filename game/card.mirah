@@ -206,6 +206,7 @@ class Card
     @@cards.put('Library', Library.new)
     @@cards.put('Mine', Mine.new)
     @@cards.put('Market', Market.new)
+    @@cards.put('Witch', Witch.new)
   end
 
 end
@@ -778,4 +779,19 @@ class Market < Card
   end
 end
 
+
+class Witch < Card
+  def initialize
+    super('Witch', CardSets.BASE, CardTypes.ACTION | CardTypes.ATTACK, 5, '+2 Cards. Each other player gains a Curse.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 2
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    o.buyCard(Game.instance.inKingdom('Curse'), true)
+  end
+end
 
