@@ -207,6 +207,7 @@ class Card
     @@cards.put('Mine', Mine.new)
     @@cards.put('Market', Market.new)
     @@cards.put('Witch', Witch.new)
+    @@cards.put('Adventurer', Adventurer.new)
   end
 
 end
@@ -792,6 +793,39 @@ class Witch < Card
 
   def runEveryPlayer(p:Player, o:Player)
     o.buyCard(Game.instance.inKingdom('Curse'), true)
+  end
+end
+
+
+class Adventurer < Card
+  def initialize
+    super('Adventurer', CardSets.BASE, CardTypes.ACTION, 6, 'Reveal cards from your deck until you reveal 2 Treasure cards. Put those Treasure cards in your hand and discard the other revealed cards.')
+  end
+
+  def runRules(p:Player)
+    toGo = 2
+    setAside = RubyList.new
+    while (p.deck.size + p.discards.size > 0) && toGo > 0
+      if p.deck.size == 0
+        p.shuffleDiscards
+      end
+
+      card = Card(p.deck.pop)
+      p.logMe('reveals ' + card.name + '.')
+      if card.types & CardTypes.TREASURE > 0
+        toGo -= 1
+        p.hand.add(card)
+        p.logMe('putting it into their hand.')
+      else
+        setAside.add(card)
+      end
+      toGo = toGo # no-op line to satisfy the mirah typechecker.
+    end
+
+    if toGo > 0
+      p.logMe('has run out of cards to draw.')
+    end
+    p.discards.addAll(setAside)
   end
 end
 
