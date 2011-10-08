@@ -3,6 +3,7 @@ package dominion
 import dominion.Player
 import dominion.Decision
 import dominion.Card
+import dominion.Exchange
 
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -34,37 +35,12 @@ class Game
     p
   end
 
+  def exchange=(exchange:Exchange):void
+    @exchange = exchange
+  end
+
   def decision(dec:Decision):String
-    # temporary interface: uses the console
-    puts 'Decision for ' + dec.player.name
-    puts 'Info:'
-    dec.info.each { |x| puts '    ' + String(x) }
-    puts ''
-    puts dec.message
-    puts ''
-    puts 'Options:'
-    dec.options.each_with_index do |o_, i|
-      o = Option(o_)
-      puts '    ' + (i < 9 ? ' ' : '') + Integer.new(i+1).toString() + '. ' + o.text
-    end
-
-    reader = BufferedReader.new(InputStreamReader.new(System.in))
-    index = -1
-    begin
-      System.out.print("Choice: ");
-      line = reader.readLine
-      if line == nil
-        next
-      end
-
-      begin
-        index = Integer.parseInt(line)
-      rescue NumberFormatException => nfe
-        next
-      end
-    end while index < 0 or index > dec.options.size
-
-    return Option(dec.options.get(index-1)).key
+    @exchange.postDecision(dec)
   end
 
   def startGame

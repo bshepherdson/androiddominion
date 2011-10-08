@@ -1,3 +1,5 @@
 .*.swp
 dominion
 dominion.jar
+android/bin
+android/gen

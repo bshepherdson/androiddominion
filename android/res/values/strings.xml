@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android Dominion</string>
+    <string name="notification_title">Android Dominion</string>
+    <string name="notification_message">There is an active game of Dominion.</string>
+    <string name="ticker_text">Android Dominion</string>
+</resources>
