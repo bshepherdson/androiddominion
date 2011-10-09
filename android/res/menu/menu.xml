@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/logs" android:id="@+id/miViewLogs"></item>
+    <item android:title="@string/kingdom" android:id="@+id/miKingdom"></item>
+    <item android:title="@string/quit" android:id="@+id/miQuit"></item>
+</menu>

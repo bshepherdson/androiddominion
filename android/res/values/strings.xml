@@ -5,4 +5,7 @@
     <string name="notification_message">There is an active game of Dominion.</string>
     <string name="ticker_text">Android Dominion</string>
     <string name="dominion">Dominion</string>
+    <string name="logs">Logs</string>
+    <string name="kingdom">Kingdom</string>
+    <string name="quit">Quit</string>
 </resources>

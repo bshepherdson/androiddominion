@@ -13,6 +13,7 @@
         </activity>
         <activity android:name="DominionA"></activity>
         <service android:name="GameService" android:exported="false"></service>
+        <activity android:name="LogsA"></activity>
 
     </application>
 </manifest>

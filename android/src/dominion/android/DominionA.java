@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -63,6 +66,7 @@ public class DominionA extends Activity {
 			// interact with the service.
 			Log.i(Constants.TAG, "Bound. service = " + service);
 			exchange = ((GameBinder) service).exchange;
+			Constants.exchange = exchange;
 			serviceBound = true;
 			DominionA.this.handleDecision();
 		}
@@ -150,6 +154,27 @@ public class DominionA extends Activity {
 		infoLayout = (LinearLayout) findViewById(R.id.infoLayout);
 		optionsLayout = (LinearLayout) findViewById(R.id.optionsLayout);
 		decisionLayout = (LinearLayout) findViewById(R.id.decision);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case R.id.miViewLogs:
+			startActivity(new Intent(this.getApplicationContext(), LogsA.class));
+			return true;
+		case R.id.miKingdom:
+			//startActivity(new Intent(this.getApplicationContext(), KingdomA.class));
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

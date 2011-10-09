@@ -2,4 +2,5 @@ Sort the Kingdom cards properly.
 Android menu with Log and Kingdom views.
 Improve the "next player" screen.
 Handle Back correctly (leave the app.) (Currently goes to New Game screen.)
-
+Skip "Buy a card" decision when no coins are left.
+Add "Play all" and "Play all basic coins" options to the coin selection decision.

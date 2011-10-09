@@ -1,10 +1,12 @@
 package dominion;
 
 import dominion.Logger;
+import java.util.ArrayList;
 
 public class Exchange {
     public volatile Object decision;
     public volatile String response;
+    private volatile ArrayList<String> logs;
     
     private volatile boolean decisionActive = false; 
     private volatile boolean uiWaiting = false;
@@ -13,6 +15,10 @@ public class Exchange {
     private Object uiWait = new Object();
 
     private Logger logger;
+
+    public Exchange() {
+      logs = new ArrayList<String>();
+    }
 
     public void setLogger(Logger logger) {
       this.logger = logger;
@@ -61,5 +67,22 @@ public class Exchange {
                 }
             } catch (Exception e) { logger.log(""+e); }
         }
+    }
+
+    public void log(String s) {
+      synchronized(logs) {
+        logs.add(s);
+      }
+    }
+
+    public ArrayList<String> getLogs() {
+      ArrayList<String> copy = new ArrayList<String>(100);
+      synchronized(logs) {
+        int start = Math.max(0, logs.size()-100);
+        for(int i = start; i < logs.size(); i++) {
+          copy.add(logs.get(i));
+        }
+      }
+      return copy;
     }
 }

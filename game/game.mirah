@@ -108,7 +108,7 @@ class Game
   end
 
   def log(str:String):void
-    puts str
+    @exchange.log(str)
   end
 
   def logPlayer(str:String, p:Player):void
