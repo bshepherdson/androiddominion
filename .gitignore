@@ -1,5 +1,5 @@
 .*.swp
-dominion
+dominion/*.class
 dominion.jar
 android/bin
 android/gen
