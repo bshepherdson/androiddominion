@@ -7,6 +7,8 @@ import dominion.CardTypes
 import dominion.CardSets
 
 import java.util.HashMap
+import java.util.Collections
+import java.util.Comparator
 
 /*
  * Plans for handling the rules. Card superclass has runRules method that implements
@@ -163,6 +165,7 @@ class Card
       end
     end
 
+    Collections.sort(drawn, KingdomComparator.new)
     drawn
   end
 
@@ -210,6 +213,23 @@ class Card
     @@cards.put('Adventurer', Adventurer.new)
   end
 
+end
+
+
+class KingdomComparator
+  implements Comparator
+  def compare(o1:Object, o2:Object):int
+    c1 = Card(o1)
+    c2 = Card(o2)
+
+    if c1.cost > c2.cost
+      return 1
+    elsif c2.cost == c1.cost
+      return c1.name.compareTo c2.name
+    else
+      return -1
+    end
+  end
 end
 
 
