@@ -14,6 +14,8 @@
         <activity android:name="DominionA"></activity>
         <service android:name="GameService" android:exported="false"></service>
         <activity android:name="LogsA"></activity>
+        <activity android:name="KingdomA"></activity>
+        <activity android:name="CardA"></activity>
 
     </application>
 </manifest>

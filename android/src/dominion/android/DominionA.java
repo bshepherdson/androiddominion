@@ -170,7 +170,7 @@ public class DominionA extends Activity {
 			startActivity(new Intent(this.getApplicationContext(), LogsA.class));
 			return true;
 		case R.id.miKingdom:
-			//startActivity(new Intent(this.getApplicationContext(), KingdomA.class));
+			startActivity(new Intent(this.getApplicationContext(), KingdomA.class));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

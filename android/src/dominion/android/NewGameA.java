@@ -52,9 +52,9 @@ public class NewGameA extends Activity {
 				Log.i(Constants.TAG, "Launching service.");
 				startService(service);
 				
-				//try{ Thread.sleep(2000); } catch (Exception e) { System.exit(1); }
 				Log.i(Constants.TAG, "Service started, launching DominionA.");
-				startActivity(new Intent(NewGameA.this.getApplicationContext(), DominionA.class));
+				Intent i = new Intent(NewGameA.this.getApplicationContext(), DominionA.class);
+				startActivity(i);
 			}
 		});
     }
