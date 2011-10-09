@@ -106,16 +106,21 @@ class Player
     
     /* First, ask to play a coin or buy a card. */
     treasures = @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
-    card = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', treasures)
-    if card != nil
-      removeFromHand(card)
-      @inPlay.add(card)
-      @coins += Card.treasureValues(card.name)
+    nonBasic = treasures.select { |c| not Card.isBasicCoin(Card(c).name) }
+    if nonBasic.size > 0
+      card = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', treasures)
+      if card != nil
+        removeFromHand(card)
+        @inPlay.add(card)
+        @coins += Card.treasureValues(card.name)
 
-      logMe('plays ' + card.name + '.')
-      return true
+        logMe('plays ' + card.name + '.')
+        return true
+      end
+    elsif treasures.size > 0
+      playCoins
     end
-      
+
     # TODO: Contraband handling
 
     coins = @coins
