@@ -3,16 +3,16 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:orientation="vertical" android:layout_height="fill_parent">
-    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/decision" android:visibility="visible">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/decision" android:visibility="gone">
         <TextView android:text="Player Name" android:layout_gravity="center_horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:focusable="false" android:layout_marginTop="2mm" android:textSize="12pt" android:layout_marginBottom="2mm" android:id="@+id/playerName"></TextView>
+        <TextView android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8pt" android:id="@+id/message"></TextView>
         <ScrollView android:id="@+id/scrollView1" android:layout_height="fill_parent" android:layout_width="fill_parent">
             <LinearLayout android:id="@+id/linearLayout2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <TextView android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/message" android:textSize="8pt"></TextView>
                 <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/infoLayout" android:orientation="vertical" android:layout_marginTop="2mm">
                 </LinearLayout>
                 <LinearLayout android:id="@+id/optionsLayout" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2mm"></LinearLayout>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-    <TextView android:id="@+id/newPlayer" android:text="New Player" android:textSize="16pt" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:visibility="gone" android:clickable="true"></TextView>
+    <TextView android:id="@+id/newPlayer" android:text="New Player" android:textSize="16pt" android:clickable="true" android:visibility="visible" android:layout_gravity="center" android:layout_height="fill_parent" android:layout_width="fill_parent"></TextView>
 </LinearLayout>

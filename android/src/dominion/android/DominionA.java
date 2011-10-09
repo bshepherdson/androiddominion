@@ -11,6 +11,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,7 @@ public class DominionA extends Activity {
 				lastClick = index;
 			} else {
 				// actually send the response.
+				lastClick = -1; // reset to prevent one-click decisions.
 				Exchange ex = DominionA.this.exchange;
 				Decision decision = (Decision) ex.decision;
 				Option opt = (Option) decision.options().get(index);
@@ -82,7 +84,7 @@ public class DominionA extends Activity {
 		if(decision.player() != lastPlayer) {
 			decisionLayout.setVisibility(View.GONE);
 			lastPlayer = decision.player();
-			newPlayer.setText(decision.player().name());
+			newPlayer.setText("Please give the phone to " + decision.player().name() + ".\nTap here to continue.");
 			newPlayer.setVisibility(View.VISIBLE);
 			Log.i(Constants.TAG, "Showing new player screen");
 		} else {
@@ -117,6 +119,11 @@ public class DominionA extends Activity {
 			t.setClickable(true);
 			t.setTag(new Integer(i));
 			t.setOnClickListener(optionListener);
+			
+			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		    llp.setMargins(0, 10, 0, 0); // llp.setMargins(left, top, right, bottom);
+		    t.setLayoutParams(llp);
+			
 			optionsLayout.addView(t);
 		}
 		
