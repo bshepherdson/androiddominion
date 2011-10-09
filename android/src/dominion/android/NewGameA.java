@@ -22,6 +22,8 @@ public class NewGameA extends Activity {
 		Button series = (Button) findViewById(R.id.startGame);
 		series.setOnClickListener(new OnClickListener() {
 			public void onClick(View clicked) {
+				Toast.makeText(NewGameA.this, "Starting game...", Toast.LENGTH_SHORT).show();
+				
 				// First collect the player names.
 				ArrayList<String> players = new ArrayList<String>();
 				int[] editTextIds = new int[] { R.id.player1, R.id.player2, R.id.player3, R.id.player4 };

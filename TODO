@@ -1,9 +1,8 @@
 Sort the Kingdom cards properly.
 Fix onClick message passing for CardA.
-Add "Play all" and "Play all basic coins" options to the coin selection decision.
-Skip "Buy a card" decision when no coins are left.
 Handle Back correctly (leave the app.) (Currently goes to New Game screen.)
-Toast message on clicking Start Game, since it takes a moment.
 Colours in the app.
 Make 'Exit' button in menu actually work.
 Improve the "next player" screen.
+Seaside -- requires Duration cards.
+Prosperity -- special Treasures
