@@ -86,7 +86,7 @@ class Card
       o = Player(Game.instance.players.get(i))
       if includeMe or o.id != p.id
         protectedBy = o.safeFromAttack
-        if isAttack and protectedBy != nil and (not protectedBy.isEmpty())
+        if isAttack && protectedBy != nil && protectedBy.length() > 0
           o.logMe 'is protected by ' + protectedBy + '.'
         else
           runEveryPlayer p, o
@@ -127,7 +127,7 @@ class Card
     return 0
   end
 
-  def self.basicCoin?(name:String):boolean
+  def self.isBasicCoin(name:String):boolean
     name.equals('Copper') or name.equals('Silver') or name.equals('Gold')
   end
 
@@ -158,7 +158,7 @@ class Card
 
     while drawn.size < 10 and drawn.size < kingdomCards.size
       i = int(Math.floor(Math.random()*kingdomCards.size))
-      if not drawn.include?(kingdomCards.get(i))
+      if not drawn.includes(kingdomCards.get(i))
         drawn.add(kingdomCards.get(i))
       end
     end

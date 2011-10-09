@@ -140,7 +140,7 @@ class RubyList < ArrayList
 
 
   /* NB: uses .equals */
-  def include?(x:Object):boolean
+  def includes(x:Object):boolean
     i = 0
     while i < size
       if get(i).equals(x)
@@ -152,7 +152,7 @@ class RubyList < ArrayList
   end
 
   /* NB: uses == */
-  def include_exact?(x:Object):boolean
+  def includes_exact(x:Object):boolean
     i = 0
     while i < size
       if get(i) == x

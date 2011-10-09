@@ -258,7 +258,7 @@ class Player
   end
 
   def safeFromAttack:String
-    if @hand.include? Card.cards('Moat')
+    if @hand.includes Card.cards('Moat')
       return 'Moat'
     end
 
@@ -269,7 +269,7 @@ class Player
     i = 0
     while i < @hand.size
       card = Card(@hand.get(i))
-      if Card.basicCoin?(card.name)
+      if Card.isBasicCoin(card.name)
         removeFromHand(card)
         @inPlay.add(card)
         @coins += Card.treasureValues(card.name)
