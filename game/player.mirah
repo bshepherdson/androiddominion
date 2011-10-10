@@ -44,6 +44,7 @@ class Player
 
     @outpostActive = false
     @outpostTurns = 0
+    @havenCards = RubyList.new
   end
 
 
@@ -407,5 +408,13 @@ class Player
   def coins=(v:int)
     @coins = v
   end
+
+  def havenCards:RubyList
+    @havenCards
+  end
+  def havenCards=(v:RubyList)
+    @havenCards = v
+  end
+
 end
 

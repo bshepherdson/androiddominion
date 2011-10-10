@@ -214,6 +214,7 @@ class Card
 
     # Seaside
     @@cards.put('Embargo', Embargo.new)
+    @@cards.put('Haven', Haven.new)
   end
 
 end
@@ -894,4 +895,36 @@ class Embargo < Card
     p.logMe('Embargoes ' + k.card.name + '. Now ' + Integer.new(k.embargoTokens).toString() + ' Embargo token' + (k.embargoTokens > 1 ? 's' : '') + ' on that pile.')
   end
 end
+
+
+class Haven < DurationCard
+  def initialize
+    super('Haven', CardSets.SEASIDE, 2, '+1 Card, +1 Action. Set aside a card from your hand face down. At the start of your next turn, put it into your hand.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 1
+    plusActions p, 1
+    if p.hand.size == 0 # very unlikely, but it's possible that drawing could fail
+      p.logMe('has no cards left to set aside.')
+      return
+    end
+
+    card = Utils.handDecision(p, 'Choose a card from your hand to set aside for next turn.', nil, p.hand)
+    p.removeFromHand(card)
+    p.havenCards.add(card)
+    p.logMe('sets aside a card.')
+
+    p.durationRules.add(self)
+  end
+
+  def runDurationRules(p:Player)
+    if p.havenCards.size > 0
+      p.havenCards.each { |c| p.hand.add(c) }
+      p.logMe('draws ' + p.havenCards.size + ' card' + (p.havenCards.size > 1 ? 's' : '') + ' set aside with Haven.')
+      p.havenCards = RubyList.new
+    end
+  end
+end
+
 
