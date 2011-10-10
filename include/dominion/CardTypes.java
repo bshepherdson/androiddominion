@@ -7,5 +7,6 @@ public class CardTypes {
   public static final int REACTION = 8;
   public static final int ATTACK   = 16;
   public static final int CURSE    = 32;
+  public static final int DURATION = 64;
 }
 

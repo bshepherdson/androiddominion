@@ -28,7 +28,9 @@ class Player
     @discards = Card.starterDeck
     @deck = RubyList.new
     @inPlay = RubyList.new
-    @duration = RubyList.new
+    @durationCards = RubyList.new
+    @durationRules = RubyList.new
+    @durationTurnCount = 1
 
     shuffleDiscards()
     @hand = RubyList.new
@@ -39,6 +41,9 @@ class Player
     @buys = 0
     @coins = 0
     @vpTokens = 0
+
+    @outpostActive = false
+    @outpostTurns = 0
   end
 
 
@@ -48,10 +53,19 @@ class Player
     @buys = 1
     @coins = 0
 
-    # TODO: Outpost support
-    logMe('starts turn ' + @turn + '.')
+    if @outpostActive
+      logMe('starts their Outpost turn.')
+      @outpostActive = false
+      @outpostTurns = 1
+    else
+      logMe('starts turn ' + @turn + '.')
+    end
 
-    # TODO: Duration rules
+    @durationRules.each do |c_|
+      c = DurationCard(c_)
+      logMe('gets the delayed effect of ' + c.name + '.')
+      c.runDurationRules(self)
+    end
   end
 
   /* Returns true to continue playing actions, false to move to the next phase. */
@@ -157,6 +171,14 @@ class Player
     if not free
       @coins -= Game.instance.cardCost(inKingdom.card)
       @buys -= 1
+
+      if inKingdom.embargoTokens > 0
+        i = 0
+        while i < inKingdom.embargoTokens
+          buyCard(Game.instance.inKingdom('Curse'), true)
+          i += 1
+        end
+      end
     end
 
     return true
@@ -165,17 +187,24 @@ class Player
   def turnCleanupPhase
     @phase = @@PHASE_CLEANUP
 
-    @discards.addAll(@inPlay)
+    @discards.addAll(@durationCards)
+    @durationCards = RubyList.new
+    @durationCards.addAll(@inPlay.select { |c| Card(c).types & CardTypes.DURATION > 0 })
+
+    @discards.addAll(@inPlay.select { |c| Card(c).types & CardTypes.DURATION == 0 })
     @discards.addAll(@hand)
     @inPlay = RubyList.new
     @hand = RubyList.new
-    draw(5)
+
+    draw(@outpostActive ? 3 : 5)
   end
 
   def turnEnd
     logMe('ends turn.')
     @phase = @@PHASE_NOT_PLAYING
-    @turn += 1
+    if not @outpostActive
+      @turn += 1
+    end
   end
 
   def draw(n:int):int
@@ -328,6 +357,20 @@ class Player
   end
   def inPlay=(v:RubyList)
     @inPlay = v
+  end
+
+  def durationCards:RubyList
+    @durationCards
+  end
+  def durationCards=(v:RubyList)
+    @durationCards = v
+  end
+
+  def durationRules:RubyList
+    @durationRules
+  end
+  def durationRules=(v:RubyList)
+    @durationRules = v
   end
 
   def hand:RubyList

@@ -152,6 +152,14 @@ class Kingdom
     @count = v
   end
 
+  def embargoTokens:int
+    @embargoTokens
+  end
+  def embargoTokens=(v:int)
+    @embargoTokens = v
+  end
+
+
   def initialize(card:Card, count:int)
     @card = card
     @count = count

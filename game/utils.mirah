@@ -103,7 +103,7 @@ class RubyList < ArrayList
     def run(x:Object, i:int); end
   end
 
-  def each_with_index(block:EachWithIndexI)
+  def each_with_index(block:EachWithIndexI):void
     i = 0
     while i < size
       block.run(get(i), i)
@@ -188,7 +188,7 @@ class Utils
     options = filteredCards.collect_index do |k_,i|
       k = Kingdom(k_)
       Option.new("card["+Integer.new(i).toString()+"]",
-          "("+ Integer.new(Game.instance.cardCost(k.card)).toString() + ") " + k.card.name)
+          "("+ Integer.new(Game.instance.cardCost(k.card)).toString() + (k.embargoTokens > 0 ? ", " + Integer.new(k.embargoTokens).toString() + " Embargo tokens" : "") + ") " + k.card.name)
     end
 
     if done

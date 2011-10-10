@@ -211,6 +211,9 @@ class Card
     @@cards.put('Market', Market.new)
     @@cards.put('Witch', Witch.new)
     @@cards.put('Adventurer', Adventurer.new)
+
+    # Seaside
+    @@cards.put('Embargo', Embargo.new)
   end
 
 end
@@ -276,6 +279,15 @@ class Curse < Card
       30
     end
   end
+end
+
+
+class DurationCard < Card
+  def initialize(name:String, set:int, cost:int, text:String)
+    super(name, set, CardTypes.ACTION | CardTypes.DURATION, cost, text)
+  end
+
+  def runDurationRules(p:Player):void; end
 end
 
 
@@ -846,6 +858,40 @@ class Adventurer < Card
       p.logMe('has run out of cards to draw.')
     end
     p.discards.addAll(setAside)
+  end
+end
+
+# Seaside cards
+
+class Embargo < Card
+  def initialize
+    super('Embargo', CardSets.SEASIDE, CardTypes.ACTION, 2, '+2 Coins. Trash this card. Put an Embargo token on top of a Supply pile. When a player buys a card, he gains a Curse card per Embargo token on that pile.')
+  end
+
+  def runRules(p:Player)
+    plusCoins p, 2
+    if p.inPlay.size > 0 && p.inPlay.get(p.inPlay.size-1) == self
+      p.inPlay.pop # trash
+    end
+
+    options = RubyList.new
+    i = 0
+    while i < Game.instance.kingdom.size
+      k = Kingdom(Game.instance.kingdom.get(i))
+      if k.count > 0
+        options.add(Option.new('card[' + Integer.new(i).toString() + ']', k.card.name + (k.embargoTokens > 0 ? ' (' + Integer.new(k.embargoTokens).toString() + ' Embargo token' + (k.embargoTokens > 1 ? 's' : '') : ')')))
+      end
+      i += 1
+    end
+
+    dec = Decision.new(p, options, 'Choose a Supply pile to place an Embargo token on.', RubyList.new)
+    key = Game.instance.decision dec
+    index = Utils.keyToIndex(key)
+
+    k = Kingdom(Game.instance.kingdom.get(index))
+    k.embargoTokens += 1
+
+    p.logMe('Embargoes ' + k.card.name + '. Now ' + Integer.new(k.embargoTokens).toString() + ' Embargo token' + (k.embargoTokens > 1 ? 's' : '') + ' on that pile.')
   end
 end
 
