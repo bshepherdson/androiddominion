@@ -32,6 +32,9 @@ class Decision
     @info.add('Buys: ' + Integer.new(player.buys).toString())
     @info.add('Coins: ' + Integer.new(player.coins).toString())
     @info.add("Hand: " + player.hand.collect { |c| Card(c).name }.join(', '))
+    if player.nativeVillageMat.size > 0
+      @info.add('Native Village mat: ' + Utils.showCards(player.nativeVillageMat))
+    end
 
     @id = @@nextId
     @@nextId += 1

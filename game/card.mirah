@@ -216,6 +216,7 @@ class Card
     @@cards.put('Embargo', Embargo.new)
     @@cards.put('Haven', Haven.new)
     @@cards.put('Lighthouse', Lighthouse.new)
+    @@cards.put('Native Village', NativeVillage.new)
   end
 
 end
@@ -945,4 +946,38 @@ class Lighthouse < DurationCard
   end
 end
 
+
+class NativeVillage < Card
+  def initialize
+    super('Native Village', CardSets.SEASIDE, CardTypes.ACTION, 2, '+2 Actions. Choose one: Set aside the top card of your deck face down on your Native Village mat; or put all the cards from your mat into your hand. You may look at the cards on your mat at any time; return them to your deck at the end of the game.')
+  end
+
+  def runRules(p:Player)
+    plusActions p, 2
+
+    options = RubyList.new
+    options.add(Option.new('setaside', 'Set aside the top card of your deck on your Native Village mat.'))
+    options.add(Option.new('intohand', 'Put all the cards on your Native Village mat into your hand.'))
+
+    dec = Decision.new(p, options, 'You have played Native Village. Choose one of its options.', RubyList.new)
+    key = Game.instance.decision dec
+
+    if key.equals('setaside')
+      if p.deck.size == 0
+        p.shuffleDiscards
+        if p.deck.size == 0
+          p.logMe('has no cards to set aside.')
+          return
+        end
+      end
+      p.nativeVillageMat.add(p.deck.pop)
+      p.logMe('sets aside the top card of their deck.')
+    else
+      mat = p.nativeVillageMat
+      p.logMe('puts the ' + Integer.new(mat.size).toString() + ' card' + (mat.size == 1 ? '' : 's') + ' from their Native Village mat into their hand.')
+      p.hand.addAll(mat)
+      p.nativeVillageMat = RubyList.new
+    end
+  end
+end
 

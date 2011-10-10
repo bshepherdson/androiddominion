@@ -45,6 +45,7 @@ class Player
     @outpostActive = false
     @outpostTurns = 0
     @havenCards = RubyList.new
+    @nativeVillageMat = RubyList.new
   end
 
 
@@ -416,6 +417,13 @@ class Player
   end
   def havenCards=(v:RubyList)
     @havenCards = v
+  end
+
+  def nativeVillageMat:RubyList
+    @nativeVillageMat
+  end
+  def nativeVillageMat=(v:RubyList)
+    @nativeVillageMat = v
   end
 
 end
