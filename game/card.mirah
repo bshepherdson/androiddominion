@@ -217,6 +217,7 @@ class Card
     @@cards.put('Haven', Haven.new)
     @@cards.put('Lighthouse', Lighthouse.new)
     @@cards.put('Native Village', NativeVillage.new)
+    @@cards.put('Pearl Diver', PearlDiver.new)
   end
 
 end
@@ -977,6 +978,37 @@ class NativeVillage < Card
       p.logMe('puts the ' + Integer.new(mat.size).toString() + ' card' + (mat.size == 1 ? '' : 's') + ' from their Native Village mat into their hand.')
       p.hand.addAll(mat)
       p.nativeVillageMat = RubyList.new
+    end
+  end
+end
+
+
+class PearlDiver < Card
+  def initialize
+    super('Pearl Diver', CardSets.SEASIDE, CardTypes.ACTION, 2, '+1 Card, +1 Action. Look at the bottom card of your deck. You may put it on top.')
+  end
+
+  def runRules(p:Player)
+    plusCards p, 1
+    plusActions p, 1
+
+    if p.deck.size == 0
+      p.logMe('has no deck to look at.')
+    else
+      bottom = Card(p.deck.get(0))
+      options = RubyList.new
+      options.add(Option.new('ontop', 'Put it on top of your deck.'))
+      options.add(Option.new('leave', 'Leave it on the bottom.'))
+      dec = Decision.new(p, options, 'The bottom card of your deck is ' + bottom.name + '.', RubyList.new)
+      key = Game.instance.decision(dec)
+
+      if key.equals('ontop')
+        p.deck.remove(0)
+        p.deck.add(bottom)
+        p.logMe('looks at the bottom card of his deck, putting it on top.')
+      else
+        p.logMe('looks at the bottom card of his deck, leaving it there.')
+      end
     end
   end
 end
