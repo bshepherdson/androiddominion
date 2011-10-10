@@ -293,8 +293,10 @@ class Player
   end
 
   def safeFromAttack:String
-    if @hand.includes Card.cards('Moat')
+    if @hand.includes_exact Card.cards('Moat')
       return 'Moat'
+    elsif @durationCards.includes_exact Card.cards('Lighthouse')
+      return 'Lighthouse'
     end
 
     return nil

@@ -1,3 +1,4 @@
+Handle end-of-game properly!
 Reset scrolling on decision view when showing a new one.
 Fix onClick message passing for CardA.
 Handle Back correctly (leave the app.) (Currently goes to New Game screen.)

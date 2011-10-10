@@ -215,6 +215,7 @@ class Card
     # Seaside
     @@cards.put('Embargo', Embargo.new)
     @@cards.put('Haven', Haven.new)
+    @@cards.put('Lighthouse', Lighthouse.new)
   end
 
 end
@@ -924,6 +925,23 @@ class Haven < DurationCard
       p.logMe('draws ' + p.havenCards.size + ' card' + (p.havenCards.size > 1 ? 's' : '') + ' set aside with Haven.')
       p.havenCards = RubyList.new
     end
+  end
+end
+
+
+class Lighthouse < DurationCard
+  def initialize
+    super('Lighthouse', CardSets.SEASIDE, 2, '+1 Action. Now and at the start of your next turn: +1 Coin. -- While this is in play, when another player plays an Attack card, it doesn\'t affect you.')
+  end
+
+  def runRules(p:Player)
+    plusActions p, 1
+    plusCoins p, 1
+    p.durationRules.add(self)
+  end
+
+  def runDurationRules(p:Player)
+    plusCoins p, 1
   end
 end
 
