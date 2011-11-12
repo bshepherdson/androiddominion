@@ -219,6 +219,7 @@ class Card
     @@cards.put('Native Village', NativeVillage.new)
     @@cards.put('Pearl Diver', PearlDiver.new)
     @@cards.put('Ambassador', Ambassador.new)
+    @@cards.put('Fishing Village', FishingVillage.new)
   end
 
 end
@@ -1063,6 +1064,25 @@ class Ambassador < Card
     o.buyCard(@revealedCard, true)
   end
 end
+
+
+class FishingVillage < DurationCard
+  def initialize
+    super('Fishing Village', CardSets.SEASIDE, 3, '+2 Actions, +1 Coin. At the start of your next turn: +1 Action, +1 Coin.')
+  end
+
+  def runRules(p:Player)
+    plusActions p, 2
+    plusCoins p, 1
+    p.durationRules.add(self)
+  end
+
+  def runDurationRules(p:Player)
+    plusActions p, 1
+    plusCoins p, 1
+  end
+end
+
 
     
 
