@@ -221,6 +221,7 @@ class Card
     @@cards.put('Ambassador', Ambassador.new)
     @@cards.put('Fishing Village', FishingVillage.new)
     @@cards.put('Lookout', Lookout.new)
+    @@cards.put('Smugglers', Smugglers.new)
   end
 
 end
@@ -1139,5 +1140,59 @@ class Lookout < Card
 end
 
 
-    
+class Smugglers < Card
+  def initialize
+    super('Smugglers', CardSets.SEASIDE, CardTypes.ACTION, 3, 'Gain a copy of a card costing up to 6 Coins that the player to your right gained on his last turn.')
+  end
 
+  def runRules(p:Player)
+    index = 0
+    while index < Game.instance.players.size
+      if Player(Game.instance.players.get(index)).id == p.id
+        break
+      end
+
+      index += 1
+    end
+
+    index -= 1
+    if index < 0
+      index = Game.instance.players.size - 1
+    end
+
+    other = Player(Game.instance.players.get(index))
+    gained = other.gainedLastTurn.select do |c|
+      (Game.instance.cardCost(GainedCard(c).card) <= 6) and
+      (Game.instance.inKingdom(GainedCard(c).card.name).count > 0)
+    end
+
+    if gained.size == 0
+      other.logMe('gained no eligible cards last turn.')
+      return
+    end
+
+    unique = RubyList.new
+    index = 0
+    while index < gained.size
+      if not unique.contains(gained.get(index))
+        unique.add(gained.get(index))
+      end
+
+      index += 1
+    end
+
+    cards = unique.collect do |gc| GainedCard(gc).card end
+
+    options = Utils.cardsToOptions(cards)
+    dec = Decision.new(p, options, 'Choose a card to gain from those that ' + other.name + ' gained last turn.', RubyList.new)
+    key = Game.instance.decision(dec)
+    index = Utils.keyToIndex(key)
+
+    card = Card(cards.get(index))
+    k = Game.instance.inKingdom(card.name)
+    p.buyCard(k, true)
+  end
+end
+
+
+    

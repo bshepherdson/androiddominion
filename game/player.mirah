@@ -46,6 +46,7 @@ class Player
     @outpostTurns = 0
     @havenCards = RubyList.new
     @nativeVillageMat = RubyList.new
+    @gainedLastTurn = RubyList.new
   end
 
 
@@ -54,6 +55,7 @@ class Player
     @actions = 1
     @buys = 1
     @coins = 0
+    @gainedLastTurn.clear
 
     if @outpostActive
       logMe('starts their Outpost turn.')
@@ -161,6 +163,8 @@ class Player
 
     @discards.add(inKingdom.card)
     inKingdom.count -= 1
+
+    @gainedLastTurn.add(GainedCard.new(!free, inKingdom.card))
 
     logMe((free ? 'gains' : 'buys') +' '+ inKingdom.card.name + '.')
 
@@ -426,5 +430,27 @@ class Player
     @nativeVillageMat = v
   end
 
+  def gainedLastTurn:RubyList
+    @gainedLastTurn
+  end
+  def gainedLastTurn=(v:RubyList)
+    @gainedLastTurn = v
+  end
+
+end
+
+class GainedCard
+  def initialize(bought:boolean, card:Card)
+    @bought = bought
+    @card = card
+  end
+  
+  def bought:boolean
+    return @bought
+  end
+
+  def card:Card
+    return @card
+  end
 end
 
