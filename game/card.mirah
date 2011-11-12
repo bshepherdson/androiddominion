@@ -218,6 +218,7 @@ class Card
     @@cards.put('Lighthouse', Lighthouse.new)
     @@cards.put('Native Village', NativeVillage.new)
     @@cards.put('Pearl Diver', PearlDiver.new)
+    @@cards.put('Ambassador', Ambassador.new)
   end
 
 end
@@ -1012,4 +1013,56 @@ class PearlDiver < Card
     end
   end
 end
+
+
+class Ambassador < Card
+  def initialize
+    super('Ambassador', CardSets.SEASIDE, CardTypes.ACTION | CardTypes.ATTACK, 3, 'Reveal a card from your hand. Return up to 2 copies of it from your hand to the Supply. Then each other player gains a copy of it.')
+  end
+
+  def runRules(p:Player)
+    if p.hand.size == 0
+      p.logMe('has no cards to return to the Supply.')
+      return
+    end
+
+    card = Utils.handDecision(p, 'Choose a card from your hand to set aside for next turn.', nil, p.hand)
+
+    p.logMe('reveals ' + card.name + '.')
+    @revealedCard = Game.instance.inKingdom(card.name)
+
+    copies = p.hand.select { |c| Card(c).name.equals(card.name) }
+
+    options = RubyList.new
+    options.add(Option.new('0', 'Don\'t return any.'))
+    options.add(Option.new('1', 'Return one copy.'))
+    if copies.size > 1
+      options.add(Option.new('2', 'Return two copies.'))
+    end
+    dec = Decision.new(p, options, 'Return up to two copies to the Supply.', RubyList.new)
+    key = Game.instance.decision(dec)
+
+    if key.equals('2')
+      p.removeFromHand(card)
+      p.removeFromHand(card)
+      @revealedCard.count += 2
+      p.logMe('returns two copies of ' + card.name + ' to the Supply.')
+    elsif key.equals('1')
+      p.removeFromHand(card)
+      k = Game.instance.inKingdom(card.name)
+      @revealedCard.count += 1
+      p.logMe('returns one copy of ' + card.name + ' to the Supply.')
+    else
+      p.logMe('does not return any copies.')
+    end
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    o.buyCard(@revealedCard, true)
+  end
+end
+
+    
 
