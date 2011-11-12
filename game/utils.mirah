@@ -203,7 +203,7 @@ class Utils
   /* Choose a card from (a subset of) the hand.
    *
    * Args: Player, message, optional done message, predicate as a block.
-   * Returns: the decision key.
+   * Returns: the Card
    */
   def self.handDecision(p:Player, message:String, done:String, cards:RubyList):Card
     options = cards.collect_index do |c_,i|

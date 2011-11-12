@@ -222,6 +222,7 @@ class Card
     @@cards.put('Fishing Village', FishingVillage.new)
     @@cards.put('Lookout', Lookout.new)
     @@cards.put('Smugglers', Smugglers.new)
+    @@cards.put('Warehouse', Warehouse.new)
   end
 
 end
@@ -1195,4 +1196,28 @@ class Smugglers < Card
 end
 
 
-    
+class Warehouse < Card
+  def initialize
+    super('Warehouse', CardSets.SEASIDE, CardTypes.ACTION, 3, '+3 Cards, +1 Action. Discard 3 cards.')
+  end
+
+  def runRules(p:Player)
+    plusActions(p, 1)
+    plusCards(p, 3)
+
+    discarded = 0
+    while discarded < 3 and p.hand.size > 0
+      card = Utils.handDecision(p, 'Choose a card to discard.', nil, p.hand)
+
+      p.removeFromHand(card)
+      p.discards.add(card)
+      p.logMe('discards ' + card.name + '.')
+      discarded += 1
+    end
+  end
+end
+
+
+
+
+
