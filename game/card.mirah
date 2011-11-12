@@ -224,6 +224,7 @@ class Card
     @@cards.put('Smugglers', Smugglers.new)
     @@cards.put('Warehouse', Warehouse.new)
     @@cards.put('Caravan', Caravan.new)
+    @@cards.put('Cutpurse', Cutpurse.new)
   end
 
 end
@@ -1236,5 +1237,29 @@ class Caravan < DurationCard
   end
 end
 
+
+class Cutpurse < Card
+  def initialize
+    super('Cutpurse', CardSets.SEASIDE, CardTypes.ACTION | CardTypes.ATTACK, 4, '+2 Coin. Each other player discards a Copper card (or reveals a hand with no Copper).')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    coppers = o.hand.select do |c| Card(c).name.equals('Copper') end
+
+    if coppers.size == 0
+      o.logMe('reveals their hand: ' + Utils.showCards(o.hand) + '.')
+      return
+    end
+
+    card = o.removeFromHand(Card.cards('Copper'))
+    o.discards.add(card)
+    o.logMe('discards a Copper.')
+  end
+end
 
 
