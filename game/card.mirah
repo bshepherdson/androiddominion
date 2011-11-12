@@ -220,6 +220,7 @@ class Card
     @@cards.put('Pearl Diver', PearlDiver.new)
     @@cards.put('Ambassador', Ambassador.new)
     @@cards.put('Fishing Village', FishingVillage.new)
+    @@cards.put('Lookout', Lookout.new)
   end
 
 end
@@ -1080,6 +1081,60 @@ class FishingVillage < DurationCard
   def runDurationRules(p:Player)
     plusActions p, 1
     plusCoins p, 1
+  end
+end
+
+class Lookout < Card
+  def initialize
+    super('Lookout', CardSets.SEASIDE, CardTypes.ACTION, 3, '+1 Action. Look at the top 3 cards of your deck. Trash one of them. Discard one of them. Put the other one on top of your deck.')
+  end
+
+  def runRules(p:Player)
+    drawn = p.draw(3)
+
+    cards = RubyList.new
+    while drawn > 0
+      cards.add(p.hand.pop)
+      drawn -= 1
+    end
+
+    if cards.size == 0
+      p.logMe('has no cards to draw for Lookout.')
+      return
+    end
+
+    options = Utils.cardsToOptions(cards)
+    dec = Decision.new(p, options, 'Choose a card to trash.', RubyList.new)
+    key = Game.instance.decision(dec)
+    index = Utils.keyToIndex(key)
+    p.logMe('trashes ' + Card(cards.get(index)).name + '.')
+
+    cards2 = RubyList.new
+    i = 0
+    while i < cards.size
+      if i != index
+        cards2.add(cards.get(i))
+      end
+      i += 1
+    end
+
+    if cards2.size == 0
+      p.logMe('has no remaining Lookout cards.')
+    end
+
+    options = Utils.cardsToOptions(cards2)
+    dec = Decision.new(p, options, 'Choose a card to discard.', RubyList.new)
+    key = Game.instance.decision(dec)
+    index = Utils.keyToIndex(key)
+    card = Card(cards2.get(index))
+    p.discards.add(card)
+    p.logMe('discards ' + card.name + '.')
+
+    if cards2.size == 2
+      index2 = 1 - index
+      p.deck.add(cards2.get(index2))
+      p.logMe('returns the last card to the top of their deck.')
+    end
   end
 end
 
