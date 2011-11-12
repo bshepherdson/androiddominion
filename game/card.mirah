@@ -223,6 +223,7 @@ class Card
     @@cards.put('Lookout', Lookout.new)
     @@cards.put('Smugglers', Smugglers.new)
     @@cards.put('Warehouse', Warehouse.new)
+    @@cards.put('Caravan', Caravan.new)
   end
 
 end
@@ -1218,6 +1219,22 @@ class Warehouse < Card
 end
 
 
+class Caravan < DurationCard
+  def initialize
+    super('Caravan', CardSets.SEASIDE, 4, '+1 Card, +1 Action. At the start of your next turn, +1 Card.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+
+    p.durationRules.add(self)
+  end
+
+  def runDurationRules(p:Player)
+    plusCards(p, 1)
+  end
+end
 
 
 
