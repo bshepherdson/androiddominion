@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
@@ -29,7 +30,8 @@ public class KingdomA extends Activity {
 			Kingdom k = kingdom.get(i);
 			TextView t = new TextView(this);
 			t.setText(k.card().name() + ": " + k.card().cost() + " Coins, " + k.count() + " remaining.");
-			//t.setOnClickListener(clickListener);
+			t.setTextSize(TypedValue.COMPLEX_UNIT_PT, 8);
+			t.setOnClickListener(clickListener);
 			t.setTag(new Integer(i));
 			layout.addView(t);
 		}
@@ -39,7 +41,7 @@ public class KingdomA extends Activity {
 		public void onClick(View clicked) {
 			int index = ((Integer) clicked.getTag()).intValue();
 			Intent i = new Intent(KingdomA.this.getApplicationContext(), CardA.class);
-			i.putExtra("index", index);
+			i.putExtra("index", new Integer(index));
 			startActivity(i);
 		}
 	};

@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="fill_parent" android:orientation="vertical">
-    <ScrollView android:id="@+id/scrollView1" android:layout_width="fill_parent" android:layout_height="wrap_content">
+    <ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/kingdomScroller">
         <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/kingdomLayout" android:orientation="vertical">
             <TextView android:layout_height="wrap_content" android:id="@+id/kingdomHeading" android:layout_width="fill_parent" android:layout_gravity="center_horizontal" android:textSize="12pt" android:text="Kingdom" android:layout_marginBottom="3mm"></TextView>
         </LinearLayout>

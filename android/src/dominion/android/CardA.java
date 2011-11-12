@@ -11,11 +11,14 @@ import dominion.Kingdom;
 
 
 public class CardA extends Activity {
-	protected void onCreate(Bundle payload) {
-		super.onCreate(payload);
+	protected void onCreate(Bundle icicle) {
+		super.onCreate(icicle);
 		setContentView(R.layout.card);
 		
-		int index = payload.getInt("index");
+		Bundle payload = this.getIntent().getExtras();
+		Integer indexI = (Integer) payload.get("index");
+		int index = indexI.intValue();
+		
 		Kingdom k = (Kingdom) Game.instance().kingdom().get(index);
 		Card card = k.card();
 		
