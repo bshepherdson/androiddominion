@@ -1,10 +1,9 @@
 Handle end-of-game properly!
 Does Pearl Diver reshuffle if your deck is empty?
 Reset scrolling on decision view when showing a new one.
-Fix onClick message passing for CardA.
 Handle Back correctly (leave the app.) (Currently goes to New Game screen.)
 Colours in the app.
 Make 'Exit' button in menu actually work.
-Improve the "next player" screen.
+Improve the "next player" screen -- show the logs since their last turn? They need to be more visibly surfaced.
 Seaside -- requires Duration cards.
 Prosperity -- special Treasures

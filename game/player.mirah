@@ -47,6 +47,7 @@ class Player
     @havenCards = RubyList.new
     @nativeVillageMat = RubyList.new
     @gainedLastTurn = RubyList.new
+    @islandSetAside = RubyList.new
   end
 
 
@@ -280,6 +281,7 @@ class Player
     deck.addAll(@hand)
     deck.addAll(@deck)
     deck.addAll(@discards)
+    deck.addAll(@islandSetAside)
 
     i = 0
     while i < deck.size
@@ -435,6 +437,10 @@ class Player
   end
   def gainedLastTurn=(v:RubyList)
     @gainedLastTurn = v
+  end
+  
+  def islandSetAside:RubyList
+    @islandSetAside
   end
 
 end

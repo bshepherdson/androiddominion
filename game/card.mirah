@@ -114,6 +114,8 @@ class Card
       return 3
     elsif name.equals('Province')
       return 6
+    elsif name.equals('Island')
+      return 2
     end
     return 0
   end
@@ -225,6 +227,7 @@ class Card
     @@cards.put('Warehouse', Warehouse.new)
     @@cards.put('Caravan', Caravan.new)
     @@cards.put('Cutpurse', Cutpurse.new)
+    @@cards.put('Island', Island.new)
   end
 
 end
@@ -1262,4 +1265,30 @@ class Cutpurse < Card
   end
 end
 
+
+class Island < Card
+  def initialize
+    super('Island', CardSets.SEASIDE, CardTypes.ACTION | CardTypes.VICTORY, 4, 'Set aside this and another card from your hand. Return them to your deck at the end of the game. 2 VP.')
+  end
+
+  def runRules(p:Player)
+    if p.hand.size == 0
+      p.logMe('has no cards to set aside.')
+      return
+    end
+
+    card = Utils.handDecision(p, 'Choose a card to set aside until the end of the game.', nil, p.hand)
+
+    p.removeFromHand(card)
+    p.islandSetAside.add(card)
+
+    # Set aside the Island too, if it's still there and this wasn't the second play on a Throne Room.
+    if p.inPlay.size > 0 and Card(p.inPlay.get(p.inPlay.size-1)).name.equals('Island')
+      p.islandSetAside.add(p.inPlay.pop)
+      p.logMe('sets aside Island and ' + card.name + '.')
+    else
+      p.logMe('sets aside ' + card.name +'.')
+    end
+  end
+end
 
