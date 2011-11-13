@@ -138,8 +138,6 @@ class Card
 
   def self.starterDeck:RubyList
     deck = RubyList.new
-    deck.add(Card.cards('Salvager'))
-    deck.add(Card.cards('Salvager'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
@@ -233,6 +231,7 @@ class Card
     @@cards.put('Navigator', Navigator.new)
     @@cards.put('Pirate Ship', PirateShip.new)
     @@cards.put('Salvager', Salvager.new)
+    @@cards.put('Sea Hag', SeaHag.new)
   end
 
 end
@@ -1454,4 +1453,37 @@ class Salvager < Card
   end
 end
     
+
+class SeaHag < Card
+  def initialize
+    super('Sea Hag', CardSets.SEASIDE, CardTypes.ACTION | CardTypes.ATTACK, 4, 'Each other player discards the top card of his deck, then gains a Curse card, putting it on top of his deck.')
+  end
+
+  def runRules(p:Player)
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    drawn = o.draw(1)
+
+    log = ''
+    if drawn == 0
+      log = 'as no top card to disard, '
+    else
+      discarded = Card(o.hand.pop)
+      o.discards.add(discarded)
+      log = 'discards the top card of his deck (' + discarded.name + '), '
+    end
+
+    inKingdom = Game.instance.inKingdom('Curse')
+    if inKingdom.count > 0
+      o.deck.add(Card.cards('Curse'))
+      inKingdom.count -= 1
+      o.logMe(log + 'putting a Curse on top of his deck.')
+    else
+      o.logMe(log + 'but there are no more Curses.')
+    end
+  end
+end
+
 
