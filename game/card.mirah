@@ -228,6 +228,7 @@ class Card
     @@cards.put('Caravan', Caravan.new)
     @@cards.put('Cutpurse', Cutpurse.new)
     @@cards.put('Island', Island.new)
+    @@cards.put('Navigator', Navigator.new)
   end
 
 end
@@ -1292,3 +1293,62 @@ class Island < Card
   end
 end
 
+
+class Navigator < Card
+  def initialize
+    super('Navigator', CardSets.SEASIDE, CardTypes.ACTION, 4, '+2 Coin. Look at the top 5 cards of your deck. Either discard all of them, or put them back in any order.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+
+    drawn = p.draw(5)
+    cards = RubyList.new
+    while drawn > 0
+      cards.add(p.hand.pop)
+      drawn -= 1
+    end
+
+    options = RubyList.new
+    options.add(Option.new('discard', 'Discard them all'))
+    options.add(Option.new('keep', 'Put them back in any order'))
+
+    info = RubyList.new
+    info.add('Navigator cards: ' + Utils.showCards(cards))
+
+    dec = Decision.new(p, options, 'Choose whether to discard or put back the cards (listed below under "Navigator cards:")', info)
+    key = Game.instance.decision(dec)
+
+    if key.equals('discard')
+      p.discards.addAll(cards)
+      p.logMe('draws 5 cards, discarding them.')
+    else
+      discards = RubyList.new
+      while cards.size > 0
+        dec = Decision.new(p, Utils.cardsToOptions(cards), 'Choose a card to put back (you will draw these cards in the order you choose them here)', RubyList.new)
+        key = Game.instance.decision(dec)
+        index = Utils.keyToIndex(key)
+
+        i = 0
+        newcards = RubyList.new
+        while i < cards.size
+          if i == index
+            discards.add(cards.get(i))
+          else
+            newcards.add(cards.get(i))
+          end
+          i += 1
+        end
+        cards = newcards
+      end
+
+      while discards.size > 0
+        p.deck.add(discards.pop)
+      end
+      p.logMe('draws 5 cards, putting them back.')
+    end
+  end
+end
+
+
+      
