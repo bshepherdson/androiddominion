@@ -48,6 +48,8 @@ class Player
     @nativeVillageMat = RubyList.new
     @gainedLastTurn = RubyList.new
     @islandSetAside = RubyList.new
+    @pirateShipAttack = 0
+    @pirateShipCoins = 0
   end
 
 
@@ -441,6 +443,20 @@ class Player
   
   def islandSetAside:RubyList
     @islandSetAside
+  end
+
+  def pirateShipAttack:int
+    @pirateShipAttack
+  end
+  def pirateShipAttack=(v:int)
+    @pirateShipAttack = v
+  end
+
+  def pirateShipCoins:int
+    @pirateShipCoins
+  end
+  def pirateShipCoins=(v:int)
+    @pirateShipCoins = v
   end
 
 end

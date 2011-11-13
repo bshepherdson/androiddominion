@@ -229,6 +229,7 @@ class Card
     @@cards.put('Cutpurse', Cutpurse.new)
     @@cards.put('Island', Island.new)
     @@cards.put('Navigator', Navigator.new)
+    @@cards.put('Pirate Ship', PirateShip.new)
   end
 
 end
@@ -1350,5 +1351,93 @@ class Navigator < Card
   end
 end
 
+
+class PirateShip < Card
+  def initialize
+    super('Pirate Ship', CardSets.SEASIDE, CardTypes.ACTION | CardTypes.ATTACK, 4, 'Choose one: Each other player reveals the top 2 cards of his deck, trashes a revealed Treasure that you choose, discards the rest, and if anyone trashed a Treasure you take a Coin token; or, +1 Coin per Coin token you\'ve taken with Pirate Ships this game.')
+  end
+
+  def runRules(p:Player)
+    p.pirateShipAttack = 0
+
+    opts = RubyList.new
+    opts.add(Option.new('attack', 'Attack the other players'))
+    opts.add(Option.new('coin', 'Gain ' + p.pirateShipCoins + ' Coin' + (p.pirateShipCoins == 1 ? '' : 's') + '.'))
+
+    dec = Decision.new(p, opts, 'Choose what to do with your Pirate Ship.', RubyList.new)
+    key = Game.instance.decision(dec)
+    if key.equals('coin')
+      p.logMe('plays Pirate Ship for the Coins.')
+      plusCoins(p, p.pirateShipCoins)
+    else
+      p.logMe('plays Pirate Ship for the attack.')
+
+      everyPlayer(p, false, true)
+
+      if p.pirateShipAttack > 0
+        p.logMe('gains a Pirate Ship token.')
+        p.pirateShipCoins += 1
+      else
+        p.logMe('does not gain a Pirate Ship token.')
+      end
+    end
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    drawn = o.draw(2)
+    if drawn == 0
+      o.logMe('has no cards to draw.')
+      return
+    end
+
+    cards = RubyList.new
+    while drawn > 0
+      cards.add(o.hand.pop)
+      drawn -= 1
+    end
+
+    treasures = cards.select do |c| Card(c).types & CardTypes.TREASURE > 0 end
+
+    log = 'reveals ' + Utils.showCards(cards)
+
+    if treasures.size == 0
+      o.logMe(log + '; and discards ' + (cards.size > 1 ? 'both' : 'it') + '.')
+      o.discards.addAll(cards)
+    elsif treasures.size == 1
+      if cards.size == 1
+        o.logMe(log + '; and trashes it.')
+        p.pirateShipAttack += 1
+      else
+        o.logMe(log + '; and trashes the ' + Card(treasures.get(0)).name + '.')
+        p.pirateShipAttack += 1
+        if cards.get(0).equals(treasures.get(0))
+          o.discards.add(cards.get(1))
+        else
+          o.discards.add(cards.get(0))
+        end
+      end
+    else
+      if treasures.get(0).equals(treasures.get(1))
+        o.discards.add(treasures.get(0))
+        o.logMe(log + '; and trashes one.')
+      else
+        card = Utils.handDecision(p, 'Choose which of ' + o.name + '\'s Treasures to trash.', nil, treasures)
+        if treasures.get(0).equals(card)
+          o.discards.add(treasures.get(1))
+          o.logMe(log + '; and trashes ' + card.name + '.')
+        else
+          o.discards.add(treasures.get(0))
+          o.logMe(log + '; and trashes ' + card.name + '.')
+        end
+      end
+      
+      p.pirateShipAttack += 1
+    end
+  end
+end
+
+
+
+      
 
       

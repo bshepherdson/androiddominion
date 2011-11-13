@@ -35,6 +35,9 @@ class Decision
     if player.nativeVillageMat.size > 0
       @info.add('Native Village mat: ' + Utils.showCards(player.nativeVillageMat))
     end
+    if player.pirateShipCoins > 0
+      @info.add('Pirate Ship coins: ' + Integer.new(player.pirateShipCoins).toString)
+    end
 
     @id = @@nextId
     @@nextId += 1
