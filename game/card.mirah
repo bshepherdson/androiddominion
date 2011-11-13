@@ -138,6 +138,8 @@ class Card
 
   def self.starterDeck:RubyList
     deck = RubyList.new
+    deck.add(Card.cards('Salvager'))
+    deck.add(Card.cards('Salvager'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
     deck.add(Card.cards('Copper'))
@@ -230,6 +232,7 @@ class Card
     @@cards.put('Island', Island.new)
     @@cards.put('Navigator', Navigator.new)
     @@cards.put('Pirate Ship', PirateShip.new)
+    @@cards.put('Salvager', Salvager.new)
   end
 
 end
@@ -1437,7 +1440,18 @@ class PirateShip < Card
 end
 
 
+class Salvager < Card
+  def initialize
+    super('Salvager', CardSets.SEASIDE, CardTypes.ACTION, 4, '+1 Buy. Trash a card from your hand. +Coins equal to its cost.')
+  end
 
-      
+  def runRules(p:Player)
+    plusBuys(p, 1)
+    card = Utils.handDecision(p, 'Choose a card to trash.', nil, p.hand)
+    p.removeFromHand(card)
+    p.logMe('trashes ' + card.name + '.')
+    plusCoins(p, Game.instance.cardCost(card))
+  end
+end
+    
 
-      
