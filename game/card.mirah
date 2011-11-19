@@ -234,6 +234,7 @@ class Card
     @@cards.put('Sea Hag', SeaHag.new)
     @@cards.put('Treasure Map', TreasureMap.new)
     @@cards.put('Bazaar', Bazaar.new)
+    @@cards.put('Explorer', Explorer.new)
   end
 
 end
@@ -1534,4 +1535,33 @@ class Bazaar < Card
     plusCoins(p, 1)
   end
 end
+
+
+class Explorer < Card
+  def initialize
+    super('Explorer', CardSets.SEASIDE, CardTypes.ACTION, 5, 'You may reveal a Province card from your hand. If you do, gain a Gold card, putting it into your hand. Otherwise, gain a Silver card, putting it into your hand.')
+  end
+  
+  def runRules(p:Player)
+    provinces = p.hand.select do |c| Card(c).name.equals('Province') end
+
+    if provinces.size > 0
+      options = RubyList.new
+      options.add(Option.new('yes', 'Reveal the Province to gain a Gold.'))
+      options.add(Option.new('no',  'Do not reveal, gain a Silver.'))
+      dec = Decision.new(p, options, 'You have a Province in your hand, choose whether to reveal it.', RubyList.new)
+      key = Game.instance.decision(dec)
+
+      if key.equals('yes')
+        p.logMe('reveals a Province from their hand, gaining a Gold into their hand.')
+        p.hand.add(Card.cards('Gold'))
+        return
+      end # let 'no' fall through to Silver below.
+    end
+
+    p.logMe('gains a Silver into their hand.')
+    p.hand.add(Card.cards('Silver'))
+  end
+end
+
 

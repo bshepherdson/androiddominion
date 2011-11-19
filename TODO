@@ -3,6 +3,6 @@ Reset scrolling on decision view when showing a new one.
 Handle Back correctly (leave the app.) (Currently goes to New Game screen.)
 Colours in the app.
 Make 'Exit' button in menu actually work.
-Improve the "next player" screen -- show the logs since their last turn? They need to be more visibly surfaced.
+Add logs to the top of each decision, showing what's happened since your last decision.
 Seaside -- requires Duration cards.
 Prosperity -- special Treasures
