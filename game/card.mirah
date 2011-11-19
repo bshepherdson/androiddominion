@@ -238,6 +238,7 @@ class Card
     @@cards.put('Ghost Ship', GhostShip.new)
     @@cards.put('Merchant Ship', MerchantShip.new)
     @@cards.put('Outpost', Outpost.new)
+    @@cards.put('Tactician', Tactician.new)
   end
 
 end
@@ -1621,4 +1622,30 @@ class Outpost < DurationCard
     p.outpostPlayed = true
   end
 end
+
+
+class Tactician < DurationCard
+  def initialize
+    super('Tactician', CardSets.SEASIDE, 5, 'Discard your whole hand. If you discarded any cards this way, then at the start of your next turn, +5 Cards, +1 Buy and +1 Action.')
+  end
+
+  def runRules(p:Player)
+    if p.hand.size > 0
+      p.logMe('discards their whole hand.')
+      p.discards.addAll(p.hand)
+      p.hand = RubyList.new
+      p.durationRules.add(self)
+    else
+      p.logMe('discards no cards for Tactician.')
+    end
+  end
+
+  def runDurationRules(p:Player)
+    plusCards(p, 5)
+    plusBuys(p, 1)
+    plusActions(p, 1)
+  end
+end
+
+
 
