@@ -1,5 +1,7 @@
 package dominion.android;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import dominion.Decision;
 import dominion.Exchange;
+import dominion.Game;
 import dominion.Option;
 import dominion.Player;
 import dominion.android.GameService.GameBinder;
@@ -29,8 +32,8 @@ public class DominionA extends Activity {
 	boolean serviceBound = false;
 	private Player lastPlayer = null;
 	
-	protected TextView newPlayer;
-	protected LinearLayout infoLayout, optionsLayout, decisionLayout;
+	protected TextView newPlayer, gameOverWinner;
+	protected LinearLayout infoLayout, optionsLayout, decisionLayout, gameOverLayout, gameOverPlayers;
 	
 	protected int lastClick = -1;
 	protected TextView lastClickTarget; 
@@ -82,11 +85,83 @@ public class DominionA extends Activity {
 		Log.i(Constants.TAG, "Calling waitForDecision.");
 		exchange.waitForDecision();
 		Log.i(Constants.TAG, "waitForDecision returned");
+		
 		Decision decision = (Decision) exchange.decision;
 
 		// display the show-to-player-X if it's not the same player as last time.
-		if(decision.player() != lastPlayer) {
+		if(exchange.gameOver) {
 			decisionLayout.setVisibility(View.GONE);
+			newPlayer.setVisibility(View.GONE);
+			Log.i(Constants.TAG, "Showing game over screen");
+			
+			gameOverPlayers.removeAllViews();
+			
+			int winnerScore = -100;
+			ArrayList<Player> winners = new ArrayList<Player>();
+			Log.i(Constants.TAG, "Looping over players.");
+			for(int i = 0; i < Game.instance().players().size(); i++) {
+				Log.i(Constants.TAG, "Top of loop");
+				Player p = (Player) Game.instance().players().get(i);
+				Log.i(Constants.TAG, "Player: " + p.name());
+				TextView tv = new TextView(this);
+				int score = p.calculateScore();
+				Log.i(Constants.TAG, "Score: " + score);
+				if (score > winnerScore) {
+					Log.i(Constants.TAG, "New winner");
+					winners.clear();
+					winners.add(p);
+					winnerScore = score;
+				} else if (score == winnerScore) {
+					winners.add(p);
+					Log.i(Constants.TAG, "Adding to tie");
+				}
+				
+				tv.setText(p.name() + ": " + score + " points in " + p.turn() + " turns.");
+				gameOverPlayers.addView(tv);
+				Log.i(Constants.TAG, "Bottom of loop");
+			}
+			
+			Log.i(Constants.TAG, "Winner count: " + winners.size());
+			
+			if (winners.size() == 1) {
+				gameOverWinner.setText(winners.get(0).name() + " wins!");
+			} else {
+				ArrayList<Player> realWinners = new ArrayList<Player>();
+				int winnerTurns = Integer.MAX_VALUE;
+				for(Player p : winners) {
+					Log.i(Constants.TAG, "Winner loop: " + p.name());
+					if(p.turn() < winnerTurns) {
+						Log.i(Constants.TAG, "New realWinner");
+						realWinners.clear();
+						realWinners.add(p);
+						winnerTurns = p.turn();
+					} else if(p.turn() == winnerTurns) {
+						realWinners.add(p);
+						Log.i(Constants.TAG, "Adding to tie");
+					}
+				}
+				
+				Log.i(Constants.TAG, "RealWinner count: " + realWinners.size());
+				
+				if(realWinners.size() == 1) {
+					gameOverWinner.setText(realWinners.get(0).name() + " wins!");
+				} else {
+					StringBuffer sb = new StringBuffer();
+					for(int i = 0; i < realWinners.size(); i++) {
+						sb.append(realWinners.get(i).name());
+						if(i+2 < realWinners.size())
+							sb.append(", ");
+						else if(i+2 == realWinners.size())
+							sb.append(" and ");
+					}
+					gameOverWinner.setText("Tie between: " + sb.toString());
+				}
+			}
+			Log.i(Constants.TAG, "Bottom of gameOver logic.");
+			gameOverLayout.setVisibility(View.VISIBLE);
+		} else if(decision.player() != lastPlayer) {
+			decisionLayout.setVisibility(View.GONE);
+			gameOverLayout.setVisibility(View.GONE);
 			lastPlayer = decision.player();
 			newPlayer.setText("Please give the phone to " + decision.player().name() + ".\nTap here to continue.");
 			newPlayer.setVisibility(View.VISIBLE);
@@ -154,6 +229,10 @@ public class DominionA extends Activity {
 		infoLayout = (LinearLayout) findViewById(R.id.infoLayout);
 		optionsLayout = (LinearLayout) findViewById(R.id.optionsLayout);
 		decisionLayout = (LinearLayout) findViewById(R.id.decision);
+		
+		gameOverLayout = (LinearLayout) findViewById(R.id.gameOver);
+		gameOverPlayers = (LinearLayout) findViewById(R.id.gameOverPlayers);
+		gameOverWinner = (TextView) findViewById(R.id.gameOverWinner);
 	}
 	
 	@Override

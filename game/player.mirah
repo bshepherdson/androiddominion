@@ -327,6 +327,7 @@ class Player
     deck.addAll(@deck)
     deck.addAll(@discards)
     deck.addAll(@islandSetAside)
+    deck.addAll(@havenCards)
 
     i = 0
     while i < deck.size
@@ -338,6 +339,7 @@ class Player
       elsif c.name.equals('Curse')
         score -= 1
       end
+      i += 1
     end
 
     score += gardens * (deck.size / 10)

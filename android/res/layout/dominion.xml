@@ -2,7 +2,7 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:orientation="vertical" android:layout_height="fill_parent">
+  android:layout_height="fill_parent" android:orientation="vertical">
     <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/decision" android:visibility="gone">
         <TextView android:text="Player Name" android:layout_gravity="center_horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:focusable="false" android:layout_marginTop="2mm" android:textSize="12pt" android:layout_marginBottom="2mm" android:id="@+id/playerName"></TextView>
         <TextView android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8pt" android:id="@+id/message"></TextView>
@@ -14,5 +14,10 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-    <TextView android:id="@+id/newPlayer" android:text="New Player" android:textSize="16pt" android:clickable="true" android:visibility="visible" android:layout_gravity="center" android:layout_height="fill_parent" android:layout_width="fill_parent"></TextView>
+    <TextView android:id="@+id/newPlayer" android:text="New Player" android:textSize="16pt" android:clickable="true" android:layout_gravity="center" android:layout_height="fill_parent" android:layout_width="fill_parent" android:visibility="visible"></TextView>
+    <LinearLayout android:layout_width="fill_parent" android:id="@+id/gameOver" android:layout_height="fill_parent" android:orientation="vertical" android:visibility="gone">
+        <TextView android:text="@string/gameOver" android:layout_width="wrap_content" android:id="@+id/textView1" android:layout_height="wrap_content" android:textSize="12pt" android:gravity="center_horizontal|fill_horizontal" android:paddingTop="0.25in" android:paddingBottom="0.25in"></TextView>
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/gameOverPlayers" android:orientation="vertical"></LinearLayout>
+        <TextView android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/gameOverWinner" android:textSize="9pt" android:paddingTop="0.1in" android:gravity="center_horizontal|fill_horizontal"></TextView>
+    </LinearLayout>
 </LinearLayout>

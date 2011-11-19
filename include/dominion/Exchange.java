@@ -10,6 +10,7 @@ public class Exchange {
     
     private volatile boolean decisionActive = false; 
     private volatile boolean uiWaiting = false;
+    public volatile boolean gameOver = false;
     
     private Object gameWait = new Object();
     private Object uiWait = new Object();
@@ -42,6 +43,15 @@ public class Exchange {
         } catch (Exception e) { logger.log(""+e); }
         return response;
     }
+
+    public void postEndOfGame() {
+        this.gameOver = true;
+        if(uiWaiting) {
+            synchronized(uiWait) {
+                uiWait.notify();
+            }
+        }
+    }
     
     public boolean postResponse(String response) {
         logger.log("postResponse: " + response);
@@ -59,6 +69,9 @@ public class Exchange {
     
     // Called by the UI. Blocks until a decision is ready, then returns.
     public void waitForDecision(){
+        if(gameOver) {
+            return;
+        }
         if(!decisionActive) {
             try {
                 uiWaiting = true;

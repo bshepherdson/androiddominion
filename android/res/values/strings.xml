@@ -8,4 +8,5 @@
     <string name="logs">Logs</string>
     <string name="kingdom">Kingdom</string>
     <string name="quit">Quit</string>
+    <string name="gameOver">Game Over</string>
 </resources>

@@ -100,6 +100,7 @@ public class GameService extends Service {
 				Log.i(Constants.TAG, "Turn over, calling playTurn() again");
 			}
 			Log.i(Constants.TAG, "Game over!");
+			exchange.postEndOfGame();
 			
 			parent.stopForeground(true);
 			parent.stopService(new Intent(parent, GameService.class));

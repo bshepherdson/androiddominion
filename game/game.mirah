@@ -56,7 +56,7 @@ class Game
     @kingdom.add(Kingdom.new(Card.cards('Gold'), 1000))
     @kingdom.add(Kingdom.new(Card.cards('Estate'), Card.cards('Estate').cardCount(@players.size)))
     @kingdom.add(Kingdom.new(Card.cards('Duchy'), Card.cards('Duchy').cardCount(@players.size)))
-    @kingdom.add(Kingdom.new(Card.cards('Province'), Card.cards('Province').cardCount(@players.size)))
+    @kingdom.add(Kingdom.new(Card.cards('Province'), 1)) #Card.cards('Province').cardCount(@players.size)))
     @kingdom.add(Kingdom.new(Card.cards('Curse'), Card.cards('Curse').cardCount(@players.size)))
   end
 
