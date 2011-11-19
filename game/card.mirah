@@ -239,6 +239,7 @@ class Card
     @@cards.put('Merchant Ship', MerchantShip.new)
     @@cards.put('Outpost', Outpost.new)
     @@cards.put('Tactician', Tactician.new)
+    @@cards.put('Treasury', Treasury.new)
   end
 
 end
@@ -1644,6 +1645,19 @@ class Tactician < DurationCard
     plusCards(p, 5)
     plusBuys(p, 1)
     plusActions(p, 1)
+  end
+end
+
+
+class Treasury < Card
+  def initialize
+    super('Treasury', CardSets.SEASIDE, CardTypes.ACTION, 5, '+1 Card, +1 Action, +1 Coin. When you discard this from play, if you didn\'t buy a Victory card this turn, you may put this on top of your deck.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+    plusCoins(p, 1)
   end
 end
 

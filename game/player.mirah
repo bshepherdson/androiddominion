@@ -200,12 +200,55 @@ class Player
 
     @discards.addAll(@durationCards)
     @durationCards = RubyList.new
-    @durationCards.addAll(@inPlay.select { |c| Card(c).types & CardTypes.DURATION > 0 })
+    treasuries = RubyList.new
 
-    @discards.addAll(@inPlay.select { |c| Card(c).types & CardTypes.DURATION == 0 })
-    @discards.addAll(@hand)
+    while @inPlay.size > 0
+      card = Card(@inPlay.pop)
+      if card.types & CardTypes.DURATION > 0
+        @durationCards.add(card)
+      elsif card.name.equals('Treasury')
+        treasuries.add(card)
+      else
+        @discards.add(card)
+      end
+    end
+
+    while @hand.size > 0
+      card = Card(@hand.pop)
+      if card.name.equals('Treasury')
+        treasuries.add(card)
+      else
+        @discards.add(card)
+      end
+    end
+
     @inPlay = RubyList.new
     @hand = RubyList.new
+
+    if treasuries.size > 0
+      victoryCardsBought = @gainedLastTurn.select do |c_|
+        c = GainedCard(c_)
+        c.bought && (c.card.types & CardTypes.VICTORY > 0)
+      end
+
+      if victoryCardsBought.size > 0
+        logMe('cannot put Treasuries on top because they bought a Victory card this turn.')
+      else
+        options = RubyList.new
+        options.add(Option.new('yes', 'Yes'))
+        options.add(Option.new('no',  'No'))
+        dec = Decision.new(self, options, 'Do you want to put ' + treasuries.size + ' Treasur' + (treasuries.size == 1 ? 'y' : 'ies') + ' on top of your deck?', RubyList.new)
+        key = Game.instance.decision(dec)
+
+        if key.equals('yes')
+          @deck.addAll(treasuries)
+          logMe('puts ' + treasuries.size + ' Treasur' + (treasuries.size == 1 ? 'y' : 'ies') + ' on top of their deck.')
+        else
+          @discards.addAll(treasuries)
+          logMe('discards their Treasuries.')
+        end
+      end
+    end
 
     draw(@outpostPlayed ? 3 : 5)
   end
