@@ -1007,22 +1007,22 @@ class PearlDiver < Card
     plusActions p, 1
 
     if p.deck.size == 0
-      p.logMe('has no deck to look at.')
-    else
-      bottom = Card(p.deck.get(0))
-      options = RubyList.new
-      options.add(Option.new('ontop', 'Put it on top of your deck.'))
-      options.add(Option.new('leave', 'Leave it on the bottom.'))
-      dec = Decision.new(p, options, 'The bottom card of your deck is ' + bottom.name + '.', RubyList.new)
-      key = Game.instance.decision(dec)
+      p.shuffleDiscards
+    end
 
-      if key.equals('ontop')
-        p.deck.remove(0)
-        p.deck.add(bottom)
-        p.logMe('looks at the bottom card of his deck, putting it on top.')
-      else
-        p.logMe('looks at the bottom card of his deck, leaving it there.')
-      end
+    bottom = Card(p.deck.get(0))
+    options = RubyList.new
+    options.add(Option.new('ontop', 'Put it on top of your deck.'))
+    options.add(Option.new('leave', 'Leave it on the bottom.'))
+    dec = Decision.new(p, options, 'The bottom card of your deck is ' + bottom.name + '.', RubyList.new)
+    key = Game.instance.decision(dec)
+
+    if key.equals('ontop')
+      p.deck.remove(0)
+      p.deck.add(bottom)
+      p.logMe('looks at the bottom card of his deck, putting it on top.')
+    else
+      p.logMe('looks at the bottom card of his deck, leaving it there.')
     end
   end
 end
@@ -1485,5 +1485,6 @@ class SeaHag < Card
     end
   end
 end
+
 
 
