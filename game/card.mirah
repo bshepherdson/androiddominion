@@ -240,6 +240,7 @@ class Card
     @@cards.put('Outpost', Outpost.new)
     @@cards.put('Tactician', Tactician.new)
     @@cards.put('Treasury', Treasury.new)
+    @@cards.put('Wharf', Wharf.new)
   end
 
 end
@@ -1661,5 +1662,22 @@ class Treasury < Card
   end
 end
 
+
+class Wharf < DurationCard
+  def initialize
+    super('Wharf', CardSets.SEASIDE, 5, 'Now and at the start of your next turn: +2 Cards, +1 Buy.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 2)
+    plusBuys(p, 1)
+    p.durationRules.add(self)
+  end
+
+  def runDurationRules(p:Player)
+    plusCards(p, 2)
+    plusBuys(p, 1)
+  end
+end
 
 
