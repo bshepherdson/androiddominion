@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import dominion.Decision;
@@ -33,7 +34,9 @@ public class DominionA extends Activity {
 	private Player lastPlayer = null;
 	
 	protected TextView newPlayer, gameOverWinner;
-	protected LinearLayout infoLayout, optionsLayout, decisionLayout, gameOverLayout, gameOverPlayers;
+	protected LinearLayout logLayout, infoLayout, optionsLayout, decisionLayout, gameOverLayout, gameOverPlayers;
+	
+	protected ScrollView decisionScroller;
 	
 	protected int lastClick = -1;
 	protected TextView lastClickTarget; 
@@ -173,10 +176,23 @@ public class DominionA extends Activity {
 	
 	
 	protected void showDecision() {
+		decisionScroller.fullScroll(ScrollView.FOCUS_UP);
+		
 		Decision decision = (Decision) exchange.decision;
 		
 		TextView playerName = (TextView) findViewById(R.id.playerName);
 		playerName.setText(decision.player().name());
+		
+		logLayout.removeAllViews();
+		ArrayList<String> logs = exchange.getLogs();
+		int start = logs.size() - (exchange.getLogSize() - decision.player().lastLogIndex());
+		Log.i(Constants.TAG, "logs.size() = " + logs.size() + ", exchange.getLogSize() = " + exchange.getLogSize() + ", lastLogIndex()=" + decision.player().lastLogIndex());
+		for(int i = start; i < logs.size(); i++) {
+			TextView t = new TextView(this);
+			t.setText(logs.get(i));
+			t.setTextSize(TypedValue.COMPLEX_UNIT_PT, 6);
+			logLayout.addView(t);
+		}
 		
 		TextView message = (TextView) findViewById(R.id.message);
 		message.setText(decision.message());
@@ -226,6 +242,9 @@ public class DominionA extends Activity {
 			}
 		});
 		
+		decisionScroller = (ScrollView) findViewById(R.id.decisionScroller);
+		
+		logLayout = (LinearLayout) findViewById(R.id.logLayout);
 		infoLayout = (LinearLayout) findViewById(R.id.infoLayout);
 		optionsLayout = (LinearLayout) findViewById(R.id.optionsLayout);
 		decisionLayout = (LinearLayout) findViewById(R.id.decision);

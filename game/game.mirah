@@ -40,7 +40,9 @@ class Game
   end
 
   def decision(dec:Decision):String
-    @exchange.postDecision(dec)
+    key = @exchange.postDecision(dec)
+    dec.player.lastLogIndex = @exchange.getLogSize
+    key
   end
 
   def startGame

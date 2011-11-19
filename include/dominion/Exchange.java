@@ -88,6 +88,10 @@ public class Exchange {
       }
     }
 
+    public int getLogSize() {
+      return logs.size();
+    }
+
     public ArrayList<String> getLogs() {
       ArrayList<String> copy = new ArrayList<String>(100);
       synchronized(logs) {

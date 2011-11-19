@@ -5,9 +5,10 @@
   android:layout_height="fill_parent" android:orientation="vertical">
     <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/decision" android:visibility="gone">
         <TextView android:text="Player Name" android:layout_gravity="center_horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:focusable="false" android:layout_marginTop="2mm" android:textSize="12pt" android:layout_marginBottom="2mm" android:id="@+id/playerName"></TextView>
-        <TextView android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8pt" android:id="@+id/message"></TextView>
-        <ScrollView android:id="@+id/scrollView1" android:layout_height="fill_parent" android:layout_width="fill_parent">
+        <ScrollView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/decisionScroller">
             <LinearLayout android:id="@+id/linearLayout2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/logLayout" android:orientation="vertical" android:paddingBottom="0.15in"></LinearLayout>
+            	<TextView android:textSize="8pt" android:layout_width="wrap_content" android:text="TextView" android:layout_height="wrap_content" android:id="@+id/message"></TextView>
                 <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/infoLayout" android:orientation="vertical" android:layout_marginTop="2mm">
                 </LinearLayout>
                 <LinearLayout android:id="@+id/optionsLayout" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2mm"></LinearLayout>

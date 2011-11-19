@@ -51,6 +51,7 @@ class Player
     @pirateShipCoins = 0
     @outpostPlayed = false
     @consecutiveTurns = 0
+    @lastLogIndex = 0
   end
 
 
@@ -516,6 +517,13 @@ class Player
   end
   def consecutiveTurns=(v:int)
     @consecutiveTurns = v
+  end
+
+  def lastLogIndex:int
+    @lastLogIndex
+  end
+  def lastLogIndex=(v:int)
+    @lastLogIndex = v
   end
 
 end
