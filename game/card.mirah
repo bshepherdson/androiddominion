@@ -235,6 +235,7 @@ class Card
     @@cards.put('Treasure Map', TreasureMap.new)
     @@cards.put('Bazaar', Bazaar.new)
     @@cards.put('Explorer', Explorer.new)
+    @@cards.put('Ghost Ship', GhostShip.new)
   end
 
 end
@@ -1561,6 +1562,34 @@ class Explorer < Card
 
     p.logMe('gains a Silver into their hand.')
     p.hand.add(Card.cards('Silver'))
+  end
+end
+
+
+class GhostShip < Card
+  def initialize
+    super('Ghost Ship', CardSets.SEASIDE, CardTypes.ACTION | CardTypes.ATTACK, 5, '+2 Cards. Each other player with 4 or more cards in hand puts cards from his hand on top of his deck until he has 3 cards in his hand.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 2)
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    if o.hand.size < 4
+      o.logMe('already has fewer than 4 cards in their hand.')
+      return
+    end
+
+    while o.hand.size > 3
+      card = Utils.handDecision(o, 'Choose a card to discard onto the top of your deck. You must discard down to 3 cards in hand.', nil, o.hand)
+      o.removeFromHand(card)
+      o.deck.add(card)
+    end
+
+    o.logMe('discards down to 3 cards in hand, putting the cards on top of their deck.')
   end
 end
 
