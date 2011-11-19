@@ -42,7 +42,6 @@ class Player
     @coins = 0
     @vpTokens = 0
 
-    @outpostActive = false
     @outpostTurns = 0
     @havenCards = RubyList.new
     @nativeVillageMat = RubyList.new
@@ -50,6 +49,8 @@ class Player
     @islandSetAside = RubyList.new
     @pirateShipAttack = 0
     @pirateShipCoins = 0
+    @outpostPlayed = false
+    @consecutiveTurns = 0
   end
 
 
@@ -59,11 +60,11 @@ class Player
     @buys = 1
     @coins = 0
     @gainedLastTurn.clear
+    @consecutiveTurns += 1
 
-    if @outpostActive
+    if @outpostPlayed
       logMe('starts their Outpost turn.')
-      @outpostActive = false
-      @outpostTurns = 1
+      @outpostPlayed = false
     else
       logMe('starts turn ' + @turn + '.')
     end
@@ -73,6 +74,7 @@ class Player
       logMe('gets the delayed effect of ' + c.name + '.')
       c.runDurationRules(self)
     end
+    @durationRules.clear
   end
 
   /* Returns true to continue playing actions, false to move to the next phase. */
@@ -205,15 +207,13 @@ class Player
     @inPlay = RubyList.new
     @hand = RubyList.new
 
-    draw(@outpostActive ? 3 : 5)
+    draw(@outpostPlayed ? 3 : 5)
   end
 
   def turnEnd
     logMe('ends turn.')
     @phase = @@PHASE_NOT_PLAYING
-    if not @outpostActive
-      @turn += 1
-    end
+    @turn += 1
   end
 
   def draw(n:int):int
@@ -457,6 +457,20 @@ class Player
   end
   def pirateShipCoins=(v:int)
     @pirateShipCoins = v
+  end
+
+  def outpostPlayed:boolean
+    @outpostPlayed
+  end
+  def outpostPlayed=(v:boolean)
+    @outpostPlayed = v
+  end
+
+  def consecutiveTurns:int
+    @consecutiveTurns
+  end
+  def consecutiveTurns=(v:int)
+    @consecutiveTurns = v
   end
 
 end

@@ -237,6 +237,7 @@ class Card
     @@cards.put('Explorer', Explorer.new)
     @@cards.put('Ghost Ship', GhostShip.new)
     @@cards.put('Merchant Ship', MerchantShip.new)
+    @@cards.put('Outpost', Outpost.new)
   end
 
 end
@@ -1610,4 +1611,14 @@ class MerchantShip < DurationCard
   end
 end
 
+
+class Outpost < DurationCard
+  def initialize
+    super('Outpost', CardSets.SEASIDE, 5, 'You only draw 3 cards (instead of 5) in this turn\'s Clean-up phase. Take an extra turn after this one. This can\'t cause you to take more than two consecutive turns.')
+  end
+
+  def runRules(p:Player)
+    p.outpostPlayed = true
+  end
+end
 

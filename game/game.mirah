@@ -79,7 +79,17 @@ class Game
     p.turnCleanupPhase
     p.turnEnd
 
-    checkEndOfGame
+    over = checkEndOfGame
+    if over
+      return true
+    elsif p.outpostPlayed && p.consecutiveTurns < 2
+      @turn -= 1
+      return playTurn
+    else
+      p.consecutiveTurns = 0
+      p.outpostPlayed = false
+      return false
+    end
   end
 
   def checkEndOfGame:boolean
