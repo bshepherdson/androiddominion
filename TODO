@@ -1,4 +1,3 @@
-Handle end-of-game properly!
 Reset scrolling on decision view when showing a new one.
 Handle Back correctly (leave the app.) (Currently goes to New Game screen.)
   Alternatively, make the New Game screen grok having a game already in progress.
