@@ -232,6 +232,7 @@ class Card
     @@cards.put('Pirate Ship', PirateShip.new)
     @@cards.put('Salvager', Salvager.new)
     @@cards.put('Sea Hag', SeaHag.new)
+    @@cards.put('Treasure Map', TreasureMap.new)
   end
 
 end
@@ -1486,5 +1487,38 @@ class SeaHag < Card
   end
 end
 
+
+class TreasureMap < Card
+  def initialize
+    super('Treasure Map', CardSets.SEASIDE, CardTypes.ACTION, 4, 'Trash this and another copy of Treasure Map from your hand. If you do trash two Treasure Maps, gain 4 Gold cards, putting them on top of your deck.')
+  end
+
+  def runRules(p:Player)
+    another = false
+    newhand = RubyList.new
+    i = 0
+    while i < p.hand.size
+      if Card(p.hand.get(i)).name.equals('Treasure Map')
+        another = true
+      else
+        newhand.add(p.hand.get(i))
+      end
+      i += 1
+    end
+
+    p.hand = newhand
+
+    newInPlay = p.inPlay.select do |c| not Card(c).name.equals('Treasure Map') end
+    p.inPlay = newInPlay
+
+    if another
+      p.logMe('trashes two Treasure Maps, putting 4 Gold on top of their deck.')
+      p.deck.add(Card.cards('Gold'))
+      p.deck.add(Card.cards('Gold'))
+      p.deck.add(Card.cards('Gold'))
+      p.deck.add(Card.cards('Gold'))
+    end
+  end
+end
 
 
