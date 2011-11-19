@@ -233,6 +233,7 @@ class Card
     @@cards.put('Salvager', Salvager.new)
     @@cards.put('Sea Hag', SeaHag.new)
     @@cards.put('Treasure Map', TreasureMap.new)
+    @@cards.put('Bazaar', Bazaar.new)
   end
 
 end
@@ -1521,4 +1522,16 @@ class TreasureMap < Card
   end
 end
 
+
+class Bazaar < Card
+  def initialize
+    super('Bazaar', CardSets.SEASIDE, CardTypes.ACTION, 5, '+1 Card, +2 Actions, +1 Coin.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 2)
+    plusCoins(p, 1)
+  end
+end
 
