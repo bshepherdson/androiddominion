@@ -236,6 +236,7 @@ class Card
     @@cards.put('Bazaar', Bazaar.new)
     @@cards.put('Explorer', Explorer.new)
     @@cards.put('Ghost Ship', GhostShip.new)
+    @@cards.put('Merchant Ship', MerchantShip.new)
   end
 
 end
@@ -1590,6 +1591,22 @@ class GhostShip < Card
     end
 
     o.logMe('discards down to 3 cards in hand, putting the cards on top of their deck.')
+  end
+end
+
+
+class MerchantShip < DurationCard
+  def initialize
+    super('Merchant Ship', CardSets.SEASIDE, 5, 'Now and at the start of your next turn: +2 Coins.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+    p.durationRules.add(self)
+  end
+
+  def runDurationRules(p:Player)
+    plusCoins(p, 2)
   end
 end
 
