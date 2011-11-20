@@ -176,6 +176,13 @@ class Player
 
     logMe((free ? 'gains' : 'buys') +' '+ inKingdom.card.name + '.')
 
+    if inKingdom.card.types & CardTypes.VICTORY > 0
+      if not Game.instance.victoryCardMap.containsKey(inKingdom.card.name)
+        Game.instance.victoryCardMap.put(inKingdom.card.name, inKingdom.card)
+        Game.instance.tradeRouteCoins += 1
+      end
+    end
+
     if inKingdom.count == 1
       Game.instance.log('There is only one ' + inKingdom.card.name + ' remaining.')
     elsif inKingdom.count == 0

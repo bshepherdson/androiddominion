@@ -246,6 +246,7 @@ class Card
 
     # Prosperity
     @@cards.put('Loan', Loan.new)
+    @@cards.put('Trade Route', TradeRoute.new)
   end
 
 end
@@ -1736,6 +1737,21 @@ class Loan < Card
   end
 end
 
+
+class TradeRoute < Card
+  def initialize
+    super('Trade Route', CardSets.PROSPERITY, CardTypes.ACTION, 3, '+1 Buy. +1 Coin per token on the Trade Route mat. Trash a card from your hand. -- Setup: Put a token on each Victory card Supply pile. When a card is gained from that pile, move the token to the Trade Route mat.')
+  end
+
+  def runRules(p:Player)
+    plusBuys(p, 1)
+    plusCoins(p, Game.instance.tradeRouteCoins)
+
+    card = Utils.handDecision(p, 'Trash a card from your hand.', nil, p.hand)
+    p.removeFromHand(card)
+    p.logMe('trashes ' + card.name + '.')
+  end
+end
 
 
 

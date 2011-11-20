@@ -7,6 +7,7 @@ import dominion.Exchange
 
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.HashMap
 
 
 class Game
@@ -15,6 +16,9 @@ class Game
     @players = RubyList.new
     @turn = -1
     @kingdom = RubyList.new
+
+    @tradeRouteCoins = 0
+    @victoryCardMap = HashMap.new
   end
 
   def self.bootstrap
@@ -147,6 +151,21 @@ class Game
   def kingdom=(v:RubyList)
     @kingdom = v
   end
+
+  def tradeRouteCoins:int
+    @tradeRouteCoins
+  end
+  def tradeRouteCoins=(v:int)
+    @tradeRouteCoins = v
+  end
+
+  def victoryCardMap:HashMap
+    @victoryCardMap
+  end
+  def victoryCardMap=(v:HashMap)
+    @victoryCardMap = v
+  end
+
 end
 
 class Kingdom
