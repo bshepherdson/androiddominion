@@ -48,9 +48,9 @@ public class DominionA extends Activity {
 			
 			if(index != lastClick) {
 				if(lastClickTarget != null) {
-					lastClickTarget.setTextColor(0xffdddddd);
+					lastClickTarget.setBackgroundColor(0xff000000);
 				}
-				tv.setTextColor(0xff00dd00);
+				tv.setBackgroundColor(0xff444444);
 				lastClickTarget = tv;
 				lastClick = index;
 			} else {
@@ -93,75 +93,7 @@ public class DominionA extends Activity {
 
 		// display the show-to-player-X if it's not the same player as last time.
 		if(exchange.gameOver) {
-			decisionLayout.setVisibility(View.GONE);
-			newPlayer.setVisibility(View.GONE);
-			Log.i(Constants.TAG, "Showing game over screen");
-			
-			gameOverPlayers.removeAllViews();
-			
-			int winnerScore = -100;
-			ArrayList<Player> winners = new ArrayList<Player>();
-			Log.i(Constants.TAG, "Looping over players.");
-			for(int i = 0; i < Game.instance().players().size(); i++) {
-				Log.i(Constants.TAG, "Top of loop");
-				Player p = (Player) Game.instance().players().get(i);
-				Log.i(Constants.TAG, "Player: " + p.name());
-				TextView tv = new TextView(this);
-				int score = p.calculateScore();
-				Log.i(Constants.TAG, "Score: " + score);
-				if (score > winnerScore) {
-					Log.i(Constants.TAG, "New winner");
-					winners.clear();
-					winners.add(p);
-					winnerScore = score;
-				} else if (score == winnerScore) {
-					winners.add(p);
-					Log.i(Constants.TAG, "Adding to tie");
-				}
-				
-				tv.setText(p.name() + ": " + score + " points in " + p.turn() + " turns.");
-				gameOverPlayers.addView(tv);
-				Log.i(Constants.TAG, "Bottom of loop");
-			}
-			
-			Log.i(Constants.TAG, "Winner count: " + winners.size());
-			
-			if (winners.size() == 1) {
-				gameOverWinner.setText(winners.get(0).name() + " wins!");
-			} else {
-				ArrayList<Player> realWinners = new ArrayList<Player>();
-				int winnerTurns = Integer.MAX_VALUE;
-				for(Player p : winners) {
-					Log.i(Constants.TAG, "Winner loop: " + p.name());
-					if(p.turn() < winnerTurns) {
-						Log.i(Constants.TAG, "New realWinner");
-						realWinners.clear();
-						realWinners.add(p);
-						winnerTurns = p.turn();
-					} else if(p.turn() == winnerTurns) {
-						realWinners.add(p);
-						Log.i(Constants.TAG, "Adding to tie");
-					}
-				}
-				
-				Log.i(Constants.TAG, "RealWinner count: " + realWinners.size());
-				
-				if(realWinners.size() == 1) {
-					gameOverWinner.setText(realWinners.get(0).name() + " wins!");
-				} else {
-					StringBuffer sb = new StringBuffer();
-					for(int i = 0; i < realWinners.size(); i++) {
-						sb.append(realWinners.get(i).name());
-						if(i+2 < realWinners.size())
-							sb.append(", ");
-						else if(i+2 == realWinners.size())
-							sb.append(" and ");
-					}
-					gameOverWinner.setText("Tie between: " + sb.toString());
-				}
-			}
-			Log.i(Constants.TAG, "Bottom of gameOver logic.");
-			gameOverLayout.setVisibility(View.VISIBLE);
+			showGameOver();
 		} else if(decision.player() != lastPlayer) {
 			decisionLayout.setVisibility(View.GONE);
 			gameOverLayout.setVisibility(View.GONE);
@@ -189,18 +121,18 @@ public class DominionA extends Activity {
 		Log.i(Constants.TAG, "logs.size() = " + logs.size() + ", exchange.getLogSize() = " + exchange.getLogSize() + ", lastLogIndex()=" + decision.player().lastLogIndex());
 		for(int i = start; i < logs.size(); i++) {
 			TextView t = new TextView(this);
-			t.setText(logs.get(i));
+			Colorizer.colorize(t, logs.get(i));
 			t.setTextSize(TypedValue.COMPLEX_UNIT_PT, 6);
 			logLayout.addView(t);
 		}
 		
 		TextView message = (TextView) findViewById(R.id.message);
-		message.setText(decision.message());
+		Colorizer.colorize(message, decision.message());
 		
 		infoLayout.removeAllViews();
 		for(int i = 0; i < decision.info().size(); i++) {
 			TextView t = new TextView(this);
-			t.setText((String) decision.info().get(i));
+			Colorizer.colorize(t, (String) decision.info().get(i));
 			t.setTextSize(TypedValue.COMPLEX_UNIT_PT, 6);
 			infoLayout.addView(t);
 		}
@@ -209,13 +141,13 @@ public class DominionA extends Activity {
 		for(int i = 0; i < decision.options().size(); i++) {
 			Option o = (Option) decision.options().get(i);
 			TextView t = new TextView(this);
-			t.setText(o.text());
+			Colorizer.colorize(t, o.text());
 			t.setTextSize(TypedValue.COMPLEX_UNIT_PT, 8);
 			t.setClickable(true);
 			t.setTag(new Integer(i));
 			t.setOnClickListener(optionListener);
 			
-			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		    llp.setMargins(0, 10, 0, 0); // llp.setMargins(left, top, right, bottom);
 		    t.setLayoutParams(llp);
 			
@@ -224,6 +156,78 @@ public class DominionA extends Activity {
 		
 		decisionLayout.setVisibility(View.VISIBLE);
 		Log.i(Constants.TAG, "Decision visible");
+	}
+	
+	protected void showGameOver() {
+		decisionLayout.setVisibility(View.GONE);
+		newPlayer.setVisibility(View.GONE);
+		Log.i(Constants.TAG, "Showing game over screen");
+		
+		gameOverPlayers.removeAllViews();
+		
+		int winnerScore = -100;
+		ArrayList<Player> winners = new ArrayList<Player>();
+		Log.i(Constants.TAG, "Looping over players.");
+		for(int i = 0; i < Game.instance().players().size(); i++) {
+			Log.i(Constants.TAG, "Top of loop");
+			Player p = (Player) Game.instance().players().get(i);
+			Log.i(Constants.TAG, "Player: " + p.name());
+			TextView tv = new TextView(this);
+			int score = p.calculateScore();
+			Log.i(Constants.TAG, "Score: " + score);
+			if (score > winnerScore) {
+				Log.i(Constants.TAG, "New winner");
+				winners.clear();
+				winners.add(p);
+				winnerScore = score;
+			} else if (score == winnerScore) {
+				winners.add(p);
+				Log.i(Constants.TAG, "Adding to tie");
+			}
+			
+			tv.setText(p.name() + ": " + score + " points in " + p.turn() + " turns.");
+			gameOverPlayers.addView(tv);
+			Log.i(Constants.TAG, "Bottom of loop");
+		}
+		
+		Log.i(Constants.TAG, "Winner count: " + winners.size());
+		
+		if (winners.size() == 1) {
+			gameOverWinner.setText(winners.get(0).name() + " wins!");
+		} else {
+			ArrayList<Player> realWinners = new ArrayList<Player>();
+			int winnerTurns = Integer.MAX_VALUE;
+			for(Player p : winners) {
+				Log.i(Constants.TAG, "Winner loop: " + p.name());
+				if(p.turn() < winnerTurns) {
+					Log.i(Constants.TAG, "New realWinner");
+					realWinners.clear();
+					realWinners.add(p);
+					winnerTurns = p.turn();
+				} else if(p.turn() == winnerTurns) {
+					realWinners.add(p);
+					Log.i(Constants.TAG, "Adding to tie");
+				}
+			}
+			
+			Log.i(Constants.TAG, "RealWinner count: " + realWinners.size());
+			
+			if(realWinners.size() == 1) {
+				gameOverWinner.setText(realWinners.get(0).name() + " wins!");
+			} else {
+				StringBuffer sb = new StringBuffer();
+				for(int i = 0; i < realWinners.size(); i++) {
+					sb.append(realWinners.get(i).name());
+					if(i+2 < realWinners.size())
+						sb.append(", ");
+					else if(i+2 == realWinners.size())
+						sb.append(" and ");
+				}
+				gameOverWinner.setText("Tie between: " + sb.toString());
+			}
+		}
+		Log.i(Constants.TAG, "Bottom of gameOver logic.");
+		gameOverLayout.setVisibility(View.VISIBLE);
 	}
 	
 	

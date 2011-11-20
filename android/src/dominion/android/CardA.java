@@ -23,7 +23,7 @@ public class CardA extends Activity {
 		Card card = k.card();
 		
 		TextView name = (TextView) findViewById(R.id.cardTitle);
-		name.setText(card.name());
+		Colorizer.colorize(name, card.name());
 		
 		TextView typesTV = (TextView) findViewById(R.id.cardTypes);
 		ArrayList<String> types = new ArrayList<String>();
@@ -49,6 +49,6 @@ public class CardA extends Activity {
 		remaining.setText("Remaining: " + k.count());
 		
 		TextView rules = (TextView) findViewById(R.id.cardDescription);
-		rules.setText(card.text());
+		Colorizer.colorize(rules, card.text());
 	}
 }

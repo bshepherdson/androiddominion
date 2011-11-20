@@ -27,7 +27,7 @@ public class LogsA extends Activity {
 		
 		for(String s : logs) {
 			TextView t = new TextView(this);
-			t.setText(s);
+			Colorizer.colorize(t, s);
 			layout.addView(t);
 		}
 		

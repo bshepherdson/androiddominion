@@ -29,7 +29,7 @@ public class KingdomA extends Activity {
 		for(int i = 0; i < kingdom.size(); i++) {
 			Kingdom k = kingdom.get(i);
 			TextView t = new TextView(this);
-			t.setText(k.card().name() + ": " + k.card().cost() + " Coins, " + k.count() + " remaining.");
+			Colorizer.colorize(t, k.card().name() + ": " + k.card().cost() + " Coins, " + k.count() + " remaining.");
 			t.setTextSize(TypedValue.COMPLEX_UNIT_PT, 8);
 			t.setOnClickListener(clickListener);
 			t.setTag(new Integer(i));
