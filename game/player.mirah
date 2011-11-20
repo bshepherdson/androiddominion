@@ -139,6 +139,8 @@ class Player
         @coins += Card.treasureValues(card.name)
 
         logMe('plays ' + card.name + '.')
+        card.runRules(self)
+
         return true
       end
     elsif treasures.size > 0

@@ -127,6 +127,8 @@ class Card
       return 2
     elsif name.equals('Gold')
       return 3
+    elsif name.equals('Loan')
+      return 1
     end
     return 0
   end
@@ -241,6 +243,9 @@ class Card
     @@cards.put('Tactician', Tactician.new)
     @@cards.put('Treasury', Treasury.new)
     @@cards.put('Wharf', Wharf.new)
+
+    # Prosperity
+    @@cards.put('Loan', Loan.new)
   end
 
 end
@@ -270,6 +275,9 @@ class BasicCoin < Card
 
   def cardCount(players:int)
     1000
+  end
+
+  def runRules(p:Player)
   end
 end
 
@@ -1679,5 +1687,55 @@ class Wharf < DurationCard
     plusBuys(p, 1)
   end
 end
+
+
+####################################################################
+# PROSPERITY
+####################################################################
+
+class Loan < Card
+  def initialize
+    super('Loan', CardSets.PROSPERITY, CardTypes.TREASURE, 3, 'Worth 1 Coin. When you play this, reveal cards from your deck until you reveal a Treasure. Discard it or trash it. Discard the other cards.')
+  end
+
+  def runRules(p:Player)
+    setAside = RubyList.new
+
+    while true
+      drawn = p.draw(1)
+      if drawn == 0
+        p.logMe('has run out of cards to reveal.')
+        p.discards.addAll(setAside)
+        return
+      end
+
+      card = Card(p.hand.pop)
+      p.logMe('reveals ' + card.name + '.')
+
+      if card.types & CardTypes.TREASURE > 0
+        options = RubyList.new
+        options.add(Option.new('discard', 'Discard it.'))
+        options.add(Option.new('trash', 'Trash it.'))
+        dec = Decision.new(p, options, 'You revealed ' + card.name + ', discard it or trash it.', RubyList.new)
+        key = Game.instance.decision(dec)
+
+        if key.equals('discard')
+          p.logMe('discards ' + card.name + '.')
+          p.discards.add(card)
+        else
+          p.logMe('trashes ' + card.name + '.')
+        end
+
+        p.discards.addAll(setAside)
+        break
+      else
+        setAside.add(card)
+        next
+      end
+    end
+  end
+end
+
+
 
 
