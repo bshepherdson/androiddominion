@@ -200,6 +200,16 @@ class Player
           i += 1
         end
       end
+
+      talismanCards = @inPlay.select { |c| Card(c).name.equals('Talisman') }
+      talismans = talismanCards.size
+      if talismans > 0 and inKingdom.card.types & CardTypes.VICTORY == 0 and Game.instance.cardCost(inKingdom.card) <= 4
+        while talismans > 0
+          logMe('gains a copy for Talisman.')
+          buyCard(inKingdom, true)
+          talismans -= 1
+        end
+      end
     end
 
     return true

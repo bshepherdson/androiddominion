@@ -136,6 +136,8 @@ class Card
       return 1
     elsif name.equals('Quarry')
       return 1
+    elsif name.equals('Talisman')
+      return 1
     end
     return 0
   end
@@ -257,6 +259,7 @@ class Card
     @@cards.put('Bishop', Bishop.new)
     @@cards.put('Monument', Monument.new)
     @@cards.put('Quarry', Quarry.new)
+    @@cards.put('Talisman', Talisman.new)
   end
 
 end
@@ -1817,6 +1820,16 @@ class Quarry < Card
 
   def runRules(p:Player)
     Game.instance.quarries += 1
+  end
+end
+
+
+class Talisman < Card
+  def initialize
+    super('Talisman', CardSets.PROSPERITY, CardTypes.TREASURE, 4, 'Worth 1 Coin. While this is in play, when you buy a card costing 4 Coins or less that is not a Victory card, gain a copy of it.')
+  end
+
+  def runRules(p:Player)
   end
 end
 
