@@ -253,6 +253,7 @@ class Card
     @@cards.put('Loan', Loan.new)
     @@cards.put('Trade Route', TradeRoute.new)
     @@cards.put('Bishop', Bishop.new)
+    @@cards.put('Monument', Monument.new)
   end
 
 end
@@ -1790,6 +1791,18 @@ class Bishop < Card
       o.logMe('trashes ' + card.name + '.')
       o.removeFromHand(card)
     end
+  end
+end
+
+
+class Monument < Card
+  def initialize
+    super('Monument', CardSets.PROSPERITY, CardTypes.ACTION, 4, '+2 Coins, +1 VP token.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+    plusVP(p, 1)
   end
 end
 
