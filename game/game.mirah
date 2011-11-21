@@ -19,6 +19,7 @@ class Game
 
     @tradeRouteCoins = 0
     @victoryCardMap = HashMap.new
+    @quarries = 0
   end
 
   def self.bootstrap
@@ -83,6 +84,7 @@ class Game
     end while ret
     
     p.turnCleanupPhase
+    @quarries = 0
     p.turnEnd
 
     over = checkEndOfGame
@@ -120,7 +122,11 @@ class Game
 
   def cardCost(card:Card):int
     # TODO: Bridge, Quarry
-    card.cost
+    if card.types & CardTypes.ACTION > 0
+      Math.max(card.cost - 2*@quarries, 0)
+    else
+      card.cost
+    end
   end
 
   def log(str:String):void
@@ -164,6 +170,13 @@ class Game
   end
   def victoryCardMap=(v:HashMap)
     @victoryCardMap = v
+  end
+
+  def quarries:int
+    @quarries
+  end
+  def quarries=(v:int)
+    @quarries = v
   end
 
 end

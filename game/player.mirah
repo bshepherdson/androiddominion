@@ -150,7 +150,7 @@ class Player
     # TODO: Contraband handling
 
     coins = @coins
-    affordableCards = Game.instance.kingdom.select { |k_| Kingdom(k_).card.cost <= coins }
+    affordableCards = Game.instance.kingdom.select { |k_| Game.instance.cardCost(Kingdom(k_).card) <= coins }
     kCard = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new, affordableCards)
     if kCard != nil
       buyCard(kCard, false)

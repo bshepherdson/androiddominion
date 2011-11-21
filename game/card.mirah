@@ -134,6 +134,8 @@ class Card
       return 3
     elsif name.equals('Loan')
       return 1
+    elsif name.equals('Quarry')
+      return 1
     end
     return 0
   end
@@ -254,6 +256,7 @@ class Card
     @@cards.put('Trade Route', TradeRoute.new)
     @@cards.put('Bishop', Bishop.new)
     @@cards.put('Monument', Monument.new)
+    @@cards.put('Quarry', Quarry.new)
   end
 
 end
@@ -1807,5 +1810,14 @@ class Monument < Card
 end
 
 
+class Quarry < Card
+  def initialize
+    super('Quarry', CardSets.PROSPERITY, CardTypes.TREASURE, 4, 'Worth 1 Coin. While this is in play, Action cards cost 2 Coins less, but not less than 0 Coins.')
+  end
+
+  def runRules(p:Player)
+    Game.instance.quarries += 1
+  end
+end
 
 
