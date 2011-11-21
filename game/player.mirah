@@ -353,6 +353,7 @@ class Player
     end
 
     score += gardens * (deck.size / 10)
+    score += @vpTokens
     return score
   end
 
@@ -533,6 +534,13 @@ class Player
   end
   def lastLogIndex=(v:int)
     @lastLogIndex = v
+  end
+
+  def vpTokens:int
+    @vpTokens
+  end
+  def vpTokens=(v:int)
+    @vpTokens = v
   end
 
 end

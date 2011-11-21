@@ -76,6 +76,11 @@ class Card
     p.logMe 'gains +' + n + ' Card' + (n == 1 ? '' : 's') + '.'
   end
 
+  def plusVP(p:Player, n:int)
+    p.vpTokens += n
+    p.logMe('gains +' + n + ' VP token' + (n == 1 ? '' : 's') + '.')
+  end
+
   # abstract function called by everyPlayer
   def runEveryPlayer(p:Player, o:Player):void
     puts "ERROR: runEveryPlayer called but not overridden."
@@ -247,6 +252,7 @@ class Card
     # Prosperity
     @@cards.put('Loan', Loan.new)
     @@cards.put('Trade Route', TradeRoute.new)
+    @@cards.put('Bishop', Bishop.new)
   end
 
 end
@@ -1752,6 +1758,41 @@ class TradeRoute < Card
     p.logMe('trashes ' + card.name + '.')
   end
 end
+
+# TODO: Implement Watchtower.
+
+
+class Bishop < Card
+  def initialize
+    super('Bishop', CardSets.PROSPERITY, CardTypes.ACTION, 4, '+1 Coin. +1 VP token. Trash a card from your hand. +VP tokens equal to half its cost in Coins, rounded down. Each other player may trash a card from his hand.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 1)
+
+    card = Utils.handDecision(p, 'Trash a card for Bishop.', nil, p.hand)
+    p.removeFromHand(card)
+    p.logMe('trashes ' + card.name + '.')
+
+    cost = Game.instance.cardCost(card)
+    tokens = int(Math.floor(cost/2) + 1)
+
+    plusVP(p, tokens)
+
+    everyPlayer(p, false, false)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    card = Utils.handDecision(o, 'You may trash a card on ' + p.name + '\'s Bishop.', 'Do not trash.', o.hand)
+    if card == nil
+      o.logMe('chooses not to trash a card.')
+    else
+      o.logMe('trashes ' + card.name + '.')
+      o.removeFromHand(card)
+    end
+  end
+end
+
 
 
 
