@@ -266,6 +266,7 @@ class Card
     @@cards.put('Counting House', CountingHouse.new)
     @@cards.put('Mint', Mint.new)
     @@cards.put('Mountebank', Mountebank.new)
+    @@cards.put('Rabble', Rabble.new)
   end
 
 end
@@ -1986,6 +1987,66 @@ class Mountebank < Card
 
     o.buyCard(Game.instance.inKingdom('Curse'), true)
     o.buyCard(Game.instance.inKingdom('Copper'), true)
+  end
+end
+
+
+class Rabble < Card
+  def initialize
+    super('Rabble', CardSets.PROSPERITY, CardTypes.ACTION | CardTypes.ATTACK, 5, '+3 Cards. Each other player reveals the top 3 cards of his deck, discards the revealed Actions and Treasures, and puts the rest back on top in any order he chooses.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 3)
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    drawn = o.draw(3)
+    
+    cards = RubyList.new
+    while drawn > 0
+      cards.add(o.hand.pop)
+      drawn -= 1
+    end
+
+    bad = RubyList.new
+    i = 0
+    while i < cards.size
+      c = Card(cards.get(i))
+      if (c.types & CardTypes.ACTION > 0) or (c.types & CardTypes.TREASURE > 0)
+        o.discards.add(c)
+        o.logMe('discards ' + c.name + '.')
+      else
+        bad.add(c)
+      end
+      i += 1
+    end
+
+    if bad.size == 0
+      return
+    end
+    while bad.size > 1
+      c = Utils.handDecision(o, 'Choose which card to put back on your deck. Later cards will go on top of this one.', nil, bad)
+      other = RubyList.new
+      i = 0
+      found = false
+      while i < bad.size
+        if (not found) and Card(bad.get(i)).name.equals(c.name)
+          o.logMe('returns a card to the top of their deck.')
+          o.deck.add(c)
+          found = true
+        else
+          other.add(bad.get(i))
+        end
+        i += 1
+      end
+      bad = other
+    end
+
+    o.logMe('returns the last card to the top of their deck.')
+    o.deck.add(bad.get(0))
   end
 end
 
