@@ -260,6 +260,8 @@ class Card
     @@cards.put('Monument', Monument.new)
     @@cards.put('Quarry', Quarry.new)
     @@cards.put('Talisman', Talisman.new)
+    @@cards.put('Worker\'s Village', WorkersVillage.new)
+    @@cards.put('City', City.new)
   end
 
 end
@@ -1833,4 +1835,42 @@ class Talisman < Card
   end
 end
 
+
+class WorkersVillage < Card
+  def initialize
+    super('Worker\'s Village', CardSets.PROSPERITY, CardTypes.ACTION, 4, '+1 Card, +2 Actions, +1 Buy.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 2)
+    plusBuys(p, 1)
+  end
+end
+
+
+class City < Card
+  def initialize
+    super('City', CardSets.PROSPERITY, CardTypes.ACTION, 5, '+1 Card, +2 Actions. If there are one or more empty Supply piles, +1 Card. If there are two or more, +1 Coin and +1 Buy.')
+  end
+
+  def runRules(p:Player)
+    cards = 1
+
+    emptyPiles = Game.instance.kingdom.select { |k| Kingdom(k).count == 0 }
+
+    if emptyPiles.size >= 1
+      cards = 2
+    end
+
+    plusCards(p, cards)
+    plusActions(p, 2)
+
+    if emptyPiles.size >= 2
+      plusCoins(p, 1)
+      plusBuys(p, 1)
+    end
+  end
+end
+      
 
