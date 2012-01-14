@@ -262,6 +262,7 @@ class Card
     @@cards.put('Talisman', Talisman.new)
     @@cards.put('Worker\'s Village', WorkersVillage.new)
     @@cards.put('City', City.new)
+    @@cards.put('Contraband', Contraband.new)
   end
 
 end
@@ -1873,4 +1874,41 @@ class City < Card
   end
 end
       
+
+class Contraband < Card
+  def initialize
+    super('Contraband', CardSets.PROSPERITY, CardTypes.TREASURE, 5, 'Worth 3 Coins. +1 Buy. When you play this, the player to your left names a card. You can\'t buy that card this turn.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 3)
+    plusBuys(p, 1)
+
+    playerIndex = Game.instance.players.find_index { |o_| Player(o_).id == p.id }
+    o = Player(Game.instance.players.get( (playerIndex+1) % Game.instance.players.size))
+
+    /* now find all kingdom cards which are not empty piles
+     * and not already Contraband. */
+    cards = Game.instance.kingdom.select do |k_|
+      k = Kingdom(k_)
+      k.count > 0 and not p.contrabandCards.includes(k.card)
+    end
+
+    opts = Utils.cardsToOptions(cards.collect { |k_| Kingdom(k_).card })
+    info = RubyList.new
+    info.add('Contraband cards: ' + Utils.showCards(p.contrabandCards))
+    info.add(p.name + '\'s hand size: ' + p.hand.size)
+    info.add(p.name + '\'s coins: ' + Integer.new(p.coins).toString)
+    dec = Decision.new(o, opts, 'Choose a card that ' + p.name + ' cannot buy this turn.', info)
+
+    key = Game.instance.decision(dec)
+    index = Utils.keyToIndex(key)
+
+    k = Kingdom(cards.get(index))
+    p.contrabandCards.add(k.card)
+
+    p.logMe('can\'t buy ' + k.card.name + ' this turn.')
+  end
+end
+
 

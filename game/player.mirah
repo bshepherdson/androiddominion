@@ -52,6 +52,7 @@ class Player
     @outpostPlayed = false
     @consecutiveTurns = 0
     @lastLogIndex = 0
+    @contrabandCards = RubyList.new
   end
 
 
@@ -147,10 +148,12 @@ class Player
       playCoins
     end
 
-    # TODO: Contraband handling
-
     coins = @coins
-    affordableCards = Game.instance.kingdom.select { |k_| Game.instance.cardCost(Kingdom(k_).card) <= coins }
+    contraband = @contrabandCards
+    affordableCards = Game.instance.kingdom.select do |k_| 
+      k = Kingdom(k_)
+      Game.instance.cardCost(k.card) <= coins and not contraband.includes(k.card)
+    end
     kCard = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new, affordableCards)
     if kCard != nil
       buyCard(kCard, false)
@@ -220,6 +223,7 @@ class Player
 
     @discards.addAll(@durationCards)
     @durationCards = RubyList.new
+    @contrabandCards = RubyList.new
     treasuries = RubyList.new
 
     while @inPlay.size > 0
@@ -551,6 +555,13 @@ class Player
   end
   def vpTokens=(v:int)
     @vpTokens = v
+  end
+
+  def contrabandCards:RubyList
+    @contrabandCards
+  end
+  def contrabandCards=(v:RubyList)
+    @contrabandCards = v
   end
 
 end
