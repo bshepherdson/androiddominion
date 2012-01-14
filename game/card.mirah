@@ -265,6 +265,7 @@ class Card
     @@cards.put('Contraband', Contraband.new)
     @@cards.put('Counting House', CountingHouse.new)
     @@cards.put('Mint', Mint.new)
+    @@cards.put('Mountebank', Mountebank.new)
   end
 
 end
@@ -1959,5 +1960,34 @@ class Mint < Card
     end
   end
 end
+
+
+class Mountebank < Card
+  def initialize
+    super('Mountebank', CardSets.PROSPERITY, CardTypes.ACTION | CardTypes.ATTACK, 5, '+2 Coins. Each other player may discard a Curse. If he does not, he gains a Curse and a Copper.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    curses = o.hand.select { |c_| Card(c_).name.equals('Curse') }
+
+    if curses.size > 0
+      yn = yesNo(o, p.name + ' has played Mountebank. Would you like to discard a Curse?')
+      if yn.equals('yes')
+        o.discard(Card(curses.get(0)))
+        return
+      end
+    end
+
+    o.buyCard(Game.instance.inKingdom('Curse'), true)
+    o.buyCard(Game.instance.inKingdom('Copper'), true)
+  end
+end
+
 
 
