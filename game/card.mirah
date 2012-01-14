@@ -264,6 +264,7 @@ class Card
     @@cards.put('City', City.new)
     @@cards.put('Contraband', Contraband.new)
     @@cards.put('Counting House', CountingHouse.new)
+    @@cards.put('Mint', Mint.new)
   end
 
 end
@@ -1938,4 +1939,25 @@ class CountingHouse < Card
     p.hand.addAll(coppers)
   end
 end
+
+
+class Mint < Card
+  def initialize
+    super('Mint', CardSets.PROSPERITY, CardTypes.ACTION, 5, 'You may reveal a Treasure card from your hand. Gain a copy of it. -- When you buy this, trash all Treasures you have in play.')
+  end
+
+  def runRules(p:Player)
+    treasures = p.hand.select { |c_| Card(c_).types & CardTypes.TREASURE > 0 }
+    c = Utils.handDecision(p, 'Choose a Treasure to reveal and gain a copy of.', 'Reveal nothing', treasures)
+
+    if c == nil
+      p.logMe('reveals nothing.')
+    else
+      p.logMe('reveals ' + c.name + '.')
+      k = Game.instance.inKingdom(c.name)
+      p.buyCard(k, true)
+    end
+  end
+end
+
 
