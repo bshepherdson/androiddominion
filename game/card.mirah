@@ -263,6 +263,7 @@ class Card
     @@cards.put('Worker\'s Village', WorkersVillage.new)
     @@cards.put('City', City.new)
     @@cards.put('Contraband', Contraband.new)
+    @@cards.put('Counting House', CountingHouse.new)
   end
 
 end
@@ -1911,4 +1912,30 @@ class Contraband < Card
   end
 end
 
+
+class CountingHouse < Card
+  def initialize
+    super('Counting House', CardSets.PROSPERITY, CardTypes.ACTION, 5, 'Look through your discard pile, reveal any number of Copper cards from it, and put them into your hand.')
+  end
+
+  def runRules(p:Player)
+    coppers = RubyList.new
+    others = RubyList.new
+
+    i = 0
+    while i < p.discards.size
+      c = Card(p.discards.get(i))
+      if c.name.equals('Copper')
+        coppers.add(c)
+      else
+        others.add(c)
+      end
+      i += 1
+    end
+
+    p.logMe('puts ' + coppers.size + ' Coppers into their hand.')
+    p.discards = others
+    p.hand.addAll(coppers)
+  end
+end
 
