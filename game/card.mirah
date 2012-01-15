@@ -272,6 +272,7 @@ class Card
     @@cards.put('Mountebank', Mountebank.new)
     @@cards.put('Rabble', Rabble.new)
     @@cards.put('Royal Seal', RoyalSeal.new)
+    @@cards.put('Vault', Vault.new)
   end
 
 end
@@ -2064,4 +2065,45 @@ class RoyalSeal < Card
     p.royalSeal = true
   end
 end
+
+
+class Vault < Card
+  def initialize
+    super('Vault', CardSets.PROSPERITY, CardTypes.ACTION, 5, '+2 Cards. Discard any number of cards. +1 Coin per card discarded. Each other player may discard 2 cards. If he does, he draws a card.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 2)
+
+    discarded = 0
+    while p.hand.size > 0
+      c = Utils.handDecision(p, 'Discard any number of cards for Vault.', 'Done discarding', p.hand)
+      if c == nil
+        break
+      end
+
+      discarded += 1
+      p.discard(c)
+    end
+    if discarded > 0
+      plusCoins(p, discarded)
+    end
+
+    everyPlayer(p, false, false)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    yn = yesNo(o, p.name + ' has played Vault. Do you want to discard two cards and draw one?')
+    if yn.equals('yes')
+      c = Utils.handDecision(o, 'Choose the first card to discard.', nil, o.hand)
+      o.discard(c)
+      c = Utils.handDecision(o, 'Choose the second card to discard.', nil, o.hand)
+      o.discard(c)
+      o.draw(1)
+    else
+      o.logMe('chooses not to discard two cards and draw one.')
+    end
+  end
+end
+
 
