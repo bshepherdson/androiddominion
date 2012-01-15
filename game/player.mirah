@@ -197,6 +197,13 @@ class Player
       @coins -= Game.instance.cardCost(inKingdom.card)
       @buys -= 1
 
+      if inKingdom.card.name.equals('Mint')
+        treasures = @inPlay.select { |c_| Card(c_).types & CardTypes.TREASURE > 0 }
+        other = @inPlay.select { |c_| Card(c_).types & CardTypes.TREASURE == 0 }
+        logMe('trashes ' + Utils.showCards(treasures) + '.')
+        @inPlay = other
+      end
+
       if inKingdom.embargoTokens > 0
         i = 0
         while i < inKingdom.embargoTokens
