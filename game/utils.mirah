@@ -184,7 +184,11 @@ class Utils
 
   /* Takes a list of cards, prefiltered. The only filter applied here is count > 0. Cost and etc. must be done elsewhere. */
   def self.gainCardDecision(p:Player, message:String, done:String, info:RubyList, kingdomCards:RubyList):Kingdom
-    filteredCards = kingdomCards.select { |k_| Kingdom(k_).count > 0 }
+    coppers = p.inPlay.select { |c_| Card(c_).name.equals('Copper') }
+    filteredCards = kingdomCards.select do |k_|
+      k = Kingdom(k_)
+      k.count > 0 and (not (k.card.name.equals('Grand Market') and coppers.size > 0))
+    end
     options = filteredCards.collect_index do |k_,i|
       k = Kingdom(k_)
       Option.new("card["+Integer.new(i).toString()+"]",

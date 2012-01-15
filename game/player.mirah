@@ -133,7 +133,11 @@ class Player
     
     /* First, ask to play a coin or buy a card. */
     treasures = @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
-    nonBasic = treasures.select { |c| not Card.isBasicCoin(Card(c).name) }
+    nonBasic = treasures.select do |c|
+      basic = Card.isBasicCoin(Card(c).name)
+      gm = Card(c).name.equals('Copper') and Game.instance.indexInKingdom('Grand Market') >= 0
+      (not basic) or gm
+    end
     if nonBasic.size > 0
       card = Utils.handDecision(self, 'Choose a treasure to play, or to buy a card.', 'Buy a card', treasures)
       if card != nil
@@ -171,6 +175,12 @@ class Player
   def buyCard(inKingdom:Kingdom, free:boolean):boolean
     if inKingdom.count <= 0
       logMe('fails to ' + (free ? 'gain' : 'buy') + ' ' + inKingdom.card.name + ' because the Supply pile is empty.')
+      return false
+    end
+
+    copper = @inPlay.select { |c_| Card(c_).name.equals('Copper') }
+    if (not free) and inKingdom.card.name.equals('Grand Market') and copper.size > 0
+      logMe('fails to buy Grand Market because they have Copper in play.')
       return false
     end
 
@@ -409,7 +419,7 @@ class Player
     i = 0
     while i < @hand.size
       card = Card(@hand.get(i))
-      if Card.isBasicCoin(card.name)
+      if Card.isBasicCoin(card.name) and (not (Game.instance.indexInKingdom('Grand Market') >= 0 and card.name.equals('Copper')))
         removeFromHand(card)
         @inPlay.add(card)
         @coins += Card.treasureValues(card.name)

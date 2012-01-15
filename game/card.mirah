@@ -277,6 +277,7 @@ class Card
     @@cards.put('Vault', Vault.new)
     @@cards.put('Venture', Venture.new)
     @@cards.put('Goons', Goons.new)
+    @@cards.put('Grand Market', GrandMarket.new)
   end
 
 end
@@ -2164,5 +2165,18 @@ class Goons < Card
   end
 end
 
+
+class GrandMarket < Card
+  def initialize
+    super('Grand Market', CardSets.PROSPERITY, CardTypes.ACTION, 6, '+1 Card, +1 Action, +1 Buy, +2 Coins. -- You can\'t buy this if you have any Copper in play.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+    plusBuys(p, 1)
+    plusCoins(p, 2)
+  end
+end
 
 
