@@ -142,6 +142,8 @@ class Card
       return 3
     elsif name.equals('Royal Seal')
       return 2
+    elsif name.equals('Venture')
+      return 1
     end
     return 0
   end
@@ -273,6 +275,7 @@ class Card
     @@cards.put('Rabble', Rabble.new)
     @@cards.put('Royal Seal', RoyalSeal.new)
     @@cards.put('Vault', Vault.new)
+    @@cards.put('Venture', Venture.new)
   end
 
 end
@@ -2105,5 +2108,38 @@ class Vault < Card
     end
   end
 end
+
+
+class Venture < Card
+  def initialize
+    super('Venture', CardSets.PROSPERITY, CardTypes.TREASURE, 5, 'Worth 1 Coin. When you play this, reveal cards from your deck until you reveal a Treasure. Discard the other cards. Play that Treasure.')
+  end
+
+  def runRules(p:Player)
+    setAside = RubyList.new
+    while true
+      drawn = p.draw(1)
+      if drawn == 0
+        p.logMe('has drawn their whole deck and found no Treasures to play.')
+        p.discards.addAll(setAside)
+        return
+      end
+
+      card = Card(p.hand.pop)
+      p.logMe('reveals ' + card.name + '.')
+      if card.types & CardTypes.TREASURE > 0
+        p.discards.addAll(setAside)
+        p.inPlay.add(card)
+        p.coins += Card.treasureValues(card.name)
+        p.logMe('plays ' + card.name + '.')
+        card.runRules(p)
+        return
+      end
+
+      setAside.add(card)
+    end
+  end
+end
+
 
 
