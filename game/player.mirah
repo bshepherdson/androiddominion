@@ -53,6 +53,7 @@ class Player
     @consecutiveTurns = 0
     @lastLogIndex = 0
     @contrabandCards = RubyList.new
+    @royalSeal = false
   end
 
 
@@ -215,6 +216,14 @@ class Player
       end
     end
 
+    if @royalSeal
+      yn = inKingdom.card.yesNo(self, 'You have a Royal Seal in play. Put ' + inKingdom.card.name + ' on top of your deck?')
+      if yn.equals('yes')
+        @deck.add(@discards.pop)
+        logMe('puts it on top of their deck with Royal Seal.')
+      end
+    end
+
     return true
   end
 
@@ -225,6 +234,7 @@ class Player
     @durationCards = RubyList.new
     @contrabandCards = RubyList.new
     treasuries = RubyList.new
+    royalSeal = false
 
     while @inPlay.size > 0
       card = Card(@inPlay.pop)
@@ -562,6 +572,13 @@ class Player
   end
   def contrabandCards=(v:RubyList)
     @contrabandCards = v
+  end
+
+  def royalSeal:boolean
+    @royalSeal
+  end
+  def royalSeal=(v:boolean)
+    @royalSeal = v
   end
 
 end

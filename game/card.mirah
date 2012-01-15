@@ -138,6 +138,10 @@ class Card
       return 1
     elsif name.equals('Talisman')
       return 1
+    elsif name.equals('Contraband')
+      return 3
+    elsif name.equals('Royal Seal')
+      return 2
     end
     return 0
   end
@@ -267,6 +271,7 @@ class Card
     @@cards.put('Mint', Mint.new)
     @@cards.put('Mountebank', Mountebank.new)
     @@cards.put('Rabble', Rabble.new)
+    @@cards.put('Royal Seal', RoyalSeal.new)
   end
 
 end
@@ -1885,7 +1890,6 @@ class Contraband < Card
   end
 
   def runRules(p:Player)
-    plusCoins(p, 3)
     plusBuys(p, 1)
 
     playerIndex = Game.instance.players.find_index { |o_| Player(o_).id == p.id }
@@ -2051,4 +2055,13 @@ class Rabble < Card
 end
 
 
+class RoyalSeal < Card
+  def initialize
+    super('Royal Seal', CardSets.PROSPERITY, CardTypes.TREASURE, 5, 'Worth 2 Coins. While this is in play, when you gain a card, you may put that card on top of your deck.')
+  end
+
+  def runRules(p:Player)
+    p.royalSeal = true
+  end
+end
 
