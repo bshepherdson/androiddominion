@@ -276,6 +276,7 @@ class Card
     @@cards.put('Royal Seal', RoyalSeal.new)
     @@cards.put('Vault', Vault.new)
     @@cards.put('Venture', Venture.new)
+    @@cards.put('Goons', Goons.new)
   end
 
 end
@@ -2137,6 +2138,28 @@ class Venture < Card
       end
 
       setAside.add(card)
+    end
+  end
+end
+
+
+class Goons < Card
+  def initialize
+    super('Goons', CardSets.PROSPERITY, CardTypes.ACTION | CardTypes.ATTACK, 6, '+1 Buy, +2 Coins. Each other player discards down to 3 cards in hand. While this is in play, when you buy a card, +1 VP token.')
+  end
+
+  def runRules(p:Player)
+    plusBuys(p, 1)
+    plusCoins(p, 2)
+
+    everyPlayer(p, false, true)
+    p.goons += 1
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    while o.hand.size > 3
+      card = Utils.handDecision(o, 'You must discard down to 3 cards in hand. Choose a card to discard.', nil, o.hand)
+      o.discard(card)
     end
   end
 end

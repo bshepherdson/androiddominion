@@ -54,6 +54,7 @@ class Player
     @lastLogIndex = 0
     @contrabandCards = RubyList.new
     @royalSeal = false
+    @goons = 0
   end
 
 
@@ -204,6 +205,11 @@ class Player
         @inPlay = other
       end
 
+      if @goons > 0
+        @vpTokens += @goons
+        logMe('gains ' + Integer.new(@goons).toString + ' VP tokens for Goons.')
+      end
+
       if inKingdom.embargoTokens > 0
         i = 0
         while i < inKingdom.embargoTokens
@@ -241,7 +247,8 @@ class Player
     @durationCards = RubyList.new
     @contrabandCards = RubyList.new
     treasuries = RubyList.new
-    royalSeal = false
+    @royalSeal = false
+    @goons = 0
 
     while @inPlay.size > 0
       card = Card(@inPlay.pop)
@@ -586,6 +593,13 @@ class Player
   end
   def royalSeal=(v:boolean)
     @royalSeal = v
+  end
+
+  def goons:int
+    @goons
+  end
+  def goons=(v:int)
+    @goons = v
   end
 
 end
