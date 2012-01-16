@@ -287,6 +287,7 @@ class Card
     @@cards.put('Bank', Bank.new)
     @@cards.put('Expand', Expand.new)
     @@cards.put('Forge', Forge.new)
+    @@cards.put('King\'s Court', KingsCourt.new)
   end
 
 end
@@ -2260,6 +2261,33 @@ class Forge < Card
 end
 
 
+class KingsCourt < Card
+  def initialize
+    super('King\'s Court', CardSets.PROSPERITY, CardTypes.ACTION, 7, 'You may choose an Action card in your hand. Play it three times.')
+  end
+
+  def runRules(p:Player)
+    actions = p.hand.select { |c| Card(c).types & CardTypes.ACTION > 0 }
+    if actions.size == 0
+      p.logMe('has no Actions in hand.')
+      return
+    end
+
+    card = Utils.handDecision(p, 'Choose an Action card to play three times.', nil, actions)
+    p.removeFromHand(card)
+    p.inPlay.add(card)
+
+    p.logMe('uses King\'s Court on ' + card.name + '.')
+
+    p.logMe('plays ' + card.name + ' once.')
+    card.runRules(p)
+    p.logMe('plays ' + card.name + ' again.')
+    card.runRules(p)
+    p.logMe('plays ' + card.name + ' yet again.')
+    card.runRules(p)
+  end
+end
+    
 
 
 
