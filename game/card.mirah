@@ -285,6 +285,7 @@ class Card
     @@cards.put('Grand Market', GrandMarket.new)
     @@cards.put('Hoard', Hoard.new)
     @@cards.put('Bank', Bank.new)
+    @@cards.put('Expand', Expand.new)
   end
 
 end
@@ -2206,5 +2207,23 @@ class Bank < Card
   end
 end
 
+
+class Expand < Card
+  def initialize
+    super('Expand', CardSets.PROSPERITY, CardTypes.ACTION, 7, 'Trash a card from your hand. Gain a card costing up to 3 Coins more than the trashed card.')
+  end
+
+  def runRules(p:Player)
+    card = Utils.handDecision(p, 'Trash a card from your hand.', nil, p.hand)
+    p.removeFromHand(card)
+    p.logMe('trashes ' + card.name + '.')
+    
+    price = Game.instance.cardCost(card) + 3
+    affordableCards = Game.instance.kingdom.select { |k_| Game.instance.cardCost(Kingdom(k_).card) <= price }
+    inKingdom = Utils.gainCardDecision(p, 'Now choose a card costing up to ' + Integer.new(price).toString + '.', nil, RubyList.new, affordableCards)
+    p.buyCard(inKingdom, true)
+  end
+end
+    
 
 
