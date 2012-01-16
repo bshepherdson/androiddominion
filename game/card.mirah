@@ -144,6 +144,8 @@ class Card
       return 2
     elsif name.equals('Venture')
       return 1
+    elsif name.equals('Hoard')
+      return 2
     end
     return 0
   end
@@ -278,6 +280,7 @@ class Card
     @@cards.put('Venture', Venture.new)
     @@cards.put('Goons', Goons.new)
     @@cards.put('Grand Market', GrandMarket.new)
+    @@cards.put('Hoard', Hoard.new)
   end
 
 end
@@ -2176,6 +2179,16 @@ class GrandMarket < Card
     plusActions(p, 1)
     plusBuys(p, 1)
     plusCoins(p, 2)
+  end
+end
+
+
+class Hoard < Card
+  def initialize
+    super('Hoard', CardSets.PROSPERITY, CardTypes.TREASURE, 6, 'Worth 2 Coins. While this is in play, when you buy a Victory card, gain a Gold.')
+  end
+
+  def runRules(p:Player)
   end
 end
 

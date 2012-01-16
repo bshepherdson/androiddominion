@@ -237,6 +237,16 @@ class Player
           talismans -= 1
         end
       end
+
+      hoards = @inPlay.select { |c| Card(c).name.equals('Hoard') }
+      if hoards.size > 0 and inKingdom.card.types & CardTypes.VICTORY > 0
+        i = hoards.size
+        logMe('has ' + Integer.new(i).toString + ' Hoard' + (i > 1 ? 's' : '') + ' in play.')
+        while i > 0
+          buyCard(Game.instance.inKingdom('Gold'), true)
+          i -= 1
+        end
+      end
     end
 
     if @royalSeal
