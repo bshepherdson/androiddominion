@@ -288,6 +288,7 @@ class Card
     @@cards.put('Expand', Expand.new)
     @@cards.put('Forge', Forge.new)
     @@cards.put('King\'s Court', KingsCourt.new)
+    @@cards.put('Peddler', Peddler.new)
   end
 
 end
@@ -2289,5 +2290,15 @@ class KingsCourt < Card
 end
     
 
+class Peddler < Card
+  def initialize
+    super('Peddler', CardSets.PROSPERITY, CardTypes.ACTION, 8, '+1 Card, +1 Action, +1 Coin -- During your Buy phase, this costs 2 Coins less per Action card you have in play, but not less than 0 Coins.')
+  end
 
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+    plusCoins(p, 1)
+  end
+end
 

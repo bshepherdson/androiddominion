@@ -156,9 +156,12 @@ class Player
 
     coins = @coins
     contraband = @contrabandCards
+    actions = @inPlay.select { |c| Card(c).types & CardTypes.ACTION > 0 }
+    p = self
     affordableCards = Game.instance.kingdom.select do |k_| 
       k = Kingdom(k_)
-      Game.instance.cardCost(k.card) <= coins and not contraband.includes(k.card)
+      cost = p.peddlerCost(k.card)
+      cost <= coins and not contraband.includes(k.card)
     end
     kCard = Utils.gainCardDecision(self, 'Buy cards or end your turn.', 'Done buying. End your turn.', RubyList.new, affordableCards)
     if kCard != nil
@@ -205,7 +208,8 @@ class Player
     end
 
     if not free
-      @coins -= Game.instance.cardCost(inKingdom.card)
+      cost = peddlerCost(inKingdom.card)
+      @coins -= cost
       @buys -= 1
 
       if inKingdom.card.name.equals('Mint')
@@ -230,7 +234,7 @@ class Player
 
       talismanCards = @inPlay.select { |c| Card(c).name.equals('Talisman') }
       talismans = talismanCards.size
-      if talismans > 0 and inKingdom.card.types & CardTypes.VICTORY == 0 and Game.instance.cardCost(inKingdom.card) <= 4
+      if talismans > 0 and inKingdom.card.types & CardTypes.VICTORY == 0 and cost <= 4
         while talismans > 0
           logMe('gains a copy for Talisman.')
           buyCard(inKingdom, true)
@@ -439,6 +443,16 @@ class Player
     end
   end
 
+  def peddlerCost(card:Card):int
+    cost = Game.instance.cardCost(card)
+    if card.name.equals('Peddler')
+      actions = @inPlay.select { |c_| Card(c_).types & CardTypes.ACTION > 0 }
+      cost -= 2 * actions.size
+      cost = cost < 0 ? 0 : cost
+    end
+    return cost
+  end
+
   def logMe(str:String):void
     Game.instance.logPlayer(str, self)
   end
@@ -620,6 +634,10 @@ class Player
   end
   def goons=(v:int)
     @goons = v
+  end
+
+  def inBuyPhase:boolean
+    @phase == @@PHASE_BUY
   end
 
 end

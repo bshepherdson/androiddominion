@@ -187,12 +187,16 @@ class Utils
     coppers = p.inPlay.select { |c_| Card(c_).name.equals('Copper') }
     filteredCards = kingdomCards.select do |k_|
       k = Kingdom(k_)
-      k.count > 0 and (not (k.card.name.equals('Grand Market') and coppers.size > 0))
+      k.count > 0 and (not (k.card.name.equals('Grand Market') and coppers.size > 0 and p.inBuyPhase))
     end
     options = filteredCards.collect_index do |k_,i|
       k = Kingdom(k_)
+      cost = Game.instance.cardCost(k.card)
+      if k.card.name.equals('Peddler')
+        cost = p.peddlerCost(k.card)
+      end
       Option.new("card["+Integer.new(i).toString()+"]",
-          "("+ Integer.new(Game.instance.cardCost(k.card)).toString() + (k.embargoTokens > 0 ? ", " + Integer.new(k.embargoTokens).toString() + " Embargo tokens" : "") + ") " + k.card.name)
+          "("+ Integer.new(cost).toString + (k.embargoTokens > 0 ? ", " + Integer.new(k.embargoTokens).toString() + " Embargo tokens" : "") + ") " + k.card.name)
     end
 
     if done
