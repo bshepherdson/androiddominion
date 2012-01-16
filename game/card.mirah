@@ -286,6 +286,7 @@ class Card
     @@cards.put('Hoard', Hoard.new)
     @@cards.put('Bank', Bank.new)
     @@cards.put('Expand', Expand.new)
+    @@cards.put('Forge', Forge.new)
   end
 
 end
@@ -2225,5 +2226,40 @@ class Expand < Card
   end
 end
     
+
+class Forge < Card
+  def initialize
+    super('Forge', CardSets.PROSPERITY, CardTypes.ACTION, 7, 'Trash any number of cards from your hand. Gain a card with cost exactly equal to the total cost in coins of the trashed cards.')
+  end
+
+  def runRules(p:Player)
+    price = 0
+    while p.hand.size > 0
+      card = Utils.handDecision(p, 'Trash any number of cards for Forge.', 'Done trashing', p.hand)
+      if card == nil
+        break
+      end
+
+      p.logMe('trashes ' + card.name + '.')
+      p.removeFromHand(card)
+      price += Game.instance.cardCost(card)
+    end
+
+    affordable = Game.instance.kingdom.select do |k_|
+      k = Kingdom(k_)
+      k.count > 0 and Game.instance.cardCost(k.card) == price
+    end
+    if affordable.size == 0
+      p.logMe('cannot buy a card with cost ' + Integer.new(price).toString + '.')
+      return
+    else
+      inKingdom = Utils.gainCardDecision(p, 'Now gain a card costing exactly ' + Integer.new(price).toString + '.', nil, RubyList.new, affordable)
+      p.buyCard(inKingdom, true)
+    end
+  end
+end
+
+
+
 
 
