@@ -121,6 +121,8 @@ class Card
       return 6
     elsif name.equals('Island')
       return 2
+    elsif name.equals('Colony')
+      return 10
     end
     return 0
   end
@@ -149,12 +151,14 @@ class Card
     elsif name.equals('Bank')
       treasures = p.inPlay.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
       return treasures.size
+    elsif name.equals('Platinum')
+      return 5
     end
     return 0
   end
 
   def self.isBasicCoin(name:String):boolean
-    name.equals('Copper') or name.equals('Silver') or name.equals('Gold')
+    name.equals('Copper') or name.equals('Silver') or name.equals('Gold') or name.equals('Platinum')
   end
 
 
@@ -265,6 +269,9 @@ class Card
     @@cards.put('Wharf', Wharf.new)
 
     # Prosperity
+    @@cards.put('Platinum', Platinum.new)
+    @@cards.put('Colony', Colony.new)
+
     @@cards.put('Loan', Loan.new)
     @@cards.put('Trade Route', TradeRoute.new)
     @@cards.put('Bishop', Bishop.new)
@@ -324,9 +331,10 @@ class BasicCoin < Card
   end
 end
 
-class Gold   < BasicCoin; def initialize; super('Gold',   6); end; end
-class Silver < BasicCoin; def initialize; super('Silver', 3); end; end
-class Copper < BasicCoin; def initialize; super('Copper', 0); end; end
+class Gold     < BasicCoin; def initialize; super('Gold',     6); end; end
+class Silver   < BasicCoin; def initialize; super('Silver',   3); end; end
+class Copper   < BasicCoin; def initialize; super('Copper',   0); end; end
+class Platinum < BasicCoin; def initialize; super('Platinum', 9); end; end
 
 
 class BasicVictory < Card
@@ -342,6 +350,7 @@ end
 class Estate   < BasicVictory; def initialize; super('Estate',   2); end; end
 class Duchy    < BasicVictory; def initialize; super('Duchy',    5); end; end
 class Province < BasicVictory; def initialize; super('Province', 8); end; end
+class Colony   < BasicVictory; def initialize; super('Colony',  11); end; end
 
 class Curse < Card
   def initialize

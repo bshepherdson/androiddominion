@@ -58,12 +58,23 @@ class Game
       Kingdom.new c, Card(c).cardCount(playerCount)
     end)
 
+    r = int(Math.floor(Math.random()*kingdom.size))
+    prosperity = Kingdom(kingdom.get(r)).card.set == CardSets.PROSPERITY
+
     @kingdom.add(Kingdom.new(Card.cards('Copper'), 1000))
     @kingdom.add(Kingdom.new(Card.cards('Silver'), 1000))
     @kingdom.add(Kingdom.new(Card.cards('Gold'), 1000))
+    if prosperity
+      @kingdom.add(Kingdom.new(Card.cards('Platinum'), 12))
+    end
+
     @kingdom.add(Kingdom.new(Card.cards('Estate'), Card.cards('Estate').cardCount(@players.size)))
     @kingdom.add(Kingdom.new(Card.cards('Duchy'), Card.cards('Duchy').cardCount(@players.size)))
     @kingdom.add(Kingdom.new(Card.cards('Province'), Card.cards('Province').cardCount(@players.size)))
+    if prosperity
+      @kingdom.add(Kingdom.new(Card.cards('Colony'), Card.cards('Colony').cardCount(@players.size)))
+    end
+
     @kingdom.add(Kingdom.new(Card.cards('Curse'), Card.cards('Curse').cardCount(@players.size)))
   end
 
