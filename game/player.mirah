@@ -143,7 +143,7 @@ class Player
       if card != nil
         removeFromHand(card)
         @inPlay.add(card)
-        @coins += Card.treasureValues(card.name)
+        @coins += Card.treasureValues(self, card.name)
 
         logMe('plays ' + card.name + '.')
         card.runRules(self)
@@ -432,7 +432,7 @@ class Player
       if Card.isBasicCoin(card.name) and (not (Game.instance.indexInKingdom('Grand Market') >= 0 and card.name.equals('Copper')))
         removeFromHand(card)
         @inPlay.add(card)
-        @coins += Card.treasureValues(card.name)
+        @coins += Card.treasureValues(self, card.name)
       else
         i += 1
       end

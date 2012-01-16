@@ -125,7 +125,7 @@ class Card
     return 0
   end
 
-  def self.treasureValues(name:String):int
+  def self.treasureValues(p:Player, name:String):int
     if name.equals('Copper')
       return 1
     elsif name.equals('Silver')
@@ -146,6 +146,9 @@ class Card
       return 1
     elsif name.equals('Hoard')
       return 2
+    elsif name.equals('Bank')
+      treasures = p.inPlay.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
+      return treasures.size
     end
     return 0
   end
@@ -281,6 +284,7 @@ class Card
     @@cards.put('Goons', Goons.new)
     @@cards.put('Grand Market', GrandMarket.new)
     @@cards.put('Hoard', Hoard.new)
+    @@cards.put('Bank', Bank.new)
   end
 
 end
@@ -2135,7 +2139,7 @@ class Venture < Card
       if card.types & CardTypes.TREASURE > 0
         p.discards.addAll(setAside)
         p.inPlay.add(card)
-        p.coins += Card.treasureValues(card.name)
+        p.coins += Card.treasureValues(p, card.name)
         p.logMe('plays ' + card.name + '.')
         card.runRules(p)
         return
@@ -2191,5 +2195,16 @@ class Hoard < Card
   def runRules(p:Player)
   end
 end
+
+
+class Bank < Card
+  def initialize
+    super('Bank', CardSets.PROSPERITY, CardTypes.TREASURE, 7, 'When you play this, it\'s worth 1 Coin per Treasure card you have in play (counting this).')
+  end
+
+  def runRules(p:Player)
+  end
+end
+
 
 
