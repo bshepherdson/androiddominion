@@ -299,6 +299,7 @@ class Card
 
     # Intrigue
     @@cards.put('Courtyard', Courtyard.new)
+    @@cards.put('Pawn', Pawn.new)
   end
 
 end
@@ -2331,5 +2332,56 @@ class Courtyard < Card
     p.logMe('puts a card back on top of their deck.')
   end
 end
+
+
+class Pawn < Card
+  def initialize
+    super('Pawn', CardSets.INTRIGUE, CardTypes.ACTION, 2, 'Choose two: +1 Card, +1 Action, +1 Buy, +1 Coin. (The choices must be different.)')
+  end
+
+  def runRules(p:Player)
+    opts = RubyList.new
+    opts.add(Option.new('card', '+1 Card'))
+    opts.add(Option.new('action', '+1 Action'))
+    opts.add(Option.new('buy', '+1 Buy'))
+    opts.add(Option.new('coin', '+1 Coin'))
+
+    i = 2
+    while i > 0
+      dec = Decision.new(p, opts, 'Choose the ' + (i == 2 ? 'first' : 'second') + ' effect of Pawn.', RubyList.new)
+      key = p.game.decision(dec)
+
+      if key.equals('card')
+        if p.draw(1) == 1
+          p.logMe('draws 1 card.')
+        else
+          p.logMe('has no cards left to draw.')
+        end
+      elsif key.equals('action')
+        p.actions += 1
+        p.logMe('gains +1 Action.')
+      elsif key.equals('buy')
+        p.buys += 1
+        p.logMe('gains +1 Buy.')
+      else
+        p.coins += 1
+        p.logMe('gains +1 Coin.')
+      end
+
+      j = 0
+      newopts = RubyList.new
+      while j < opts.size
+        if not Option(opts.get(j)).key.equals(key)
+          newopts.add(opts.get(j))
+        end
+        j += 1
+      end
+
+      opts = newopts
+      i -= 1
+    end
+  end
+end
+
 
 
