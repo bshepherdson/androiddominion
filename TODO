@@ -5,7 +5,6 @@ Make 'Exit' button in menu actually work.
 Implement Watchtower, which was left out of Prosperity.
 
 Network:
-* Remove singleton for Game, use p.game like in the node.js server.
 * Write basic HTTP server capable of long polling, and the interface with the engines.
 * Server needs to handle logins, separate collection of games, host/join, lobby.
 * No templating or anything, since this is a JSON service, not a website.
