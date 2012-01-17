@@ -296,6 +296,9 @@ class Card
     @@cards.put('Forge', Forge.new)
     @@cards.put('King\'s Court', KingsCourt.new)
     @@cards.put('Peddler', Peddler.new)
+
+    # Intrigue
+    @@cards.put('Courtyard', Courtyard.new)
   end
 
 end
@@ -2310,4 +2313,23 @@ class Peddler < Card
     plusCoins(p, 1)
   end
 end
+
+
+# Intrigue
+
+class Courtyard < Card
+  def initialize
+    super('Courtyard', CardSets.INTRIGUE, CardTypes.ACTION, 2, '+3 Cards. Put a card from your hand on top of your deck.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 3)
+
+    card = Utils.handDecision(p, 'Choose a card to put back on top of your deck.', nil, p.hand)
+    p.removeFromHand(card)
+    p.deck.add(card)
+    p.logMe('puts a card back on top of their deck.')
+  end
+end
+
 
