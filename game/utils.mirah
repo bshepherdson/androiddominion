@@ -191,7 +191,7 @@ class Utils
     end
     options = filteredCards.collect_index do |k_,i|
       k = Kingdom(k_)
-      cost = Game.instance.cardCost(k.card)
+      cost = p.game.cardCost(k.card)
       if k.card.name.equals('Peddler')
         cost = p.peddlerCost(k.card)
       end
@@ -204,7 +204,7 @@ class Utils
     end
 
     dec = Decision.new p, options, message, info
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     key.equals('done') ? nil : Kingdom(filteredCards.get(Utils.keyToIndex(key)))
   end
 
@@ -224,7 +224,7 @@ class Utils
     end
 
     dec = Decision.new p, options, message, RubyList.new
-    key = Game.instance.decision dec
+    key = p.game.decision dec
     key.equals('done') ? nil : Card(cards.get(Utils.keyToIndex(key)))
   end
 

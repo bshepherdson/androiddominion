@@ -18,6 +18,7 @@ import dominion.Logger;
 public class GameService extends Service {
 
 	public boolean isStarted = false;
+	public Game game;
 	private ServiceThread thread;
 	private Exchange exchange;
 	
@@ -37,7 +38,8 @@ public class GameService extends Service {
 		Logger logger = new LogcatLogger(); 
 		exchange = new Exchange();
 		exchange.setLogger(logger);
-		thread = new ServiceThread(exchange, extras.getStringArrayList("players"), this);
+		game = new Game();
+		thread = new ServiceThread(exchange, extras.getStringArrayList("players"), this, game);
 		isStarted = true;
 		Log.i(Constants.TAG, "onStartCommand, isStarted = true");
 		
@@ -77,26 +79,27 @@ public class GameService extends Service {
 		private Exchange exchange;
 		private ArrayList<String> players;
 		private Service parent;
+		private Game game;
 		
-		public ServiceThread(Exchange exchange, ArrayList<String> players, Service s) {
+		public ServiceThread(Exchange exchange, ArrayList<String> players, Service s, Game game) {
 			this.exchange = exchange;
 			this.players = players;
 			this.parent = s;
+			this.game = game;
 		}
 		
 		public void run() {
 			// Set up the Dominion game
 			Card.initializeCards();
-			Game.bootstrap();
-			Game.instance().exchange_set(exchange);
+			game.exchange_set(exchange);
 			for(String p : players) {
-				Game.instance().addPlayer(p);
+				game.addPlayer(p);
 			}
-			Game.instance().startGame();
+			game.startGame();
 			
 			Log.i(Constants.TAG, "startGame called, about to call playTurn");
 			
-			while(!Game.instance().playTurn()) {
+			while(!game.playTurn()) {
 				Log.i(Constants.TAG, "Turn over, calling playTurn() again");
 			}
 			Log.i(Constants.TAG, "Game over!");

@@ -12,14 +12,21 @@ import java.util.HashMap
 class Player
 
   def self.bootstrap
+    if @@bootstrapped
+      return
+    end
+
     @@PHASE_NOT_PLAYING = 1
     @@PHASE_ACTION = 2
     @@PHASE_BUY = 3
     @@PHASE_CLEANUP = 4
     @@nextId = 0
+    @@bootstrapped = true
+    return
   end
 
-  def initialize(name:String)
+  def initialize(name:String, game:Game)
+    @game = game
     @id = @@nextId
     @@nextId += 1
 
@@ -91,7 +98,7 @@ class Player
 
     dec = Decision.new(self, options, 'Play an Action card or proceed to the Buy phase.', RubyList.new)
 
-    key = Game.instance.decision dec
+    key = @game.decision dec
     if key.equals('buy')
       logMe('ends Action phase.')
     elsif key.equals('coins')
@@ -133,9 +140,10 @@ class Player
     
     /* First, ask to play a coin or buy a card. */
     treasures = @hand.select { |c| Card(c).types & CardTypes.TREASURE > 0 }
+    game = @game
     nonBasic = treasures.select do |c|
       basic = Card.isBasicCoin(Card(c).name)
-      gm = Card(c).name.equals('Copper') and Game.instance.indexInKingdom('Grand Market') >= 0
+      gm = Card(c).name.equals('Copper') and game.indexInKingdom('Grand Market') >= 0
       (not basic) or gm
     end
     if nonBasic.size > 0
@@ -158,7 +166,7 @@ class Player
     contraband = @contrabandCards
     actions = @inPlay.select { |c| Card(c).types & CardTypes.ACTION > 0 }
     p = self
-    affordableCards = Game.instance.kingdom.select do |k_| 
+    affordableCards = @game.kingdom.select do |k_| 
       k = Kingdom(k_)
       cost = p.peddlerCost(k.card)
       cost <= coins and not contraband.includes(k.card)
@@ -195,16 +203,16 @@ class Player
     logMe((free ? 'gains' : 'buys') +' '+ inKingdom.card.name + '.')
 
     if inKingdom.card.types & CardTypes.VICTORY > 0
-      if not Game.instance.victoryCardMap.containsKey(inKingdom.card.name)
-        Game.instance.victoryCardMap.put(inKingdom.card.name, inKingdom.card)
-        Game.instance.tradeRouteCoins += 1
+      if not @game.victoryCardMap.containsKey(inKingdom.card.name)
+        @game.victoryCardMap.put(inKingdom.card.name, inKingdom.card)
+        @game.tradeRouteCoins += 1
       end
     end
 
     if inKingdom.count == 1
-      Game.instance.log('There is only one ' + inKingdom.card.name + ' remaining.')
+      @game.log('There is only one ' + inKingdom.card.name + ' remaining.')
     elsif inKingdom.count == 0
-      Game.instance.log('The ' + inKingdom.card.name + ' pile is empty.')
+      @game.log('The ' + inKingdom.card.name + ' pile is empty.')
     end
 
     if not free
@@ -227,7 +235,7 @@ class Player
       if inKingdom.embargoTokens > 0
         i = 0
         while i < inKingdom.embargoTokens
-          buyCard(Game.instance.inKingdom('Curse'), true)
+          buyCard(@game.inKingdom('Curse'), true)
           i += 1
         end
       end
@@ -247,7 +255,7 @@ class Player
         i = hoards.size
         logMe('has ' + Integer.new(i).toString + ' Hoard' + (i > 1 ? 's' : '') + ' in play.')
         while i > 0
-          buyCard(Game.instance.inKingdom('Gold'), true)
+          buyCard(@game.inKingdom('Gold'), true)
           i -= 1
         end
       end
@@ -310,7 +318,7 @@ class Player
         options.add(Option.new('yes', 'Yes'))
         options.add(Option.new('no',  'No'))
         dec = Decision.new(self, options, 'Do you want to put ' + treasuries.size + ' Treasur' + (treasuries.size == 1 ? 'y' : 'ies') + ' on top of your deck?', RubyList.new)
-        key = Game.instance.decision(dec)
+        key = @game.decision(dec)
 
         if key.equals('yes')
           @deck.addAll(treasuries)
@@ -433,7 +441,7 @@ class Player
     i = 0
     while i < @hand.size
       card = Card(@hand.get(i))
-      if Card.isBasicCoin(card.name) and (not (Game.instance.indexInKingdom('Grand Market') >= 0 and card.name.equals('Copper')))
+      if Card.isBasicCoin(card.name) and (not (@game.indexInKingdom('Grand Market') >= 0 and card.name.equals('Copper')))
         removeFromHand(card)
         @inPlay.add(card)
         @coins += Card.treasureValues(self, card.name)
@@ -444,7 +452,7 @@ class Player
   end
 
   def peddlerCost(card:Card):int
-    cost = Game.instance.cardCost(card)
+    cost = @game.cardCost(card)
     if card.name.equals('Peddler')
       actions = @inPlay.select { |c_| Card(c_).types & CardTypes.ACTION > 0 }
       cost -= 2 * actions.size
@@ -454,7 +462,7 @@ class Player
   end
 
   def logMe(str:String):void
-    Game.instance.logPlayer(str, self)
+    @game.logPlayer(str, self)
   end
 
   def id:int
@@ -638,6 +646,10 @@ class Player
 
   def inBuyPhase:boolean
     @phase == @@PHASE_BUY
+  end
+
+  def game:Game
+    @game
   end
 
 end

@@ -22,20 +22,12 @@ class Game
     @quarries = 0
   end
 
-  def self.bootstrap
-    @@instance = Game.new
-  end
-
-  def self.instance:Game
-    @@instance
-  end
-
   def isStarted:boolean
     @turn >= 0
   end
 
   def addPlayer(name:String):Player
-    p = Player.new(name)
+    p = Player.new(name, self)
     @players.add(p)
     p
   end

@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import dominion.Decision;
 import dominion.Exchange;
-import dominion.Game;
 import dominion.Option;
 import dominion.Player;
 import dominion.android.GameService.GameBinder;
@@ -168,9 +167,9 @@ public class DominionA extends Activity {
 		int winnerScore = -100;
 		ArrayList<Player> winners = new ArrayList<Player>();
 		Log.i(Constants.TAG, "Looping over players.");
-		for(int i = 0; i < Game.instance().players().size(); i++) {
+		for(int i = 0; i < Constants.service.game.players().size(); i++) {
 			Log.i(Constants.TAG, "Top of loop");
-			Player p = (Player) Game.instance().players().get(i);
+			Player p = (Player) Constants.service.game.players().get(i);
 			Log.i(Constants.TAG, "Player: " + p.name());
 			TextView tv = new TextView(this);
 			int score = p.calculateScore();

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.widget.TextView;
 import dominion.Card;
 import dominion.CardTypes;
-import dominion.Game;
 import dominion.Kingdom;
 
 
@@ -19,7 +18,7 @@ public class CardA extends Activity {
 		Integer indexI = (Integer) payload.get("index");
 		int index = indexI.intValue();
 		
-		Kingdom k = (Kingdom) Game.instance().kingdom().get(index);
+		Kingdom k = (Kingdom) Constants.service.game.kingdom().get(index);
 		Card card = k.card();
 		
 		TextView name = (TextView) findViewById(R.id.cardTitle);

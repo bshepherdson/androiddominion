@@ -89,8 +89,8 @@ class Card
 
   def everyPlayer(p:Player, includeMe:boolean, isAttack:boolean):void
     i = 0
-    while i < Game.instance.players.size
-      o = Player(Game.instance.players.get(i))
+    while i < p.game.players.size
+      o = Player(p.game.players.get(i))
       if includeMe or o.id != p.id
         protectedBy = o.safeFromAttack
         if isAttack && protectedBy != nil && protectedBy.length() > 0
@@ -109,7 +109,7 @@ class Card
     options.add(Option.new('no', 'No.'))
 
     dec = Decision.new p, options, question, RubyList.new
-    Game.instance.decision(dec)
+    p.game.decision(dec)
   end
 
   def self.victoryValues(name:String):int
@@ -504,7 +504,7 @@ class Workshop < Card
   end
 
   def runRules(p:Player):void
-    kCards = Game.instance.kingdom.select { |k| Game.instance.cardCost(Kingdom(k).card) <= 4 }
+    kCards = p.game.kingdom.select { |k| p.game.cardCost(Kingdom(k).card) <= 4 }
     kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 4 Coin.', nil, RubyList.new, kCards)
     p.buyCard(kCard, true)
   end
@@ -517,7 +517,7 @@ class Bureaucrat < Card
   end
 
   def runRules(p:Player)
-    p.buyCard(Game.instance.inKingdom('Silver'), true)
+    p.buyCard(p.game.inKingdom('Silver'), true)
     p.logMe('puts it on top of their deck.')
     p.deck.add(p.discards.pop)
 
@@ -553,7 +553,7 @@ class Feast < Card
       p.inPlay.pop
     end
 
-    kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 5 Coins.', nil, RubyList.new, Game.instance.kingdom.select { |k| Game.instance.cardCost(Kingdom(k).card) <= 5 })
+    kCard = Utils.gainCardDecision(p, 'Gain a card costing up to 5 Coins.', nil, RubyList.new, p.game.kingdom.select { |k| p.game.cardCost(Kingdom(k).card) <= 5 })
     p.buyCard(kCard, true)
   end
 end
@@ -609,8 +609,8 @@ class Remodel < Card
     p.removeFromHand(toTrash)
     p.logMe('trashes ' + toTrash.name)
 
-    newCost = Game.instance.cardCost(toTrash) + 2
-    toGain = Utils.gainCardDecision(p, 'Gain a card costing up to ' + Integer.new(newCost).toString + '.', nil, RubyList.new, Game.instance.kingdom.select { |k| Game.instance.cardCost(Kingdom(k).card) <= newCost })
+    newCost = p.game.cardCost(toTrash) + 2
+    toGain = Utils.gainCardDecision(p, 'Gain a card costing up to ' + Integer.new(newCost).toString + '.', nil, RubyList.new, p.game.kingdom.select { |k| p.game.cardCost(Kingdom(k).card) <= newCost })
     p.buyCard(toGain, true)
   end
 end
@@ -656,7 +656,7 @@ class Spy < Card
     description = p.id == o.id ? 'You revealed a ' + card.name + '.' : o.name + ' revealed a ' + card.name + '.'
 
     dec = Decision.new(p, options, (p.id == o.id ? 'You' : o.name) + ' revealed a ' + card.name + '.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     if key.equals('discard')
       p.logMe('discards ' + (p.id == o.id ? 'their' : o.name + '\'s') + ' ' + card.name + '.')
       o.discards.add(card)
@@ -718,7 +718,7 @@ class Thief < Card
     info = RubyList.new
     info.add('Revealed: ' + Utils.showCards(cards))
     dec = Decision.new(p, options, 'Choose what to do with ' + o.name + '\'s revealed Treasures.', info)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
 
     if key.equals('trash0')
       card = Card(cards.get(0))
@@ -834,7 +834,7 @@ class Library < Card
         options.add(Option.new('take', 'Take it into your hand.'))
         options.add(Option.new('discard', 'Set it aside.'))
         dec = Decision.new(p, options, 'You drew an Action, ' + card.name + '. You can either draw it into your hand or set it aside (and later discard it).', RubyList.new)
-        key = Game.instance.decision(dec)
+        key = p.game.decision(dec)
 
         if key.equals('take')
           p.logMe('draws a card.')
@@ -873,10 +873,10 @@ class Mine < Card
     p.removeFromHand(trash)
     p.logMe('trashes ' + trash.name + '.')
 
-    newCost = Game.instance.cardCost(trash) + 3
-    gain = Utils.gainCardDecision(p, 'Now choose a Treasure costing up to ' + Integer.new(newCost).toString + '.', nil, RubyList.new, Game.instance.kingdom.select do |k_|
+    newCost = p.game.cardCost(trash) + 3
+    gain = Utils.gainCardDecision(p, 'Now choose a Treasure costing up to ' + Integer.new(newCost).toString + '.', nil, RubyList.new, p.game.kingdom.select do |k_|
       k = Kingdom(k_)
-      return (k.card.types & CardTypes.TREASURE > 0) && (Game.instance.cardCost(k.card) <= newCost)
+      return (k.card.types & CardTypes.TREASURE > 0) && (p.game.cardCost(k.card) <= newCost)
     end)
 
     if p.buyCard(gain, true)
@@ -911,7 +911,7 @@ class Witch < Card
   end
 
   def runEveryPlayer(p:Player, o:Player)
-    o.buyCard(Game.instance.inKingdom('Curse'), true)
+    o.buyCard(p.game.inKingdom('Curse'), true)
   end
 end
 
@@ -963,8 +963,8 @@ class Embargo < Card
 
     options = RubyList.new
     i = 0
-    while i < Game.instance.kingdom.size
-      k = Kingdom(Game.instance.kingdom.get(i))
+    while i < p.game.kingdom.size
+      k = Kingdom(p.game.kingdom.get(i))
       if k.count > 0
         options.add(Option.new('card[' + Integer.new(i).toString() + ']', k.card.name + (k.embargoTokens > 0 ? ' (' + Integer.new(k.embargoTokens).toString() + ' Embargo token' + (k.embargoTokens > 1 ? 's' : '') : ')')))
       end
@@ -972,10 +972,10 @@ class Embargo < Card
     end
 
     dec = Decision.new(p, options, 'Choose a Supply pile to place an Embargo token on.', RubyList.new)
-    key = Game.instance.decision dec
+    key = p.game.decision dec
     index = Utils.keyToIndex(key)
 
-    k = Kingdom(Game.instance.kingdom.get(index))
+    k = Kingdom(p.game.kingdom.get(index))
     k.embargoTokens += 1
 
     p.logMe('Embargoes ' + k.card.name + '. Now ' + Integer.new(k.embargoTokens).toString() + ' Embargo token' + (k.embargoTokens > 1 ? 's' : '') + ' on that pile.')
@@ -1044,7 +1044,7 @@ class NativeVillage < Card
     options.add(Option.new('intohand', 'Put all the cards on your Native Village mat into your hand.'))
 
     dec = Decision.new(p, options, 'You have played Native Village. Choose one of its options.', RubyList.new)
-    key = Game.instance.decision dec
+    key = p.game.decision dec
 
     if key.equals('setaside')
       if p.deck.size == 0
@@ -1084,7 +1084,7 @@ class PearlDiver < Card
     options.add(Option.new('ontop', 'Put it on top of your deck.'))
     options.add(Option.new('leave', 'Leave it on the bottom.'))
     dec = Decision.new(p, options, 'The bottom card of your deck is ' + bottom.name + '.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
 
     if key.equals('ontop')
       p.deck.remove(0)
@@ -1111,7 +1111,7 @@ class Ambassador < Card
     card = Utils.handDecision(p, 'Choose a card from your hand to set aside for next turn.', nil, p.hand)
 
     p.logMe('reveals ' + card.name + '.')
-    @revealedCard = Game.instance.inKingdom(card.name)
+    @revealedCard = p.game.inKingdom(card.name)
 
     copies = p.hand.select { |c| Card(c).name.equals(card.name) }
 
@@ -1122,7 +1122,7 @@ class Ambassador < Card
       options.add(Option.new('2', 'Return two copies.'))
     end
     dec = Decision.new(p, options, 'Return up to two copies to the Supply.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
 
     if key.equals('2')
       p.removeFromHand(card)
@@ -1131,7 +1131,7 @@ class Ambassador < Card
       p.logMe('returns two copies of ' + card.name + ' to the Supply.')
     elsif key.equals('1')
       p.removeFromHand(card)
-      k = Game.instance.inKingdom(card.name)
+      k = p.game.inKingdom(card.name)
       @revealedCard.count += 1
       p.logMe('returns one copy of ' + card.name + ' to the Supply.')
     else
@@ -1185,7 +1185,7 @@ class Lookout < Card
 
     options = Utils.cardsToOptions(cards)
     dec = Decision.new(p, options, 'Choose a card to trash.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     index = Utils.keyToIndex(key)
     p.logMe('trashes ' + Card(cards.get(index)).name + '.')
 
@@ -1204,7 +1204,7 @@ class Lookout < Card
 
     options = Utils.cardsToOptions(cards2)
     dec = Decision.new(p, options, 'Choose a card to discard.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     index = Utils.keyToIndex(key)
     card = Card(cards2.get(index))
     p.discards.add(card)
@@ -1226,8 +1226,8 @@ class Smugglers < Card
 
   def runRules(p:Player)
     index = 0
-    while index < Game.instance.players.size
-      if Player(Game.instance.players.get(index)).id == p.id
+    while index < p.game.players.size
+      if Player(p.game.players.get(index)).id == p.id
         break
       end
 
@@ -1236,13 +1236,13 @@ class Smugglers < Card
 
     index -= 1
     if index < 0
-      index = Game.instance.players.size - 1
+      index = p.game.players.size - 1
     end
 
-    other = Player(Game.instance.players.get(index))
+    other = Player(p.game.players.get(index))
     gained = other.gainedLastTurn.select do |c|
-      (Game.instance.cardCost(GainedCard(c).card) <= 6) and
-      (Game.instance.inKingdom(GainedCard(c).card.name).count > 0)
+      (p.game.cardCost(GainedCard(c).card) <= 6) and
+      (p.game.inKingdom(GainedCard(c).card.name).count > 0)
     end
 
     if gained.size == 0
@@ -1264,11 +1264,11 @@ class Smugglers < Card
 
     options = Utils.cardsToOptions(cards)
     dec = Decision.new(p, options, 'Choose a card to gain from those that ' + other.name + ' gained last turn.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     index = Utils.keyToIndex(key)
 
     card = Card(cards.get(index))
-    k = Game.instance.inKingdom(card.name)
+    k = p.game.inKingdom(card.name)
     p.buyCard(k, true)
   end
 end
@@ -1389,7 +1389,7 @@ class Navigator < Card
     info.add('Navigator cards: ' + Utils.showCards(cards))
 
     dec = Decision.new(p, options, 'Choose whether to discard or put back the cards (listed below under "Navigator cards:")', info)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
 
     if key.equals('discard')
       p.discards.addAll(cards)
@@ -1398,7 +1398,7 @@ class Navigator < Card
       discards = RubyList.new
       while cards.size > 0
         dec = Decision.new(p, Utils.cardsToOptions(cards), 'Choose a card to put back (you will draw these cards in the order you choose them here)', RubyList.new)
-        key = Game.instance.decision(dec)
+        key = p.game.decision(dec)
         index = Utils.keyToIndex(key)
 
         i = 0
@@ -1436,7 +1436,7 @@ class PirateShip < Card
     opts.add(Option.new('coin', 'Gain ' + p.pirateShipCoins + ' Coin' + (p.pirateShipCoins == 1 ? '' : 's') + '.'))
 
     dec = Decision.new(p, opts, 'Choose what to do with your Pirate Ship.', RubyList.new)
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     if key.equals('coin')
       p.logMe('plays Pirate Ship for the Coins.')
       plusCoins(p, p.pirateShipCoins)
@@ -1518,7 +1518,7 @@ class Salvager < Card
     card = Utils.handDecision(p, 'Choose a card to trash.', nil, p.hand)
     p.removeFromHand(card)
     p.logMe('trashes ' + card.name + '.')
-    plusCoins(p, Game.instance.cardCost(card))
+    plusCoins(p, p.game.cardCost(card))
   end
 end
     
@@ -1544,7 +1544,7 @@ class SeaHag < Card
       log = 'discards the top card of his deck (' + discarded.name + '), '
     end
 
-    inKingdom = Game.instance.inKingdom('Curse')
+    inKingdom = p.game.inKingdom('Curse')
     if inKingdom.count > 0
       o.deck.add(Card.cards('Curse'))
       inKingdom.count -= 1
@@ -1616,7 +1616,7 @@ class Explorer < Card
       options.add(Option.new('yes', 'Reveal the Province to gain a Gold.'))
       options.add(Option.new('no',  'Do not reveal, gain a Silver.'))
       dec = Decision.new(p, options, 'You have a Province in your hand, choose whether to reveal it.', RubyList.new)
-      key = Game.instance.decision(dec)
+      key = p.game.decision(dec)
 
       if key.equals('yes')
         p.logMe('reveals a Province from their hand, gaining a Gold into their hand.')
@@ -1769,7 +1769,7 @@ class Loan < Card
         options.add(Option.new('discard', 'Discard it.'))
         options.add(Option.new('trash', 'Trash it.'))
         dec = Decision.new(p, options, 'You revealed ' + card.name + ', discard it or trash it.', RubyList.new)
-        key = Game.instance.decision(dec)
+        key = p.game.decision(dec)
 
         if key.equals('discard')
           p.logMe('discards ' + card.name + '.')
@@ -1796,7 +1796,7 @@ class TradeRoute < Card
 
   def runRules(p:Player)
     plusBuys(p, 1)
-    plusCoins(p, Game.instance.tradeRouteCoins)
+    plusCoins(p, p.game.tradeRouteCoins)
 
     card = Utils.handDecision(p, 'Trash a card from your hand.', nil, p.hand)
     p.removeFromHand(card)
@@ -1819,7 +1819,7 @@ class Bishop < Card
     p.removeFromHand(card)
     p.logMe('trashes ' + card.name + '.')
 
-    cost = Game.instance.cardCost(card)
+    cost = p.game.cardCost(card)
     tokens = int(Math.floor(cost/2) + 1)
 
     plusVP(p, tokens)
@@ -1857,7 +1857,7 @@ class Quarry < Card
   end
 
   def runRules(p:Player)
-    Game.instance.quarries += 1
+    p.game.quarries += 1
   end
 end
 
@@ -1893,7 +1893,7 @@ class City < Card
   def runRules(p:Player)
     cards = 1
 
-    emptyPiles = Game.instance.kingdom.select { |k| Kingdom(k).count == 0 }
+    emptyPiles = p.game.kingdom.select { |k| Kingdom(k).count == 0 }
 
     if emptyPiles.size >= 1
       cards = 2
@@ -1918,12 +1918,12 @@ class Contraband < Card
   def runRules(p:Player)
     plusBuys(p, 1)
 
-    playerIndex = Game.instance.players.find_index { |o_| Player(o_).id == p.id }
-    o = Player(Game.instance.players.get( (playerIndex+1) % Game.instance.players.size))
+    playerIndex = p.game.players.find_index { |o_| Player(o_).id == p.id }
+    o = Player(p.game.players.get( (playerIndex+1) % p.game.players.size))
 
     /* now find all kingdom cards which are not empty piles
      * and not already Contraband. */
-    cards = Game.instance.kingdom.select do |k_|
+    cards = p.game.kingdom.select do |k_|
       k = Kingdom(k_)
       k.count > 0 and not p.contrabandCards.includes(k.card)
     end
@@ -1935,7 +1935,7 @@ class Contraband < Card
     info.add(p.name + '\'s coins: ' + Integer.new(p.coins).toString)
     dec = Decision.new(o, opts, 'Choose a card that ' + p.name + ' cannot buy this turn.', info)
 
-    key = Game.instance.decision(dec)
+    key = p.game.decision(dec)
     index = Utils.keyToIndex(key)
 
     k = Kingdom(cards.get(index))
@@ -1986,7 +1986,7 @@ class Mint < Card
       p.logMe('reveals nothing.')
     else
       p.logMe('reveals ' + c.name + '.')
-      k = Game.instance.inKingdom(c.name)
+      k = p.game.inKingdom(c.name)
       p.buyCard(k, true)
     end
   end
@@ -2015,8 +2015,8 @@ class Mountebank < Card
       end
     end
 
-    o.buyCard(Game.instance.inKingdom('Curse'), true)
-    o.buyCard(Game.instance.inKingdom('Copper'), true)
+    o.buyCard(p.game.inKingdom('Curse'), true)
+    o.buyCard(p.game.inKingdom('Copper'), true)
   end
 end
 
@@ -2230,8 +2230,8 @@ class Expand < Card
     p.removeFromHand(card)
     p.logMe('trashes ' + card.name + '.')
     
-    price = Game.instance.cardCost(card) + 3
-    affordableCards = Game.instance.kingdom.select { |k_| Game.instance.cardCost(Kingdom(k_).card) <= price }
+    price = p.game.cardCost(card) + 3
+    affordableCards = p.game.kingdom.select { |k_| p.game.cardCost(Kingdom(k_).card) <= price }
     inKingdom = Utils.gainCardDecision(p, 'Now choose a card costing up to ' + Integer.new(price).toString + '.', nil, RubyList.new, affordableCards)
     p.buyCard(inKingdom, true)
   end
@@ -2253,12 +2253,12 @@ class Forge < Card
 
       p.logMe('trashes ' + card.name + '.')
       p.removeFromHand(card)
-      price += Game.instance.cardCost(card)
+      price += p.game.cardCost(card)
     end
 
-    affordable = Game.instance.kingdom.select do |k_|
+    affordable = p.game.kingdom.select do |k_|
       k = Kingdom(k_)
-      k.count > 0 and Game.instance.cardCost(k.card) == price
+      k.count > 0 and p.game.cardCost(k.card) == price
     end
     if affordable.size == 0
       p.logMe('cannot buy a card with cost ' + Integer.new(price).toString + '.')

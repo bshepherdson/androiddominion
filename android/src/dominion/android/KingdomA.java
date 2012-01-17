@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import dominion.Game;
 import dominion.Kingdom;
 
 public class KingdomA extends Activity {
@@ -22,7 +21,7 @@ public class KingdomA extends Activity {
 		super.onCreate(payload);
 		setContentView(R.layout.kingdom);
 		
-		kingdom = (ArrayList<Kingdom>) Game.instance().kingdom();
+		kingdom = (ArrayList<Kingdom>) Constants.service.game.kingdom();
 		
 		LinearLayout layout = (LinearLayout) findViewById(R.id.kingdomLayout);
 		

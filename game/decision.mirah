@@ -38,8 +38,8 @@ class Decision
     if player.pirateShipCoins > 0
       @info.add('Pirate Ship coins: ' + Integer.new(player.pirateShipCoins).toString)
     end
-    if Game.instance.indexInKingdom('Trade Route') >= 0
-      @info.add('Trade Route coins: ' + Integer.new(Game.instance.tradeRouteCoins).toString)
+    if player.game.indexInKingdom('Trade Route') >= 0
+      @info.add('Trade Route coins: ' + Integer.new(player.game.tradeRouteCoins).toString)
     end
 
     @id = @@nextId
