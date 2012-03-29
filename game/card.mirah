@@ -2384,4 +2384,17 @@ class Pawn < Card
 end
 
 
+# TODO: Implement Secret Chamber
+
+class GreatHall < Card
+  def initialize
+    super('Great Hall', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.VICTORY, 3, '+1 Card, +1 Action. Worth 1 VP.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+  end
+end
+
 
