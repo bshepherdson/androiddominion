@@ -5,7 +5,6 @@ import dominion.Option
 import dominion.Game
 import dominion.Utils
 import dominion.Card
-import dominion.TurnPhases
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -13,6 +12,15 @@ import java.util.HashMap
 class Player
 
   def initialize(name:String, game:Game)
+    if not @@bootstrapped
+      @@PHASE_NOT_PLAYING = 1
+      @@PHASE_ACTION = 2
+      @@PHASE_BUY = 3
+      @@PHASE_CLEANUP = 4
+      @@nextId = 0
+      @@bootstrapped = true
+    end
+
     @game = game
     @id = @@nextId
     @@nextId += 1
@@ -30,7 +38,7 @@ class Player
     @hand = RubyList.new
     draw(5)
 
-    @phase = TurnPhases.NOT_PLAYING
+    @phase = @@PHASE_NOT_PLAYING
     @actions = 0
     @buys = 0
     @coins = 0
@@ -49,12 +57,11 @@ class Player
     @contrabandCards = RubyList.new
     @royalSeal = false
     @goons = 0
-    @masqueradeCard = nil
   end
 
 
   def turnStart
-    @phase = TurnPhases.ACTION
+    @phase = @@PHASE_ACTION
     @actions = 1
     @buys = 1
     @coins = 0
@@ -120,7 +127,7 @@ class Player
 
   /* Returns true to continue buying, false to move to the next phase. */
   def turnBuyPhase:boolean
-    @phase = TurnPhases.BUY
+    @phase = @@PHASE_BUY
 
     if @buys <= 0
       return false
@@ -261,7 +268,7 @@ class Player
   end
 
   def turnCleanupPhase
-    @phase = TurnPhases.CLEANUP
+    @phase = @@PHASE_CLEANUP
 
     @discards.addAll(@durationCards)
     @durationCards = RubyList.new
@@ -323,7 +330,7 @@ class Player
 
   def turnEnd
     logMe('ends turn.')
-    @phase = TurnPhases.NOT_PLAYING
+    @phase = @@PHASE_NOT_PLAYING
     @turn += 1
   end
 
@@ -633,25 +640,11 @@ class Player
   end
 
   def inBuyPhase:boolean
-    @phase == TurnPhases.BUY
+    @phase == @@PHASE_BUY
   end
 
   def game:Game
     @game
-  end
-
-  def masqueradeCard:Card
-    @masqueradeCard
-  end
-  def masqueradeCard=(v:Card)
-    @masqueradeCard = v
-  end
-
-  def nextId:int
-    @@nextId
-  end
-  def nextId=(v:int)
-    @@nextId = v
   end
 
 end
