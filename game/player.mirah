@@ -57,6 +57,8 @@ class Player
     @contrabandCards = RubyList.new
     @royalSeal = false
     @goons = 0
+    @masqueradeCard = Card.cards('Copper')
+    @masqueradeCard = nil
   end
 
 
@@ -645,6 +647,13 @@ class Player
 
   def game:Game
     @game
+  end
+
+  def masqueradeCard:Card
+    @masqueradeCard
+  end
+  def masqueradeCard=(v:Card)
+    @masqueradeCard = v
   end
 
 end

@@ -301,6 +301,7 @@ class Card
     @@cards.put('Courtyard', Courtyard.new)
     @@cards.put('Pawn', Pawn.new)
     @@cards.put('Great Hall', GreatHall.new)
+    @@cards.put('Masquerade', Masquerade.new)
   end
 
 end
@@ -2399,52 +2400,59 @@ class GreatHall < Card
 end
 
 
-#class Masquerade < Card
-#  def initialize
-#    super('Masquerade', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 3, '+2 Cards. Each player passes a card in their hand to the player on their left. You may trash a card from your hand.')
-#  end
-#
-#  def runRules(p:Player)
-#    plusCards(p, 2)
-#
-#    # This stages a card in o.masqueradeCard.
-#    everyPlayer(p, true, true)
-#    # Now put each card into the new owner's hand.
-#    p.game.players.each do |p_|
-#      p = Player(p_)
-#      p.hand.add(p.masqueradeCard)
-#      p.masqueradeCard = nil
-#    end
-#
-#    card = Utils.handDecision(p, 'You may trash a card from your hand.', 'Do not trash.', p.hand)
-#    if card != nil 
-#      p.removeFromHand(card)
-#      p.logMe('trashes ' + card.name + '.')
-#    end
-#  end
-#
-#  def runEveryPlayer(p:Player, o:Player)
-#    card = Utils.handDecision(o, 'Choose a card to pass to the player to your left.', nil, o.hand)
-#    o.removeFromHand(card)
-#
-#    i = 0
-#    found = false
-#    while i < o.game.players.size
-#      q = Player(o.game.players.get(i))
-#      if found
-#        q.masqueradeCard = card
-#        break
-#      end
-#      if q.id == o.id
-#        found = true
-#      end
-#      i += 1
-#    end
-#
-#    if not found
-#      Player(o.game.players.get(0)).masqueradeCard = card
-#    end
-#  end
-#end
+class Masquerade < Card
+  def initialize
+    super('Masquerade', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 3, '+2 Cards. Each player passes a card in their hand to the player on their left. You may trash a card from your hand.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 2)
+
+    # This stages a card in o.masqueradeCard.
+    everyPlayer(p, true, true)
+    # Now put each card into the new owner's hand.
+    p.game.players.each do |q_|
+      q = Player(q_)
+      q.hand.add(q.masqueradeCard)
+      q.masqueradeCard = nil
+    end
+
+    card = Utils.handDecision(p, 'You may trash a card from your hand.', 'Do not trash.', p.hand)
+    if card != nil 
+      p.removeFromHand(card)
+      p.logMe('trashes ' + card.name + '.')
+    end
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    card = Utils.handDecision(o, 'Choose a card to pass to the player to your left.', nil, o.hand)
+    o.removeFromHand(card)
+
+    i = 0
+    found = false
+    done = false
+    playerToLeft = nil
+    while i < o.game.players.size
+      q = Player(o.game.players.get(i))
+      if found
+        q.masqueradeCard = card
+        playerToLeft = q
+        done = true
+        break
+      end
+      if q.id == o.id
+        found = true
+      end
+      i += 1
+    end
+
+    if not done
+      playerToLeft = Player(o.game.players.get(0))
+      playerToLeft.masqueradeCard = card
+    end
+
+    o.logMe('passes a card to ' + playerToLeft.name + '.')
+  end
+end
 
 
