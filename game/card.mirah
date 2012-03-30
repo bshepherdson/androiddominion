@@ -300,7 +300,6 @@ class Card
     # Intrigue
     @@cards.put('Courtyard', Courtyard.new)
     @@cards.put('Pawn', Pawn.new)
-    @@cards.put('Great Hall', GreatHall.new)
   end
 
 end
@@ -2387,15 +2386,64 @@ end
 
 # TODO: Implement Secret Chamber
 
-class GreatHall < Card
-  def initialize
-    super('Great Hall', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.VICTORY, 3, '+1 Card, +1 Action. Worth 1 VP.')
-  end
+#class GreatHall < Card
+#  def initialize
+#    super('Great Hall', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.VICTORY, 3, '+1 Card, +1 Action. Worth 1 VP.')
+#  end
+#
+#  def runRules(p:Player)
+#    plusCards(p, 1)
+#    plusActions(p, 1)
+#  end
+#end
 
-  def runRules(p:Player)
-    plusCards(p, 1)
-    plusActions(p, 1)
-  end
-end
+
+#class Masquerade < Card
+#  def initialize
+#    super('Masquerade', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 3, '+2 Cards. Each player passes a card in their hand to the player on their left. You may trash a card from your hand.')
+#  end
+#
+#  def runRules(p:Player)
+#    plusCards(p, 2)
+#
+#    # This stages a card in o.masqueradeCard.
+#    everyPlayer(p, true, true)
+#    # Now put each card into the new owner's hand.
+#    p.game.players.each do |p_|
+#      p = Player(p_)
+#      p.hand.add(p.masqueradeCard)
+#      p.masqueradeCard = nil
+#    end
+#
+#    card = Utils.handDecision(p, 'You may trash a card from your hand.', 'Do not trash.', p.hand)
+#    if card != nil 
+#      p.removeFromHand(card)
+#      p.logMe('trashes ' + card.name + '.')
+#    end
+#  end
+#
+#  def runEveryPlayer(p:Player, o:Player)
+#    card = Utils.handDecision(o, 'Choose a card to pass to the player to your left.', nil, o.hand)
+#    o.removeFromHand(card)
+#
+#    i = 0
+#    found = false
+#    while i < o.game.players.size
+#      q = Player(o.game.players.get(i))
+#      if found
+#        q.masqueradeCard = card
+#        break
+#      end
+#      if q.id == o.id
+#        found = true
+#      end
+#      i += 1
+#    end
+#
+#    if not found
+#      Player(o.game.players.get(0)).masqueradeCard = card
+#    end
+#  end
+#end
 
 
