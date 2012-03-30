@@ -12,7 +12,6 @@ import java.util.HashMap
 
 class Game
   def initialize
-    Player.bootstrap
     @players = RubyList.new
     @turn = -1
     @kingdom = RubyList.new

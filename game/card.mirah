@@ -300,6 +300,7 @@ class Card
     # Intrigue
     @@cards.put('Courtyard', Courtyard.new)
     @@cards.put('Pawn', Pawn.new)
+    @@cards.put('Great Hall', GreatHall.new)
   end
 
 end

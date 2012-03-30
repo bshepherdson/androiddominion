@@ -11,21 +11,16 @@ import java.util.HashMap
 
 class Player
 
-  def self.bootstrap
-    if @@bootstrapped
-      return
+  def initialize(name:String, game:Game)
+    if not @@bootstrapped
+      @@PHASE_NOT_PLAYING = 1
+      @@PHASE_ACTION = 2
+      @@PHASE_BUY = 3
+      @@PHASE_CLEANUP = 4
+      @@nextId = 0
+      @@bootstrapped = true
     end
 
-    @@PHASE_NOT_PLAYING = 1
-    @@PHASE_ACTION = 2
-    @@PHASE_BUY = 3
-    @@PHASE_CLEANUP = 4
-    @@nextId = 0
-    @@bootstrapped = true
-    return
-  end
-
-  def initialize(name:String, game:Game)
     @game = game
     @id = @@nextId
     @@nextId += 1
