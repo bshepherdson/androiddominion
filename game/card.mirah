@@ -316,6 +316,7 @@ class Card
     @@cards.put('Duke', Duke.new)
     @@cards.put('Minion', Minion.new)
     @@cards.put('Saboteur', Saboteur.new)
+    @@cards.put('Torturer', Torturer.new)
   end
 
 end
@@ -2850,6 +2851,46 @@ class Saboteur < Card
 
     while revealed.size > 0
       o.discards.add(revealed.pop)
+    end
+  end
+end
+
+
+class Torturer < Card
+  def initialize
+    super('Torturer', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 5, '+3 Cards. Each other player chooses one: he discards 2 cards; or he gains a Curse card, putting it in his hand.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 3)
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    opts = RubyList.new
+    opts.add(Option.new('discard', 'Discard 2 cards.'))
+    opts.add(Option.new('curse', 'Gain a Curse in your hand.'))
+    dec = Decision.new(o, opts, 'Choose for ' + p.name + '\'s Torturer', RubyList.new)
+    key = p.game.decision(dec)
+
+    if key.equals('discard')
+      discarded = 0
+      while discarded < 2
+        if o.hand.size == 0
+          o.logMe('has no cards left to discard.')
+          break
+        end
+
+        card = Utils.handDecision(o, 'Choose a card to discard for Torturer.', nil, o.hand)
+        o.discards.add(o.removeFromHand(card))
+        discarded += 1
+      end
+    else
+      bought = o.buyCard(o.game.inKingdom('Curse'), true)
+      if bought
+        o.hand.add(o.discards.pop)
+      end
     end
   end
 end
