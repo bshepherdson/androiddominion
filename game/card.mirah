@@ -315,6 +315,7 @@ class Card
     @@cards.put('Scout', Scout.new)
     @@cards.put('Duke', Duke.new)
     @@cards.put('Minion', Minion.new)
+    @@cards.put('Saboteur', Saboteur.new)
   end
 
 end
@@ -2802,6 +2803,54 @@ class Minion < Card
     end
     o.logMe('discards their hand.')
     plusCards(o, 4)
+  end
+end
+
+
+class Saboteur < Card
+  def initialize
+    super('Saboteur', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 5, 'Each other player reveals cards from the top of his deck until revealing one costing 3 Coins or more. He trashes that card and may gain a card costing at most 2 Coins less than it. He discards the other revealed cards.')
+  end
+
+  def runRules(p:Player)
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    revealed = RubyList.new
+    while true
+      drawn = o.draw(1)
+      if drawn == 0
+        o.logMe('has run out of cards to draw.')
+        break
+      end
+
+      card = Card(o.hand.pop)
+      o.logMe('reveals ' + card.name + '.')
+      cost = o.game.cardCost(card)
+
+      shouldBreak =
+        if cost < 3
+          revealed.add(card)
+          false
+        else
+          o.logMe('trashes ' + card.name + '.')
+          inKingdom = Utils.gainCardDecision(o, 'You may gain a card costing up to ' + (cost-2) + '.', 'Gain nothing', RubyList.new, o.game.kingdom.select { |k_| o.game.cardCost(Kingdom(k_).card) <= cost-2 })
+          if inKingdom == nil
+            o.logMe('gains nothing.')
+          else
+            o.buyCard(inKingdom, true)
+          end
+          true
+        end
+      if shouldBreak
+        break
+      end
+    end
+
+    while revealed.size > 0
+      o.discards.add(revealed.pop)
+    end
   end
 end
 
