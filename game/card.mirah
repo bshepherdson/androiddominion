@@ -125,6 +125,8 @@ class Card
       return 10
     elsif name.equals('Harem')
       return 2
+    elsif name.equals('Nobles')
+      return 2
     end
     return 0
   end
@@ -325,6 +327,7 @@ class Card
     @@cards.put('Tribute', Tribute.new)
     @@cards.put('Upgrade', Upgrade.new)
     @@cards.put('Harem', Harem.new)
+    @@cards.put('Nobles', Nobles.new)
   end
 
 end
@@ -3022,6 +3025,27 @@ class Harem < Card
   end
 
   def runRules(p:Player)
+  end
+end
+
+
+class Nobles < Card
+  def initialize
+    super('Nobles', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.VICTORY, 6, '2 VP. Choose one: +3 Cards, or +2 Actions.')
+  end
+
+  def runRules(p:Player)
+    opts = RubyList.new
+    opts.add(Option.new('cards', '+3 Cards'))
+    opts.add(Option.new('actions', '+2 Actions'))
+    dec = Decision.new(p, opts, 'Choose what to do for Nobles.', RubyList.new)
+    key = p.game.decision(dec)
+
+    if key.equals('cards')
+      plusCards(p, 3)
+    else
+      plusActions(p, 2)
+    end
   end
 end
 
