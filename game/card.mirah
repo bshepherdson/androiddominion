@@ -309,6 +309,8 @@ class Card
     @@cards.put('Baron', Baron.new)
     @@cards.put('Bridge', Bridge.new)
     @@cards.put('Conspirator', Conspirator.new)
+    @@cards.put('Coppersmith', Coppersmith.new)
+    @@cards.put('Ironworks', Ironworks.new)
   end
 
 end
@@ -2630,6 +2632,42 @@ class Conspirator < Card
     if actionsPlayed.size >= 3
       plusCards(p, 1)
       plusActions(p, 1)
+    end
+  end
+end
+
+
+class Coppersmith < Card
+  def initialize
+    super('Coppersmith', CardSets.INTRIGUE, CardTypes.ACTION, 4, 'Copper produces an extra 1 Coin this turn.')
+  end
+
+  def runRules(p:Player)
+    p.game.log('Copper produces an extra 1 Coin this turn.')
+    p.game.coppersmiths += 1
+  end
+end
+
+
+class Ironworks < Card
+  def initialize
+    super('Ironworks', CardSets.INTRIGUE, CardTypes.ACTION, 4, 'Gain a card costing up to 4 Coins. If it is an : Action card, +1 Action; Treasure card, +1 Coin; Victory card, +1 Card.')
+  end
+
+  def runRules(p:Player)
+    inKingdom = Utils.gainCardDecision(p, 'Gain a card costing up to 4 Coins.', nil, RubyList.new, p.game.kingdom.select { |k_| p.game.cardCost(Kingdom(k_).card) <= 4 })
+    card = inKingdom.card
+
+    if card.types & CardTypes.ACTION > 0
+      plusActions(p, 1)
+    end
+
+    if card.types & CardTypes.TREASURE > 0
+      plusCoins(p, 1)
+    end
+
+    if card.types & CardTypes.VICTORY > 0
+      plusCards(p, 1)
     end
   end
 end

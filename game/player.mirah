@@ -150,6 +150,10 @@ class Player
         @inPlay.add(card)
         @coins += Card.treasureValues(self, card.name)
 
+        if card.name.equals('Copper')
+          @coins += @game.coppersmiths
+        end
+
         logMe('plays ' + card.name + '.')
         card.runRules(self)
 
@@ -442,6 +446,9 @@ class Player
         removeFromHand(card)
         @inPlay.add(card)
         @coins += Card.treasureValues(self, card.name)
+        if card.name.equals('Copper')
+          @coins += @game.coppersmiths
+        end
       else
         i += 1
       end

@@ -20,6 +20,7 @@ class Game
     @victoryCardMap = HashMap.new
     @quarries = 0
     @bridges = 0
+    @coppersmiths
   end
 
   def isStarted:boolean
@@ -89,6 +90,7 @@ class Game
     p.turnCleanupPhase
     @quarries = 0
     @bridges = 0
+    @coppersmiths = 0
     p.turnEnd
 
     over = checkEndOfGame
@@ -190,6 +192,13 @@ class Game
   end
   def bridges=(v:int)
     @bridges = v
+  end
+
+  def coppersmiths:int
+    @coppersmiths
+  end
+  def coppersmiths=(v:int)
+    @coppersmiths = v
   end
 
 
