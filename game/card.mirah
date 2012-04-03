@@ -305,6 +305,7 @@ class Card
     @@cards.put('Shanty Town', ShantyTown.new)
     @@cards.put('Steward', Steward.new)
     @@cards.put('Swindler', Swindler.new)
+    @@cards.put('Wishing Well', WishingWell.new)
   end
 
 end
@@ -2545,4 +2546,33 @@ class Swindler < Card
     end
   end
 end
+
+
+class WishingWell < Card
+  def initialize
+    super('Wishing Well', CardSets.INTRIGUE, CardTypes.ACTION, 3, '+1 Card, +1 Action. Name a card, then reveal the top card of your deck. If it is the named card, put it in your hand.')
+  end
+
+  def runRules(p:Player)
+    kingdomCards = p.game.kingdom.collect { |k_| Kingdom(k_).card }
+    card = Utils.handDecision(p, 'Name the card you wish to find on top of your deck.', nil, kingdomCards)
+
+    p.logMe('wishes for ' + card.name + '.')
+    drawn = p.draw(1)
+    if drawn == 0
+      p.logMe('has no cards to draw.')
+      return
+    end
+
+    drawnCard = Card(p.hand.get(p.hand.size-1))
+    if drawnCard.name.equals(card.name)
+      p.logMe('reveals ' + card.name + ', putting it into his hand.')
+    else
+      p.logMe('reveals ' + drawnCard.name + ', discarding it.')
+      p.discards.add(p.hand.pop)
+    end
+  end
+end
+
+
 
