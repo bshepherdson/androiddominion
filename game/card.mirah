@@ -317,6 +317,7 @@ class Card
     @@cards.put('Minion', Minion.new)
     @@cards.put('Saboteur', Saboteur.new)
     @@cards.put('Torturer', Torturer.new)
+    @@cards.put('Trading Post', TradingPost.new)
   end
 
 end
@@ -2890,6 +2891,36 @@ class Torturer < Card
       bought = o.buyCard(o.game.inKingdom('Curse'), true)
       if bought
         o.hand.add(o.discards.pop)
+      end
+    end
+  end
+end
+
+
+class TradingPost < Card
+  def initialize
+    super('Trading Post', CardSets.INTRIGUE, CardTypes.ACTION, 5, 'Trash 2 cards from your hand. If you do, gain a Silver card; put it into your hand.')
+  end
+
+  def runRules(p:Player)
+    trashed = 0
+    while trashed < 2
+      if p.hand.size == 0
+        p.logMe('has no cards left to trash.')
+        return
+      end
+
+      card = Utils.handDecision(p, 'Trash a card from your hand for Trading Post.', nil, p.hand)
+      p.removeFromHand(card)
+      p.logMe('trashes ' + card.name + '.')
+      trashed += 1
+    end
+
+    if trashed >= 2
+      gained = p.buyCard(p.game.inKingdom('Silver'), true)
+      if gained
+        p.hand.add(p.discards.pop)
+        p.logMe('puts the Silver into their hand.')
       end
     end
   end
