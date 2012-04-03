@@ -306,6 +306,7 @@ class Card
     @@cards.put('Steward', Steward.new)
     @@cards.put('Swindler', Swindler.new)
     @@cards.put('Wishing Well', WishingWell.new)
+    @@cards.put('Baron', Baron.new)
   end
 
 end
@@ -2574,5 +2575,30 @@ class WishingWell < Card
   end
 end
 
+
+class Baron < Card
+  def initialize
+    super('Baron', CardSets.INTRIGUE, CardTypes.ACTION, 4, '+1 Buy. You may discard an Estate card. If you do, +4 Coins. Otherwise, gain an Estate card.')
+  end
+
+  def runRules(p:Player)
+    estates = p.hand.select do |c_| Card(c_).name.equals('Estate') end
+    if estates.size == 0
+      discarding = false
+    else
+      yn = yesNo(p, 'Discard an Estate for +4 Coins?')
+      discarding = yn.equals('yes')
+    end
+
+    if discarding
+      p.removeFromHand(Card(estates.get(0)))
+      p.logMe('discards an Estate.')
+      plusCoins(p, 4)
+    else
+      p.logMe('does not discard an Estate.')
+      p.buyCard(p.game.inKingdom('Estate'), true)
+    end
+  end
+end
 
 
