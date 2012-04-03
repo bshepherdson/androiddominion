@@ -312,6 +312,7 @@ class Card
     @@cards.put('Coppersmith', Coppersmith.new)
     @@cards.put('Ironworks', Ironworks.new)
     @@cards.put('Mining Village', MiningVillage.new)
+    @@cards.put('Scout', Scout.new)
   end
 
 end
@@ -2693,6 +2694,61 @@ class MiningVillage < Card
         p.logMe('does not trash Mining Village.')
       end
     end
+  end
+end
+
+
+class Scout < Card
+  def initialize
+    super('Scout', CardSets.INTRIGUE, CardTypes.ACTION, 4, '+1 Action. Reveal the top 4 cards of your deck. Put the revealed Victory cards into your hand. Put the other cards on top of your deck in any order.')
+  end
+
+  def runRules(p:Player)
+    plusActions(p, 1)
+
+    drawn = p.draw(4)
+    cards = RubyList.new
+    i = drawn
+    while i > 0
+      cards.add(p.hand.pop)
+      i -= 1
+    end
+
+    p.logMe('reveals the top ' + drawn + ' cards of their deck: ' + Utils.showCards(cards) + '.')
+
+    victoryCards = cards.select { |c_| Card(c_).types & CardTypes.VICTORY > 0 }
+    otherCards   = cards.select { |c_| Card(c_).types & CardTypes.VICTORY == 0 }
+
+    p.logMe('puts the Victory cards (' + Utils.showCards(victoryCards) + ') into their hand.')
+
+    stack = RubyList.new
+    while otherCards.size > 1
+      newCards = RubyList.new
+      card = Utils.handDecision(p, 'Put the remaining cards back on your deck in any order. You will draw them in the same order you choose here.', nil, otherCards)
+      i = 0
+      found = false
+      while i < otherCards.size
+        c = Card(otherCards.get(i))
+        if c.name.equals(card.name) and not found
+          found = true
+        else
+          newCards.add(c)
+        end
+        i += 1
+      end
+
+      otherCards = newCards
+    end
+
+    if otherCards.size > 0
+      newCards.add(otherCards.get(0))
+    end
+
+    while newCards.size > 0
+      p.deck.add(newCards.pop)
+    end
+
+    p.logMe('puts the remaining cards back on his deck.')
   end
 end
 
