@@ -308,6 +308,7 @@ class Card
     @@cards.put('Wishing Well', WishingWell.new)
     @@cards.put('Baron', Baron.new)
     @@cards.put('Bridge', Bridge.new)
+    @@cards.put('Conspirator', Conspirator.new)
   end
 
 end
@@ -2614,6 +2615,22 @@ class Bridge < Card
     plusCoins(p, 1)
     p.logMe('reduces all prices by 1 this turn.')
     p.game.bridges += 1
+  end
+end
+
+
+class Conspirator < Card
+  def initialize
+    super('Conspirator', CardSets.INTRIGUE, CardTypes.ACTION, 4, '+2 Coins. If you\'ve player 3 or more Actions this turn (counting this): +1 Card, +1 Action.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+    actionsPlayed = p.inPlay.select do |c_| Card(c_).types & CardTypes.ACTION > 0 end
+    if actionsPlayed.size >= 3
+      plusCards(p, 1)
+      plusActions(p, 1)
+    end
   end
 end
 
