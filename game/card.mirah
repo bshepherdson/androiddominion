@@ -311,6 +311,7 @@ class Card
     @@cards.put('Conspirator', Conspirator.new)
     @@cards.put('Coppersmith', Coppersmith.new)
     @@cards.put('Ironworks', Ironworks.new)
+    @@cards.put('Mining Village', MiningVillage.new)
   end
 
 end
@@ -2668,6 +2669,29 @@ class Ironworks < Card
 
     if card.types & CardTypes.VICTORY > 0
       plusCards(p, 1)
+    end
+  end
+end
+
+
+class MiningVillage < Card
+  def initialize
+    super('Mining Village', CardSets.INTRIGUE, CardTypes.ACTION, 4, '+1 Card, +2 Actions. You may trash this card immediately. If you do, +2 Coins.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 2)
+
+    if Card(p.inPlay.get(p.inPlay.size-1)).name.equals('Mining Village')
+      yn = yesNo(p, 'Trash Mining Village for +2 Coins?')
+      if yn.equals('yes')
+        p.inPlay.pop
+        p.logMe('trashes Mining Village.')
+        plusCoins(p, 2)
+      else
+        p.logMe('does not trash Mining Village.')
+      end
     end
   end
 end
