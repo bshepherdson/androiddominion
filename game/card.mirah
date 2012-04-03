@@ -304,6 +304,7 @@ class Card
     @@cards.put('Masquerade', Masquerade.new)
     @@cards.put('Shanty Town', ShantyTown.new)
     @@cards.put('Steward', Steward.new)
+    @@cards.put('Swindler', Swindler.new)
   end
 
 end
@@ -2501,6 +2502,46 @@ class Steward < Card
       card = Utils.handDecision(p, 'Choose the second card to trash for Steward.', nil, p.hand)
       p.removeFromHand(card)
       p.logMe('trashes ' + card.name)
+    end
+  end
+end
+
+
+class Swindler < Card
+  def initialize
+    super('Swindler', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 3, '+2 Coins. Each other player trashes the top card of his deck and gains a card with the same cost that you choose.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    drawn = o.draw(1)
+    if drawn == 0
+      o.logMe('has no cards to draw.')
+      return
+    end
+
+    topCard = Card(o.hand.pop())
+    cost = p.game.cardCost(topCard)
+    log = 'trashes his top card, ' + topCard.name
+
+    replacements = p.game.kingdom.select do |k_| k = Kingdom(k_)
+      k.count > 0 && p.game.cardCost(k.card) == cost
+    end
+
+    if replacements.size == 0
+      o.logMe(log + ', but there are no replacements.')
+    elsif replacements.size == 1
+      o.logMe(log + '.')
+      o.buyCard(Kingdom(replacements.get(0)), true)
+    else
+      o.logMe(log + '.')
+      inKingdom = Utils.gainCardDecision(p, 'Choose a card for ' + o.name + ' to gain in exchange for their ' + topCard.name + '.', nil, RubyList.new, replacements)
+      o.buyCard(inKingdom, true)
     end
   end
 end
