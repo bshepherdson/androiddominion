@@ -303,6 +303,7 @@ class Card
     @@cards.put('Great Hall', GreatHall.new)
     @@cards.put('Masquerade', Masquerade.new)
     @@cards.put('Shanty Town', ShantyTown.new)
+    @@cards.put('Steward', Steward.new)
   end
 
 end
@@ -2472,6 +2473,34 @@ class ShantyTown < Card
     if actions.size == 0
       p.logMe('has no Action cards in hand.')
       plusCards(p, 2)
+    end
+  end
+end
+
+
+class Steward < Card
+  def initialize
+    super('Steward', CardSets.INTRIGUE, CardTypes.ACTION, 3, 'Choose one: +2 Cards; or +2 Coins; or trash 2 cards from your hand.')
+  end
+
+  def runRules(p:Player)
+    opts = RubyList.new
+    opts.add(Option.new('cards', '+2 Cards'))
+    opts.add(Option.new('coins', '+2 Coins'))
+    opts.add(Option.new('trash', 'Trash two cards from your hand'))
+    dec = Decision.new(p, opts, 'Choose what to do with your Steward', RubyList.new)
+    choice = p.game.decision(dec)
+    if choice.equals('cards')
+      plusCards(p, 2)
+    elsif choice.equals('coins')
+      plusCoins(p, 2)
+    else
+      card = Utils.handDecision(p, 'Choose the first card to trash for Steward.', nil, p.hand)
+      p.removeFromHand(card)
+      p.logMe('trashes ' + card.name)
+      card = Utils.handDecision(p, 'Choose the second card to trash for Steward.', nil, p.hand)
+      p.removeFromHand(card)
+      p.logMe('trashes ' + card.name)
     end
   end
 end
