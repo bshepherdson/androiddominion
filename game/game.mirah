@@ -19,6 +19,7 @@ class Game
     @tradeRouteCoins = 0
     @victoryCardMap = HashMap.new
     @quarries = 0
+    @bridges = 0
   end
 
   def isStarted:boolean
@@ -87,6 +88,7 @@ class Game
     
     p.turnCleanupPhase
     @quarries = 0
+    @bridges = 0
     p.turnEnd
 
     over = checkEndOfGame
@@ -123,12 +125,14 @@ class Game
   end
 
   def cardCost(card:Card):int
-    # TODO: Bridge, Quarry
+    cost = card.cost
+
     if card.types & CardTypes.ACTION > 0
-      Math.max(card.cost - 2*@quarries, 0)
-    else
-      card.cost
+      cost = Math.max(cost - 2*@quarries, 0)
     end
+
+    cost = Math.max(cost - @bridges, 0)
+    return cost
   end
 
   def log(str:String):void
@@ -180,6 +184,14 @@ class Game
   def quarries=(v:int)
     @quarries = v
   end
+
+  def bridges:int
+    @bridges
+  end
+  def bridges=(v:int)
+    @bridges = v
+  end
+
 
 end
 

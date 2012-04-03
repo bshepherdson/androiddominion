@@ -307,6 +307,7 @@ class Card
     @@cards.put('Swindler', Swindler.new)
     @@cards.put('Wishing Well', WishingWell.new)
     @@cards.put('Baron', Baron.new)
+    @@cards.put('Bridge', Bridge.new)
   end
 
 end
@@ -2582,6 +2583,7 @@ class Baron < Card
   end
 
   def runRules(p:Player)
+    plusBuys(p, 1)
     estates = p.hand.select do |c_| Card(c_).name.equals('Estate') end
     if estates.size == 0
       discarding = false
@@ -2598,6 +2600,20 @@ class Baron < Card
       p.logMe('does not discard an Estate.')
       p.buyCard(p.game.inKingdom('Estate'), true)
     end
+  end
+end
+
+
+class Bridge < Card
+  def initialize
+    super('Bridge', CardSets.INTRIGUE, CardTypes.ACTION, 4, '+1 Buy, +1 Coin. All cards (including cards in player\'s hands) cost 1 Coin less this turn, but not less than 0 Coin.')
+  end
+
+  def runRules(p:Player)
+    plusBuys(p, 1)
+    plusCoins(p, 1)
+    p.logMe('reduces all prices by 1 this turn.')
+    p.game.bridges += 1
   end
 end
 
