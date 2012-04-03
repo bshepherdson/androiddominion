@@ -318,6 +318,7 @@ class Card
     @@cards.put('Saboteur', Saboteur.new)
     @@cards.put('Torturer', Torturer.new)
     @@cards.put('Trading Post', TradingPost.new)
+    @@cards.put('Tribute', Tribute.new)
   end
 
 end
@@ -2921,6 +2922,58 @@ class TradingPost < Card
       if gained
         p.hand.add(p.discards.pop)
         p.logMe('puts the Silver into their hand.')
+      end
+    end
+  end
+end
+
+
+class Tribute < Card
+  def initialize
+    super('Tribute', CardSets.INTRIGUE, CardTypes.ACTION, 5, 'The player to your left reveals then discards the top 2 cards of his deck. For each differently named card revealed, if it is an: Action card, +2 Actions; Treasure card, +2 Coins; Victory card, +2 Cards.')
+  end
+
+  def runRules(p:Player)
+    leftPlayer = nil
+    i = 0
+    while i < p.game.players.size
+      o = Player(p.game.players.get(i))
+      if found
+        leftPlayer = o
+        break
+      end
+
+      if o.id == p.id
+        found = true
+      end
+      i += 1
+    end
+
+    if leftPlayer == nil
+      leftPlayer = Player(p.game.players.get(0))
+    end
+
+    cardsShown = 0
+    while cardsShown < 2
+      drawn = leftPlayer.draw(1)
+      if drawn == 0
+        leftPlayer.logMe('is out of cards to draw.')
+        return
+      end
+
+      cardsShown += 1
+      card = Card(leftPlayer.hand.pop)
+      leftPlayer.logMe('reveals ' + card.name + ', discarding it.')
+      leftPlayer.discards.add(card)
+
+      if card.types & CardTypes.ACTION > 0
+        plusActions(p, 2)
+      end
+      if card.types & CardTypes.TREASURE > 0
+        plusCoins(p, 2)
+      end
+      if card.types & CardTypes.VICTORY > 0
+        plusCards(p, 2)
       end
     end
   end
