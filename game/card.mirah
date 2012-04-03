@@ -313,6 +313,7 @@ class Card
     @@cards.put('Ironworks', Ironworks.new)
     @@cards.put('Mining Village', MiningVillage.new)
     @@cards.put('Scout', Scout.new)
+    @@cards.put('Duke', Duke.new)
   end
 
 end
@@ -2749,6 +2750,16 @@ class Scout < Card
     end
 
     p.logMe('puts the remaining cards back on his deck.')
+  end
+end
+
+
+class Duke < Card
+  def initialize
+    super('Duke', CardSets.INTRIGUE, CardTypes.VICTORY, 5, 'Worth 1 VP per Duchy you have.')
+  end
+
+  def runRules(p:Player)
   end
 end
 

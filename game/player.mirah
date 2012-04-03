@@ -402,6 +402,8 @@ class Player
   def calculateScore:int
     score = 0
     gardens = 0
+    duchies = 0
+    dukes = 0
 
     deck = RubyList.new
     deck.addAll(@hand)
@@ -419,11 +421,16 @@ class Player
         score += Card.victoryValues(c.name)
       elsif c.name.equals('Curse')
         score -= 1
+      elsif c.name.equals('Duchy')
+        duchies += 1
+      elsif c.name.equals('Duke')
+        dukes += 1
       end
       i += 1
     end
 
     score += gardens * (deck.size / 10)
+    score += duchies * dukes
     score += @vpTokens
     return score
   end
