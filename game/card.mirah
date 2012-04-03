@@ -302,6 +302,7 @@ class Card
     @@cards.put('Pawn', Pawn.new)
     @@cards.put('Great Hall', GreatHall.new)
     @@cards.put('Masquerade', Masquerade.new)
+    @@cards.put('Shanty Town', ShantyTown.new)
   end
 
 end
@@ -2455,4 +2456,23 @@ class Masquerade < Card
   end
 end
 
+
+class ShantyTown < Card
+  def initialize
+    super('Shanty Town', CardSets.INTRIGUE, CardTypes.ACTION, 3, '+2 Actions. Reveal your hand. If you have no Action cards, +2 Cards.')
+  end
+
+  def runRules(p:Player)
+    plusActions(p, 2)
+    p.logMe('reveals their hand: ' + Utils.showCards(p.hand))
+    actions = p.hand.select do |c_| c = Card(c_)
+      c.types & CardTypes.ACTION > 0
+    end
+
+    if actions.size == 0
+      p.logMe('has no Action cards in hand.')
+      plusCards(p, 2)
+    end
+  end
+end
 
