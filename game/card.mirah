@@ -314,6 +314,7 @@ class Card
     @@cards.put('Mining Village', MiningVillage.new)
     @@cards.put('Scout', Scout.new)
     @@cards.put('Duke', Duke.new)
+    @@cards.put('Minion', Minion.new)
   end
 
 end
@@ -2760,6 +2761,47 @@ class Duke < Card
   end
 
   def runRules(p:Player)
+  end
+end
+
+
+class Minion < Card
+  def initialize
+    super('Minion', CardSets.INTRIGUE, CardTypes.ACTION | CardTypes.ATTACK, 5, '+1 Action. Choose one: +2 Coins; or discard your hand, +4 Cards, and each other player with at least 5 cards in hand discards their hand and draws 4 cards.')
+  end
+
+  def runRules(p:Player)
+    plusActions(p, 1)
+
+    opts = RubyList.new
+    opts.add(Option.new('coins', '+2 Coins'))
+    opts.add(Option.new('cards', 'Discard your hand, +4 Cards, each other player with at least 5 cards discards their hand and draws 4 cards.'))
+    dec = Decision.new(p, opts, 'Choose what to do for Minion.', RubyList.new)
+    key = p.game.decision(dec)
+
+    if key.equals('coins')
+      plusCoins(p, 2)
+    else
+      while p.hand.size > 0
+        p.discards.add(p.hand.pop)
+      end
+      p.logMe('discards their hand.')
+      plusCards(p, 4)
+      everyPlayer(p, false, true)
+    end
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    if o.hand.size < 5
+      o.logMe('has less than 5 cards in hand.')
+      return
+    end
+
+    while o.hand.size > 0
+      o.discards.add(o.hand.pop)
+    end
+    o.logMe('discards their hand.')
+    plusCards(o, 4)
   end
 end
 
