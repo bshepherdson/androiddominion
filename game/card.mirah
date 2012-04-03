@@ -319,6 +319,7 @@ class Card
     @@cards.put('Torturer', Torturer.new)
     @@cards.put('Trading Post', TradingPost.new)
     @@cards.put('Tribute', Tribute.new)
+    @@cards.put('Upgrade', Upgrade.new)
   end
 
 end
@@ -2975,6 +2976,36 @@ class Tribute < Card
       if card.types & CardTypes.VICTORY > 0
         plusCards(p, 2)
       end
+    end
+  end
+end
+
+
+class Upgrade < Card
+  def initialize
+    super('Upgrade', CardSets.INTRIGUE, CardTypes.ACTION, 5, '+1 Card, +1 Action. Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+
+    if p.hand.size == 0
+      p.logMe('has no cards to trash.')
+      return
+    end
+
+    card = Utils.handDecision(p, 'Trash a card for Upgrade.', nil, p.hand)
+    p.removeFromHand(card)
+    p.logMe('trashes ' + card.name + '.')
+    
+    cost = p.game.cardCost(card) + 1
+    cardsCosting = p.game.kingdom.select { |k_| p.game.cardCost(Kingdom(k_).card) == cost }
+    if cardsCosting.size > 0
+      inKingdom = Utils.gainCardDecision(p, 'Choose a card costing exactly ' + cost + '.', nil, RubyList.new, cardsCosting)
+      p.buyCard(inKingdom, true)
+    else
+      p.game.log('There are no cards costing exactly ' + cost + '.')
     end
   end
 end
