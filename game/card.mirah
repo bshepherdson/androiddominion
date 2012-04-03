@@ -123,6 +123,8 @@ class Card
       return 2
     elsif name.equals('Colony')
       return 10
+    elsif name.equals('Harem')
+      return 2
     end
     return 0
   end
@@ -153,6 +155,8 @@ class Card
       return treasures.size
     elsif name.equals('Platinum')
       return 5
+    elsif name.equals('Harem')
+      return 2
     end
     return 0
   end
@@ -320,6 +324,7 @@ class Card
     @@cards.put('Trading Post', TradingPost.new)
     @@cards.put('Tribute', Tribute.new)
     @@cards.put('Upgrade', Upgrade.new)
+    @@cards.put('Harem', Harem.new)
   end
 
 end
@@ -3007,6 +3012,16 @@ class Upgrade < Card
     else
       p.game.log('There are no cards costing exactly ' + cost + '.')
     end
+  end
+end
+
+
+class Harem < Card
+  def initialize
+    super('Harem', CardSets.INTRIGUE, CardTypes.TREASURE | CardTypes.VICTORY, 6, '2 Coins, 2 VP.')
+  end
+
+  def runRules(p:Player)
   end
 end
 
