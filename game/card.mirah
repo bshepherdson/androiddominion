@@ -328,8 +328,17 @@ class Card
     @@cards.put('Upgrade', Upgrade.new)
     @@cards.put('Harem', Harem.new)
     @@cards.put('Nobles', Nobles.new)
-  end
 
+    # Cornucopia
+    @@cards.put('Hamlet', Hamlet.new)
+    @@cards.put('Fortune Teller', FortuneTeller.new)
+    @@cards.put('Menagerie', Menagerie.new)
+    @@cards.put('Farming Village', FarmingVillage.new)
+    @@cards.put('Remake', Remake.new)
+    @@cards.put('Harvest', Harvest.new)
+    @@cards.put('Hunting Party', HuntingParty.new)
+    @@cards.put('Jester', Jester.new)
+  end
 end
 
 
@@ -3045,6 +3054,260 @@ class Nobles < Card
       plusCards(p, 3)
     else
       plusActions(p, 2)
+    end
+  end
+end
+
+
+#######################################################
+# Cornucopia
+#######################################################
+
+class Hamlet < Card
+  def initialize
+    super('Hamlet', CardSets.CORNUCOPIA, CardTypes.ACTION, 2, '+1 Card, +1 Action. You may discard a card. If you do, +1 Action. You may discard a card. If you do, +1 Buy')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+
+    card = Utils.handDecision(p, 'You may discard a card to gain +1 Action.', 'Don\'t discard', p.hand)
+    if card == nil
+      p.logMe('does not discard a card for +1 Action.')
+    else
+      p.removeFromHand(card)
+      p.discards.add(card)
+      p.logMe('discards ' + card.name + '.')
+      plusActions(p, 1)
+    end
+
+    card = Utils.handDecision(p, 'You may discard a card to gain +1 Buy.', 'Don\'t discard', p.hand)
+    if card == nil
+      p.logMe('does not discard a card for +1 Buy.')
+    else
+      p.removeFromHand(card)
+      p.discards.add(card)
+      p.logMe('discards '+ card.name +'.')
+      plusBuys(p, 1)
+    end
+  end
+end
+
+
+class FortuneTeller < Card
+  def initialize
+    super('Fortune Teller', CardSets.CORNUCOPIA, CardTypes.ACTION | CardTypes.ATTACK, 2, '+2 Coins. Each other player reveals cards from the top of his deck until he reveals a Victory or Curse card. He puts it on top and discards the other revealed cards.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    card = nil
+    revealed = RubyList.new
+    while true
+      drawn = o.draw(1)
+      if drawn == 0
+        o.logMe('has run out of cards to draw.')
+        o.discards.addAll(revealed)
+        return
+      end
+
+      card = Card(o.hand.pop)
+      o.logMe('reveals ' + card.name + '.')
+      if card.types & (CardTypes.CURSE | CardTypes.VICTORY) > 0
+        o.hand.add(card)
+        o.discards.addAll(revealed)
+        return
+      else
+        revealed.add(card)
+      end
+    end
+  end
+end
+
+
+class Menagerie < Card
+  def initialize
+    super('Menagerie', CardSets.CORNUCOPIA, CardTypes.ACTION, 3, '+1 Action. Reveal your hand. If there are no duplicate cards, +3 Cards. Otherwise, +1 Card.')
+  end
+
+  def runRules(p:Player)
+    plusActions(p, 1)
+
+    p.logMe('reveals their hand: ' + Utils.showCards(p.hand) + '.')
+    if Utils.uniqueCards(p.hand) == p.hand.size
+      p.logMe('has no duplicate cards in hand.')
+      plusCards(p, 3)
+    else
+      p.logMe('has duplicate cards in hand.')
+      plusCards(p, 1)
+    end
+  end
+end
+
+
+class FarmingVillage < Card
+  def initialize
+    super('Farming Village', CardSets.CORNUCOPIA, CardTypes.ACTION, 4, '+2 Actions. Reveal cards from the top of your deck until your reveal an Action or Treasure card. Put that card into your hand and discard the other cards.')
+  end
+
+  def runRules(p:Player)
+    revealed = RubyList.new
+    while true
+      drawn = p.draw(1)
+      if drawn == 0
+        p.logMe('has run out of cards to draw.')
+        p.discards.addAll(revealed)
+        return
+      end
+
+      card = Card(p.hand.pop)
+      p.logMe('reveals ' + card.name + '.')
+      if card.types & (CardTypes.ACTION | CardTypes.TREASURE) > 0
+        p.logMe('puts it into their hand and discards the others.')
+        p.hand.add(card)
+        p.discards.addAll(revealed)
+        return
+      else
+        revealed.add(card)
+      end
+    end
+  end
+end
+
+
+# TODO: Implement Horse Traders
+
+class Remake < Card
+  def initialize
+    super('Remake', CardSets.CORNUCOPIA, CardTypes.ACTION, 4, 'Do this twice: Trash a card from your hand; gain a card costing exactly 1 Coin more than the trashed card.')
+  end
+
+  def runRules(p:Player)
+    i = 0
+    while i < 2
+      i += 1
+
+      trash = Utils.handDecision(p, 'Choose a card to trash.', nil, p.hand)
+      p.removeFromHand(trash)
+      p.logMe('trashes ' + trash.name + '.')
+
+      cost = p.game.cardCost(trash) + 1
+      costCards = p.game.kingdom.select { |k_| p.game.cardCost(Kingdom(k_)) == cost }
+      if costCards.size == 0
+        p.game.log('There are no cards costing ' + cost + '.')
+      else
+        gain = Utils.gainCardDecision(p, 'Gain a card costing exactly ' + cost + '.', nil, RubyList.new, costCards)
+        p.buyCard(gain, true)
+      end
+    end
+  end
+end
+
+
+# TODO: Implement Tournament and Prize cards.
+# TODO: Implement Young Witch and Bane card handling.
+
+class Harvest < Card
+  def initialize
+    super('Harvest', CardSets.CORNUCOPIA, CardTypes.ACTION, 5, 'Reveal the top 4 cards of your deck, then discard them. +1 Coin per differently named card revealed.')
+  end
+
+  def runRules(p:Player)
+    drawn = p.draw(4)
+    cards = RubyList.new
+    i = 0
+    while i < drawn
+      cards.add(p.hand.pop)
+      i += 1
+    end
+
+    p.logMe('reveals the top ' + drawn + ' cards of their deck: ' + Utils.showCards(cards) + '.')
+    uniques = Utils.uniqueCards(cards)
+    plusCoins(p, uniques)
+  end
+end
+
+/* TODO: Implement this on player later.
+class HornOfPlenty < Card
+  def initialize
+    super('Horn of Plenty', CardSets.CORNUCOPIA, CardTypes.TREASURE, 5, 'Worth 0 Coins. When you play this, gain a card costing up to 1 Coin per differently named card you have in play, counting this. If it\'s a Victory card, trash this.')
+  end
+
+  def runRules(p:Player)
+  end
+end
+*/
+
+class HuntingParty < Card
+  def initialize
+    super('Hunting Party', CardSets.CORNUCOPIA, CardTypes.ACTION, 5, '+1 Card, +1 Action. Reveal your hand. Reveal cards from your deck until you reveal a card that isn\'t a duplicate of one in your hand. Put it in your hand and discard the rest.')
+  end
+
+  def runRules(p:Player)
+    plusCards(p, 1)
+    plusActions(p, 1)
+
+    p.logMe('reveals their hand: ' + Utils.showCards(p.hand) + '.')
+
+    revealed = RubyList.new
+    while true
+      drawn = p.draw(1)
+      if drawn == 0
+        p.logMe('has run out of cards to draw.')
+        p.discards.addAll(revealed)
+        return
+      end
+
+      card = Card(p.hand.pop)
+      p.logMe('reveals ' + card.name + '.')
+      if not p.hand.includes_exact(card)
+        p.logMe('puts it into their hand.')
+        p.hand.add(card)
+        p.discards.addAll(revealed)
+        return
+      else
+        revealed.add(card)
+      end
+    end
+  end
+end
+
+
+class Jester < Card
+  def initialize
+    super('Jester', CardSets.CORNUCOPIA, CardTypes.ACTION | CardTypes.ATTACK, 5, '+2 Coins. Each other player discards the top card of their deck. If it\'s a Victory card, they gain a Curse. Otherwise, either they gain a copy of the discarded card, or you do, your choice.')
+  end
+
+  def runRules(p:Player)
+    plusCoins(p, 2)
+    everyPlayer(p, false, true)
+  end
+
+  def runEveryPlayer(p:Player, o:Player)
+    drawn = o.draw(1)
+    if drawn == 0
+      o.logMe('has nothing to draw.')
+      return
+    end
+
+    card = Card(o.hand.pop)
+    p.discards.add(card)
+    if card.types & CardTypes.VICTORY > 0
+      p.buyCard(p.game.inKingdom('Curse'), true)
+    else
+      opts = RubyList.new
+      opts.add(Option.new('him', 'Them'))
+      opts.add(Option.new('me', 'Me'))
+      dec = Decision.new(p, opts, o.name + ' discarded ' + card.name + '. Who do you want to gain a copy of it?')
+      key = p.game.decision(dec)
+
+      toBuy = if key.equals('him') then o else p end
+      toBuy.buyCard(p.game.inKingdom(card.name), true)
     end
   end
 end

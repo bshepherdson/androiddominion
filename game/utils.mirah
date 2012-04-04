@@ -171,6 +171,7 @@ class RubyList < ArrayList
   def pop:Object
     remove(size-1)
   end
+
 end
 
 
@@ -240,6 +241,18 @@ class Utils
     else
       return -1
     end
+  end
+
+  def self.uniqueCards(cards:RubyList):int
+    map = HashMap.new
+    i = 0
+    while i < cards.size
+      c = Card(cards.get(i))
+      map.put(c.name, c)
+      i += 1
+    end
+
+    return map.size
   end
 
 end
