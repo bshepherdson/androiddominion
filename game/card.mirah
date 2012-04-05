@@ -3119,12 +3119,13 @@ class FortuneTeller < Card
       card = Card(o.hand.pop)
       o.logMe('reveals ' + card.name + '.')
       if card.types & (CardTypes.CURSE | CardTypes.VICTORY) > 0
+        o.logMe('puts the ' + card.name + ' into their hand.')
         o.hand.add(card)
         o.discards.addAll(revealed)
         return
-      else
-        revealed.add(card)
       end
+
+      revealed.add(card)
     end
   end
 end
@@ -3172,9 +3173,9 @@ class FarmingVillage < Card
         p.hand.add(card)
         p.discards.addAll(revealed)
         return
-      else
-        revealed.add(card)
       end
+
+      revealed.add(card)
     end
   end
 end
@@ -3197,12 +3198,14 @@ class Remake < Card
       p.logMe('trashes ' + trash.name + '.')
 
       cost = p.game.cardCost(trash) + 1
-      costCards = p.game.kingdom.select { |k_| p.game.cardCost(Kingdom(k_)) == cost }
+      costCards = p.game.kingdom.select { |k_| p.game.cardCost(Kingdom(k_).card) == cost }
       if costCards.size == 0
         p.game.log('There are no cards costing ' + cost + '.')
+        nil
       else
         gain = Utils.gainCardDecision(p, 'Gain a card costing exactly ' + cost + '.', nil, RubyList.new, costCards)
         p.buyCard(gain, true)
+        nil
       end
     end
   end
@@ -3270,9 +3273,9 @@ class HuntingParty < Card
         p.hand.add(card)
         p.discards.addAll(revealed)
         return
-      else
-        revealed.add(card)
       end
+
+      revealed.add(card)
     end
   end
 end
@@ -3303,7 +3306,7 @@ class Jester < Card
       opts = RubyList.new
       opts.add(Option.new('him', 'Them'))
       opts.add(Option.new('me', 'Me'))
-      dec = Decision.new(p, opts, o.name + ' discarded ' + card.name + '. Who do you want to gain a copy of it?')
+      dec = Decision.new(p, opts, o.name + ' discarded ' + card.name + '. Who do you want to gain a copy of it?', RubyList.new)
       key = p.game.decision(dec)
 
       toBuy = if key.equals('him') then o else p end

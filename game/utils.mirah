@@ -7,6 +7,7 @@ import dominion.Option
 import dominion.Player
 
 import java.util.ArrayList
+import java.util.HashMap
 import java.util.regex.*
 
 /* Utility class that includes various helper methods. */
